@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="hexo博客搭建教程, 网笙久久">
+    <meta name="keywords" content="docker安装原神群机器人（详细版）, 网笙久久">
     <meta name="description" content="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>hexo博客搭建教程 | 网笙久久</title>
+    <title>docker安装原神群机器人（详细版） | 网笙久久</title>
     <link rel="icon" type="image/jpeg" href="/favicon.jpg">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -429,12 +429,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/21.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/22.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">hexo博客搭建教程</h1>
+                    <h1 class="description center-align post-title">docker安装原神群机器人（详细版）</h1>
                 </div>
             </div>
         </div>
@@ -550,12 +550,16 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/">
-                                <span class="chip bg-color">服务器搭建</span>
+                            <a href="/tags/docker/">
+                                <span class="chip bg-color">docker</span>
                             </a>
                         
-                            <a href="/tags/hexo%E5%8D%9A%E5%AE%A2/">
-                                <span class="chip bg-color">hexo博客</span>
+                            <a href="/tags/%E5%8E%9F%E7%A5%9E/">
+                                <span class="chip bg-color">原神</span>
+                            </a>
+                        
+                            <a href="/tags/%E5%8E%9F%E7%A5%9E%E7%BE%A4%E6%9C%BA%E5%99%A8%E4%BA%BA/">
+                                <span class="chip bg-color">原神群机器人</span>
                             </a>
                         
                     </div>
@@ -570,28 +574,28 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2022-06-23
+                    2022-07-17
                 </div>
                 
 
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-check fa-fw"></i>更新日期:&nbsp;&nbsp;
-                    2022-06-23
+                    2022-07-17
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    742
+                    854
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    2 分
+                    3 分
                 </div>
                 
 
@@ -614,99 +618,103 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h1 id="hexo博客搭建教程"><a href="#hexo博客搭建教程" class="headerlink" title="hexo博客搭建教程"></a>hexo博客搭建教程</h1><p><strong>仅供学习交流使用，如果侵犯到你的合法权利，请联系邮件删除，或评论。我将会在24h内删除。</strong></p>
-<h2 id="一、选择服务器和域名"><a href="#一、选择服务器和域名" class="headerlink" title="一、选择服务器和域名"></a>一、选择服务器和域名</h2><p>我这里用腾讯云服务器做演示</p>
-<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/act/pro/618season?channel=sp&fromSource=gwzcw.6633950.6633950.6633950&utm_medium=cpc&utm_id=gwzcw.6633950.6633950.6633950&bd_vid=11065626160413136653">服务器购买链接</a></p>
-<p>新用户可以选择45一年的轻量级服务器</p>
-<p><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/06/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220613164726.png"></p>
-<p>购买域名</p>
-<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/act/domainsales?channel=sp&fromSource=gwzcw.6463875.6463875.6463875&utm_medium=cpc&utm_id=gwzcw.6463875.6463875.6463875&bd_vid=9026323095797005744">域名购买链接</a></p>
-<p>这里推荐购买.top和.cc的域名（主要是次年续费便宜），可以根据自己网站的名称去选择注册</p>
-<p><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/06/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220613165407.png"></p>
-<h2 id="二-开始部署服务器"><a href="#二-开始部署服务器" class="headerlink" title="二.开始部署服务器"></a>二.开始部署服务器</h2><p>来到腾讯云控制台</p>
-<p><a target="_blank" rel="noopener" href="https://console.cloud.tencent.com/">点我跳转到腾讯云控制台</a></p>
-<p><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/06/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220613165945.png"></p>
-<h4 id="1-开始部署服务器"><a href="#1-开始部署服务器" class="headerlink" title="1.开始部署服务器"></a>1.开始部署服务器</h4><p>进入我们的服务器管理，选择“新建”后会跳转到新的页面（服务器创建过程中会慢一点，请耐心等待）</p>
-<p><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/06/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220613174620.png"></p>
-<p><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/06/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220623131212.png"></p>
-<p><strong>设置防火墙规则（这一步非常重要！）</strong></p>
-<p>我们需要开放8888端口和4000端口</p>
-<p><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/06/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220623132815.png"></p>
-<p><strong>1.安装宝塔面板</strong></p>
-<p>我们部署好服务器后，先更改服务器密码</p>
-<p><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/06/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220623131446.png"></p>
-<p>然后使用Windows自带的远程桌面工具，连接我们的服务器</p>
-<p><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/06/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220623131736.png"></p>
-<p>如果提示输入账号和密码，请按以下输入</p>
-<pre class="line-numbers language-none"><code class="language-none">用户：Administrator<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+                <h1 id="docker安装原神群机器人（详细版）"><a href="#docker安装原神群机器人（详细版）" class="headerlink" title="docker安装原神群机器人（详细版）"></a>docker安装原神群机器人（详细版）</h1><h2 id="本教程实例群：加群请点击我"><a href="#本教程实例群：加群请点击我" class="headerlink" title="本教程实例群：加群请点击我"></a>本教程实例群：<a target="_blank" rel="noopener" href="https://jq.qq.com/?_wv=1027&k=7D0KYFsy">加群请点击我</a></h2><p><strong>仅供学习交流使用，如果侵犯到你的合法权利，请联系邮件删除，或评论。我将会在24h内删除</strong></p>
+<h3 id="写在文章前面：如果您还未安装docker请点击我（看第一章Docker的安装就行）"><a href="#写在文章前面：如果您还未安装docker请点击我（看第一章Docker的安装就行）" class="headerlink" title="写在文章前面：如果您还未安装docker请点击我（看第一章Docker的安装就行）"></a>写在文章前面：如果您还未安装docker<a target="_blank" rel="noopener" href="https://www.wangshengjj.work/archives/1">请点击我</a>（看第一章Docker的安装就行）</h3><h3 id="一、Docker操作"><a href="#一、Docker操作" class="headerlink" title="一、Docker操作"></a>一、Docker操作</h3><p><strong>写在最前面，建议使用Ctrl+Alt+F2切换到第二个终端操作，搭建好后再（Ctrl+Alt+F1）切回第一终端！ 或者使用Xshell软件！</strong></p>
+<h4 id="1-拉取一个Centos镜像"><a href="#1-拉取一个Centos镜像" class="headerlink" title="1.拉取一个Centos镜像"></a>1.拉取一个Centos镜像</h4><pre class="line-numbers language-none"><code class="language-none">docker run -itd --name centos_bot centos:latest<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
-<pre class="line-numbers language-none"><code class="language-none">密码：刚才我们已经改好的密码<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<pre class="line-numbers language-none"><code class="language-none">docker exec -it centos_bot &#x2F;bin&#x2F;bash<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
-<p>我们去宝塔官网下载面板（选择Windows版）</p>
-<p><a target="_blank" rel="noopener" href="https://www.bt.cn/new/download.html">宝塔官网</a></p>
-<p><del>安装步骤省略</del></p>
-<p>浏览器访问外网管理地址即可</p>
-<p><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/06/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220613171440.png"></p>
-<p>选择安装Nginx套件</p>
-<p><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/06/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220623162456.png" alt="微信图片_20220623162456"></p>
-<h4 id="2-安装nodejs和git"><a href="#2-安装nodejs和git" class="headerlink" title="2.安装nodejs和git"></a>2.安装nodejs和git</h4><p><a target="_blank" rel="noopener" href="http://nodejs.cn/download/">nodejs下载地址</a></p>
-<p><a target="_blank" rel="noopener" href="https://git-scm.com/download/win">git下载地址</a></p>
-<p><strong>下载打开后，一直点下一步安装即可</strong></p>
-<p>在桌面创建一个data文件夹，里面再创建一个名为blog的文件夹</p>
-<p>我们右键，选择git bash</p>
-<p><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/06/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220623133922.png"></p>
-<p>依次输入以下代码（检查环境和版本）</p>
+<p><strong>-it：开启输入功能并连接伪终端</strong></p>
+<p><strong>-d：后台运行容器</strong></p>
+<p><strong>-name：为容器指定一个名称</strong></p>
+<p><strong>latest 最新版本</strong></p>
+<h3 id="二、在容器里操作"><a href="#二、在容器里操作" class="headerlink" title="二、在容器里操作"></a>二、在容器里操作</h3><h4 id="1-配置yum源"><a href="#1-配置yum源" class="headerlink" title="1.配置yum源"></a>1.配置yum源</h4><p><strong>这一步目的是，老旧的yum源官方已经停止维护，我们使用阿里云的yum源</strong></p>
+<p>进入yum源目录</p>
+<pre class="line-numbers language-none"><code class="language-none">cd &#x2F;etc&#x2F;yum.repos.d&#x2F;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>配置yum源</p>
+<pre class="line-numbers language-none"><code class="language-none">sed -i &#39;s&#x2F;mirrorlist&#x2F;#mirrorlist&#x2F;g&#39; &#x2F;etc&#x2F;yum.repos.d&#x2F;CentOS-*<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">sed -i &#39;s|#baseurl&#x3D;http:&#x2F;&#x2F;mirror.centos.org|baseurl&#x3D;http:&#x2F;&#x2F;vault.centos.org|g&#39; &#x2F;etc&#x2F;yum.repos.d&#x2F;CentOS-*<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>安装wget</p>
+<pre class="line-numbers language-none"><code class="language-none">yum -y install wget<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>挂载阿里云yum源</p>
+<pre class="line-numbers language-none"><code class="language-none">wget -O &#x2F;etc&#x2F;yum.repos.d&#x2F;CentOS-Base.repo https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;repo&#x2F;Centos-vault-8.5.2111.repo<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>清理旧yum</p>
+<pre class="line-numbers language-none"><code class="language-none">yum clean all<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>打包新yum</p>
+<pre class="line-numbers language-none"><code class="language-none">yum makecache<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>测试yum源</p>
+<pre class="line-numbers language-none"><code class="language-none">yum install -y wget<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="2-配置并且安装原神助手机器人"><a href="#2-配置并且安装原神助手机器人" class="headerlink" title="2.配置并且安装原神助手机器人"></a>2.配置并且安装原神助手机器人</h4><p>安装curl</p>
+<pre class="line-numbers language-none"><code class="language-none">yum -y install curl<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>进入到家目录下</p>
+<pre class="line-numbers language-none"><code class="language-none">cd &#x2F;root<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><strong>开始安装</strong></p>
+<pre class="line-numbers language-none"><code class="language-none">curl -sL http:&#x2F;&#x2F;mtw.so&#x2F;5U67tU | bash<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>如果您这一步出现了<strong>报错</strong>，接下来请跟着我走，如果您正常下载并且安装成功，<strong>可以跳转到3.启动步骤</strong></p>
+<h4 id="报错解决步骤"><a href="#报错解决步骤" class="headerlink" title="报错解决步骤"></a>报错解决步骤</h4><p>因为自动脚本无法完成任务，所以我们需要手动安装环境！</p>
+<p>安装git</p>
+<pre class="line-numbers language-none"><code class="language-none">yum -y install git<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>测试是否安装成功</p>
+<pre class="line-numbers language-none"><code class="language-none">git version<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>安装redis</p>
+<pre class="line-numbers language-none"><code class="language-none">yum -y install redis &amp;&amp; redis-server --daemonize yes<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>安装nodejs</p>
+<pre class="line-numbers language-none"><code class="language-none">curl -sL https:&#x2F;&#x2F;rpm.nodesource.com&#x2F;setup_16.x | bash -<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">yum -y install nodejs<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>测试是否安装成功</p>
 <pre class="line-numbers language-none"><code class="language-none">node -v<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <pre class="line-numbers language-none"><code class="language-none">npm -v<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
-<pre class="line-numbers language-none"><code class="language-none">git -version<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>手动克隆项目地址(建议多试几次)</p>
+<pre class="line-numbers language-none"><code class="language-none">git clone https:&#x2F;&#x2F;github.com&#x2F;Le-niao&#x2F;Yunzai-Bot.git<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
-<p><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/06/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220623134129.png"></p>
-<h4 id="3-开始部署hexo博客"><a href="#3-开始部署hexo博客" class="headerlink" title="3.开始部署hexo博客"></a>3.开始部署hexo博客</h4><p>npm下载慢的话，可以下载淘宝下载源cnpm</p>
-<pre class="line-numbers language-none"><code class="language-none">npm install -g cnpm --registry&#x3D;https:&#x2F;&#x2F;registry.npm.taobao.org<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p><strong>克隆失败请使用下面的链接</strong></p>
+<pre class="line-numbers language-none"><code class="language-none">git clone https:&#x2F;&#x2F;gitee.com&#x2F;Le-niao&#x2F;Yunzai-Bot.git<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
-<p><strong>1.安装hexo</strong></p>
-<pre class="line-numbers language-none"><code class="language-none">npm install hexo-cli -g<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>进入主程序目录下</p>
+<pre class="line-numbers language-none"><code class="language-none">cd Yunzai-Bot<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
-<p>或者</p>
-<pre class="line-numbers language-none"><code class="language-none">cnpm install hexo-cli -g<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>用cnpm安装</p>
+<pre class="line-numbers language-none"><code class="language-none">npm install cnpm -g --registry&#x3D;https:&#x2F;&#x2F;registry.npm.taobao.org<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
-<p>安装完成后可以选择使用hexo -v查看版本信息</p>
-<p><strong>2.初始化</strong></p>
-<pre class="line-numbers language-none"><code class="language-none">hexo init<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<pre class="line-numbers language-none"><code class="language-none">cnpm install<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
-<p><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/06/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220623135134.png"></p>
-<p><strong>3.启动博客</strong></p>
-<p>生成</p>
-<pre class="line-numbers language-none"><code class="language-none">hexo g<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>安装chrome依赖库</p>
+<pre class="line-numbers language-none"><code class="language-none">yum install pango.x86_64 libXcomposite.x86_64 libXcursor.x86_64 libXdamage.x86_64 libXext.x86_64 libXi.x86_64 libXtst.x86_64 cups-libs.x86_64 libXScrnSaver.x86_64 libXrandr.x86_64 GConf2.x86_64 alsa-lib.x86_64 atk.x86_64 gtk3.x86_64 -y &amp;&amp; yum install libdrm libgbm libxshmfence -y &amp;&amp; yum install nss -y &amp;&amp; yum update nss -y;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
-<p>启动</p>
-<pre class="line-numbers language-none"><code class="language-none">hexo s<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>安装中文字体</p>
+<pre class="line-numbers language-none"><code class="language-none">yum groupinstall fonts -y<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="3-启动原神群助手"><a href="#3-启动原神群助手" class="headerlink" title="3.启动原神群助手"></a>3.启动原神群助手</h4><p>启动</p>
+<pre class="line-numbers language-none"><code class="language-none">node app<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>停止</p>
-<p><strong>Ctrl+C</strong></p>
-<p><strong>4.测试</strong></p>
-<p>浏览器访问<strong>服务器IP+4000端口</strong>测试</p>
-<p><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/06/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220623135822.png"></p>
-<h2 id="三、配置域名访问"><a href="#三、配置域名访问" class="headerlink" title="三、配置域名访问"></a>三、配置域名访问</h2><p>1.首先你需要提前准备好一个域名（最好已经备过案的，否则只能等待备案完成后才能访问，备案期间只能使用IP+端口号访问！！！）</p>
-<p><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/06/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220613173251.png"></p>
-<p><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/06/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220613173407.png"></p>
-<p>2.配置反向代理</p>
-<p><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/06/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220613174029.png"></p>
-<p><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/06/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220623140119.png" alt="微信图片_20220623140119"></p>
-<p><strong>以上全部配置完成后，即可使用域名访问博客页面</strong></p>
-<h3 id="拓展1：配置SSL证书（https访问）"><a href="#拓展1：配置SSL证书（https访问）" class="headerlink" title="拓展1：配置SSL证书（https访问）"></a>拓展1：配置SSL证书（https访问）</h3><p>可以使用腾讯云一键注册一个ssl证书，添加到宝塔面板即可！</p>
-<p><strong>下载的证书的时候，选择Nginx证书！！！</strong></p>
-<p><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/06/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220613180016.png"></p>
-<p><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/06/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220613175749.png"></p>
-<h3 id="拓展2：认识hexo博客基本操作"><a href="#拓展2：认识hexo博客基本操作" class="headerlink" title="拓展2：认识hexo博客基本操作"></a>拓展2：认识hexo博客基本操作</h3><ol>
-<li>生成：<strong>hexo g</strong></li>
-<li>启动：<strong>hexo s</strong></li>
-<li>清理：<strong>hexo clean</strong></li>
-<li>建议每次修改操作之后，先依次运行<strong>hexo clean</strong>，然后再运行<strong>hexo g</strong>和<strong>hexo s</strong></li>
-</ol>
-<p><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/06/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220623141259.png"></p>
+<pre class="line-numbers language-none"><code class="language-none">npm stop<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="三、拓展"><a href="#三、拓展" class="headerlink" title="三、拓展"></a>三、拓展</h3><h4 id="解决提示登录安全问题"><a href="#解决提示登录安全问题" class="headerlink" title="解决提示登录安全问题"></a>解决提示登录安全问题</h4><p>这个方法也是我自己摸索出来的，所以仅供参考！！！</p>
+<p>我们在本地Windows部署一个Yunzai-Bot</p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/read/cv15119056?from=search&spm_id_from=333.337.0.0">教程链接</a></p>
+<p>1.部署好以后，我们在本地使用扫码的方式登录</p>
+<p>2.登录成功以后，会自动在data文件夹内生成一个“以你QQ号命名的文件”</p>
+<p>3.具体操作就是把这个“以你QQ号命名的文件”上传并且替换掉云服务器的文件</p>
+<p>具体目录如下：Yunzai-Bot&#x2F;data&#x2F;QQ号&#x2F;</p>
 
                 
             </div>
@@ -733,7 +741,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://wangshengjj.github.io/2022/06/23/hexo/">http://wangshengjj.github.io/2022/06/23/hexo/</a>
+                    <a href="http://wangshengjj.github.io/2022/07/17/5/">http://wangshengjj.github.io/2022/07/17/5/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -771,12 +779,16 @@
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/">
-                                    <span class="chip bg-color">服务器搭建</span>
+                                <a href="/tags/docker/">
+                                    <span class="chip bg-color">docker</span>
                                 </a>
                             
-                                <a href="/tags/hexo%E5%8D%9A%E5%AE%A2/">
-                                    <span class="chip bg-color">hexo博客</span>
+                                <a href="/tags/%E5%8E%9F%E7%A5%9E/">
+                                    <span class="chip bg-color">原神</span>
+                                </a>
+                            
+                                <a href="/tags/%E5%8E%9F%E7%A5%9E%E7%BE%A4%E6%9C%BA%E5%99%A8%E4%BA%BA/">
+                                    <span class="chip bg-color">原神群机器人</span>
                                 </a>
                             
                         </div>
@@ -946,9 +958,10 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
                 <a href="/2022/07/17/5/">
                     <div class="card-image">
@@ -966,9 +979,9 @@
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2022-07-17
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-07-17
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-user fa-fw"></i>
@@ -977,6 +990,7 @@
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
@@ -1003,13 +1017,13 @@
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2022/06/13/halo/">
+                <a href="/2022/06/23/hexo/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/loading.gif" data-original="/medias/featureimages/21.jpg" class="responsive-img" alt="halo博客搭建教程">
+                        <img src="/medias/loading.gif" data-original="/medias/featureimages/21.jpg" class="responsive-img" alt="hexo博客搭建教程">
                         
-                        <span class="card-title">halo博客搭建教程</span>
+                        <span class="card-title">hexo博客搭建教程</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
@@ -1020,7 +1034,7 @@
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2022-06-13
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-06-23
                             </span>
                         <span class="publish-author">
                             
@@ -1033,16 +1047,12 @@
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/linux%E6%90%AD%E5%BB%BA%E6%9C%8D%E5%8A%A1%E5%99%A8/">
-                        <span class="chip bg-color">linux搭建服务器</span>
-                    </a>
-                    
                     <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/">
                         <span class="chip bg-color">服务器搭建</span>
                     </a>
                     
-                    <a href="/tags/halo%E5%8D%9A%E5%AE%A2/">
-                        <span class="chip bg-color">halo博客</span>
+                    <a href="/tags/hexo%E5%8D%9A%E5%AE%A2/">
+                        <span class="chip bg-color">hexo博客</span>
                     </a>
                     
                 </div>
