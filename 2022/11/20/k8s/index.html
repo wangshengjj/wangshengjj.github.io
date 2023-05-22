@@ -1,0 +1,1521 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>Centos7安装并配置Kubernetes(K8s) | WangShengJJのblog</title><meta name="author" content="网笙久久"><meta name="copyright" content="网笙久久"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Centos7安装并配置Kubernetes(K8s)关于K8s介绍： Kubernetes 是一个全新的基于容器技术的分布式架构解决方案，是 Google 开源的一个容器集群管理系统，Kubernetes 简称 K8S。 Kubernetes 是一个一站式的完备的分布式系统开发和支撑平台，更是一个开放平台，对现有的编程语言、编程框架、中间件没有任何侵入性。 Kubernetes 提供了完善的管理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Centos7安装并配置Kubernetes(K8s)">
+<meta property="og:url" content="https://blog.wangshengjj.work/2022/11/20/k8s/index.html">
+<meta property="og:site_name" content="WangShengJJのblog">
+<meta property="og:description" content="Centos7安装并配置Kubernetes(K8s)关于K8s介绍： Kubernetes 是一个全新的基于容器技术的分布式架构解决方案，是 Google 开源的一个容器集群管理系统，Kubernetes 简称 K8S。 Kubernetes 是一个一站式的完备的分布式系统开发和支撑平台，更是一个开放平台，对现有的编程语言、编程框架、中间件没有任何侵入性。 Kubernetes 提供了完善的管理">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://api.ghser.com/random/api.php">
+<meta property="article:published_time" content="2022-11-20T09:39:25.572Z">
+<meta property="article:modified_time" content="2023-01-04T09:36:25.853Z">
+<meta property="article:author" content="网笙久久">
+<meta property="article:tag" content="服务器搭建">
+<meta property="article:tag" content="linux搭建服务器">
+<meta property="article:tag" content="centos">
+<meta property="article:tag" content="docker">
+<meta property="article:tag" content="虚拟机">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="kubernetes">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://api.ghser.com/random/api.php"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://blog.wangshengjj.work/2022/11/20/k8s/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"prismjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Centos7安装并配置Kubernetes(K8s)',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-01-04 17:36:25'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><meting-js server="netease" type="playlist" id="7386208265" lrc-type="0" volume="0.5" fixed="true" mini="true" order="random" loop="all" autoplay="true" preload="auto" list-folded="true"></meting-js><script src="https://fastly.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/autoload.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script><meta name="generator" content="Hexo 6.1.0"></head><body><link rel="stylesheet" href="/css/barber-shop.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">126</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">168</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">230</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://api.ghser.com/random/api.php')"><nav id="nav"><span id="blog-info"><a href="/" title="WangShengJJのblog"><span class="site-name">WangShengJJのblog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Centos7安装并配置Kubernetes(K8s)</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-11-20T09:39:25.572Z" title="发表于 2022-11-20 17:39:25">2022-11-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-01-04T09:36:25.853Z" title="更新于 2023-01-04 17:36:25">2023-01-04</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/">服务器搭建</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/%E6%8A%80%E6%9C%AF/">技术</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/%E6%8A%80%E6%9C%AF/Docker/">Docker</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/%E6%8A%80%E6%9C%AF/Docker/%E8%99%9A%E6%8B%9F%E6%9C%BA/">虚拟机</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/%E6%8A%80%E6%9C%AF/Docker/%E8%99%9A%E6%8B%9F%E6%9C%BA/k8s/">k8s</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">7.9k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>45分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Centos7安装并配置Kubernetes(K8s)"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="Centos7安装并配置Kubernetes-K8s"><a href="#Centos7安装并配置Kubernetes-K8s" class="headerlink" title="Centos7安装并配置Kubernetes(K8s)"></a>Centos7安装并配置Kubernetes(K8s)</h1><p><strong>关于K8s介绍：</strong></p>
+<p>Kubernetes 是一个全新的基于容器技术的分布式架构解决方案，是 Google 开源的一个容器集群管理系统，Kubernetes 简称 K8S。</p>
+<p>Kubernetes 是一个一站式的完备的分布式系统开发和支撑平台，更是一个开放平台，对现有的编程语言、编程框架、中间件没有任何侵入性。</p>
+<p>Kubernetes 提供了完善的管理工具，这些工具涵盖了开发、部署测试、运维监控在内的各个环节。</p>
+<p>Kubernetes 具有完备的集群管理能力，包括多层次的安全防护和准入机制、多租户应用支撑能力、透明的服务注册和服务发现机制、内建智能负载均衡器、强大的故障发现和自我修复能力、服务滚动升级和在线扩容能力、可扩展的资源自动调度机制、多粒度的资源配额管理能力。</p>
+<p>Kubernetes 官方文档：<a target="_blank" rel="noopener" href="https://kubernetes.io/zh/">https://kubernetes.io/zh/</a></p>
+<p>第二期教程：<a target="_blank" rel="noopener" href="https://www.wangshengjj.work/archives/23">Kubernetes(K8s)部署WordPress博客</a></p>
+<h2 id="一、准备阶段"><a href="#一、准备阶段" class="headerlink" title="一、准备阶段"></a>一、准备阶段</h2><p>本教程第十步、第十一步、第十二步涉及到的插件<a target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/s/zYcp">下载链接</a></p>
+<h3 id="三台虚拟机："><a href="#三台虚拟机：" class="headerlink" title="三台虚拟机："></a>三台虚拟机：</h3><p>ip:192.168.137.130(根据自己的来)	域名：k8s-master.linux.com	Master	<strong>2核2G</strong>(官方要求最低配置)	系统：Centos7.9</p>
+<p>ip:192.168.137.129(根据自己的来)	域名：k8s-node1.linux.com	Node1	<strong>2核2G</strong>(官方要求最低配置)	系统：Centos7.9</p>
+<p>ip:192.168.137.128(根据自己的来)	域名：k8s-node2.linux.com	Node2	<strong>2核2G</strong>(官方要求最低配置)	系统：Centos7.9</p>
+<h3 id="软件版本"><a href="#软件版本" class="headerlink" title="软件版本"></a>软件版本</h3><p>kubernetes 1.20.7版本</p>
+<p>docker   19.03版本(版本过高会报错)</p>
+<h3 id="网段"><a href="#网段" class="headerlink" title="网段"></a>网段</h3><p>pod网段:    10.88.0.0&#x2F;16</p>
+<p>service网段:  172.16.0.0&#x2F;16</p>
+<h2 id="二、关闭SElinux和防火墙-三台虚拟机都要配置"><a href="#二、关闭SElinux和防火墙-三台虚拟机都要配置" class="headerlink" title="二、关闭SElinux和防火墙(三台虚拟机都要配置)"></a>二、关闭SElinux和防火墙(三台虚拟机都要配置)</h2><h3 id="1-关闭防火墙并且设置开机不自启"><a href="#1-关闭防火墙并且设置开机不自启" class="headerlink" title="1.关闭防火墙并且设置开机不自启"></a>1.关闭防火墙并且设置开机不自启</h3><pre class="line-numbers language-none"><code class="language-none">systemctl stop firewalld &amp;&amp; systemctl disable firewalld<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="2-关闭selinux"><a href="#2-关闭selinux" class="headerlink" title="2.关闭selinux"></a>2.关闭selinux</h3><pre class="line-numbers language-none"><code class="language-none">setenforce 0<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">sed -i &#39;s&#x2F;SELINUX&#x3D;enforcing&#x2F;SELINUX&#x3D;disabled&#x2F;&#39; &#x2F;etc&#x2F;selinux&#x2F;config<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="3-重启"><a href="#3-重启" class="headerlink" title="3.重启"></a>3.重启</h3><pre class="line-numbers language-none"><code class="language-none">reboot<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="4-配置yum源和epel源"><a href="#4-配置yum源和epel源" class="headerlink" title="4.配置yum源和epel源"></a>4.配置yum源和epel源</h3><p>yum源</p>
+<pre class="line-numbers language-none"><code class="language-none">wget -O &#x2F;etc&#x2F;yum.repos.d&#x2F;CentOS-Base.repo http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;repo&#x2F;Centos-7.repo<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>epel源</p>
+<pre class="line-numbers language-none"><code class="language-none">wget -O &#x2F;etc&#x2F;yum.repos.d&#x2F;epel.repo https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;repo&#x2F;epel-7.repo<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">yum clean all &amp;&amp; yum makecache fast<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+
+<h2 id="三、修改主机名和域名"><a href="#三、修改主机名和域名" class="headerlink" title="三、修改主机名和域名"></a>三、修改主机名和域名</h2><h3 id="1-修改主机名"><a href="#1-修改主机名" class="headerlink" title="1.修改主机名"></a>1.修改主机名</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# hostnamectl set-hostname k8s-master.linux.com<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-node1 ~]# hostnamectl set-hostname k8s-node1.linux.com<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-node2 ~]# hostnamectl set-hostname k8s-node2.linux.com<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="2-修改hosts"><a href="#2-修改hosts" class="headerlink" title="2.修改hosts"></a>2.修改hosts</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# vim &#x2F;etc&#x2F;hosts<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+192.168.137.130	k8s-master.linux.com	#master的IP和域名
+192.168.137.129	k8s-node01.linux.com	#node1的IP和域名
+192.168.137.128	k8s-node02.linux.com	#node2的IP和域名<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# scp &#x2F;etc&#x2F;hosts root@192.168.137.129:&#x2F;etc&#x2F;hosts	#把master的hosts文件拷贝给node1
+hosts                                                                                                                      100%  267   154.5KB&#x2F;s   00:00    
+[root@k8s-master ~]# scp &#x2F;etc&#x2F;hosts root@192.168.137.128:&#x2F;etc&#x2F;hosts	#把master的hosts文件拷贝给node2
+hosts                                                                                                                      100%  267   154.5KB&#x2F;s <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-使用ping命令测试"><a href="#3-使用ping命令测试" class="headerlink" title="3.使用ping命令测试"></a>3.使用ping命令测试</h3><pre class="line-numbers language-none"><code class="language-none">ping k8s-node1.linux.com<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">ping k8s-node8.linux.com<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h2 id="四、给三台虚拟机配置免密SSH-master上操作"><a href="#四、给三台虚拟机配置免密SSH-master上操作" class="headerlink" title="四、给三台虚拟机配置免密SSH(master上操作)"></a>四、给三台虚拟机配置免密SSH(master上操作)</h2><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# ssh-keygen -t rsa<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# mv &#x2F;root&#x2F;.ssh&#x2F;id_rsa.pub &#x2F;root&#x2F;.ssh&#x2F;authorized_keys<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# scp -r &#x2F;root&#x2F;.ssh&#x2F; root@192.168.137.129:&#x2F;root&#x2F;	#把秘钥文件拷贝给node1
+[root@k8s-master ~]# scp -r &#x2F;root&#x2F;.ssh&#x2F; root@192.168.137.128:&#x2F;root&#x2F;	#把秘钥文件拷贝给node2<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h2 id="五、配置主机资源"><a href="#五、配置主机资源" class="headerlink" title="五、配置主机资源"></a>五、配置主机资源</h2><h3 id="1-所有主机禁用swap交换分区-master、node1、node2"><a href="#1-所有主机禁用swap交换分区-master、node1、node2" class="headerlink" title="1.所有主机禁用swap交换分区(master、node1、node2)"></a>1.所有主机禁用swap交换分区(master、node1、node2)</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# swapoff -a<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# free -m
+              total        used        free      shared  buff&#x2F;cache   available
+Mem:           3932         113        3658          11         160        3599
+Swap:             0           0           0<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# sysctl -w vm.swappiness&#x3D;0
+vm.swappiness &#x3D; 0<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# sed -ri &#39;&#x2F;swap&#x2F;d&#39; &#x2F;etc&#x2F;fstab<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="2-所有主机调整系统的资源限制-master、node1、node2"><a href="#2-所有主机调整系统的资源限制-master、node1、node2" class="headerlink" title="2.所有主机调整系统的资源限制(master、node1、node2)"></a>2.所有主机调整系统的资源限制(master、node1、node2)</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# ulimit -SHn 65535<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# vim &#x2F;etc&#x2F;security&#x2F;limits.conf<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>把下面的添加进去</p>
+<pre class="line-numbers language-none"><code class="language-none">* soft nofile 655360
+* hard nofile 131072
+* soft nproc 655350
+* hard nproc 655350
+* soft memlock unlimited
+* hard memlock unlimited<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>：wq保存</p>
+<ul>
+<li>nofile<br>最大文件数</li>
+<li>nproc<br>最大进程数</li>
+<li>memlock<br>内页的页面锁</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# scp &#x2F;etc&#x2F;security&#x2F;limits.conf root@192.168.137.129:&#x2F;etc&#x2F;security&#x2F;limits.conf	#拷贝文件到node1
+limits.conf                                                                                                                100% 2555     1.4MB&#x2F;s   00:00    
+[root@k8s-master ~]# scp &#x2F;etc&#x2F;security&#x2F;limits.conf root@192.168.137.128:&#x2F;etc&#x2F;security&#x2F;limits.conf	#拷贝文件到node2
+limits.conf                                                                                                                100% 2555     2.1MB&#x2F;s   00:00<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="六、配置Docekr仓库和K8s仓库"><a href="#六、配置Docekr仓库和K8s仓库" class="headerlink" title="六、配置Docekr仓库和K8s仓库"></a>六、配置Docekr仓库和K8s仓库</h2><h3 id="1-配置Docker仓库-阿里云"><a href="#1-配置Docker仓库-阿里云" class="headerlink" title="1.配置Docker仓库(阿里云)"></a>1.配置Docker仓库(阿里云)</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# vim &#x2F;etc&#x2F;yum.repos.d&#x2F;docker.repo<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>把下面内容复制进去</p>
+<pre class="line-numbers language-none"><code class="language-none">[docker-ce-stable]
+name&#x3D;Docker CE Stable - $basearch
+baseurl&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;$releasever&#x2F;$basearch&#x2F;stable
+enabled&#x3D;1
+gpgcheck&#x3D;1
+gpgkey&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;gpg
+
+[docker-ce-stable-debuginfo]
+name&#x3D;Docker CE Stable - Debuginfo $basearch
+baseurl&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;$releasever&#x2F;debug-$basearch&#x2F;stable
+enabled&#x3D;0
+gpgcheck&#x3D;1
+gpgkey&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;gpg
+
+[docker-ce-stable-source]
+name&#x3D;Docker CE Stable - Sources
+baseurl&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;$releasever&#x2F;source&#x2F;stable
+enabled&#x3D;0
+gpgcheck&#x3D;1
+gpgkey&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;gpg
+
+[docker-ce-test]
+name&#x3D;Docker CE Test - $basearch
+baseurl&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;$releasever&#x2F;$basearch&#x2F;test
+enabled&#x3D;0
+gpgcheck&#x3D;1
+gpgkey&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;gpg
+
+[docker-ce-test-debuginfo]
+name&#x3D;Docker CE Test - Debuginfo $basearch
+baseurl&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;$releasever&#x2F;debug-$basearch&#x2F;test
+enabled&#x3D;0
+gpgcheck&#x3D;1
+gpgkey&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;gpg
+
+[docker-ce-test-source]
+name&#x3D;Docker CE Test - Sources
+baseurl&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;$releasever&#x2F;source&#x2F;test
+enabled&#x3D;0
+gpgcheck&#x3D;1
+gpgkey&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;gpg
+
+[docker-ce-nightly]
+name&#x3D;Docker CE Nightly - $basearch
+baseurl&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;$releasever&#x2F;$basearch&#x2F;nightly
+enabled&#x3D;0
+gpgcheck&#x3D;1
+gpgkey&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;gpg
+
+[docker-ce-nightly-debuginfo]
+name&#x3D;Docker CE Nightly - Debuginfo $basearch
+baseurl&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;$releasever&#x2F;debug-$basearch&#x2F;nightly
+enabled&#x3D;0
+gpgcheck&#x3D;1
+gpgkey&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;gpg
+
+[docker-ce-nightly-source]
+name&#x3D;Docker CE Nightly - Sources
+baseurl&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;$releasever&#x2F;source&#x2F;nightly
+enabled&#x3D;0
+gpgcheck&#x3D;1
+gpgkey&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;gpg<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>：wq保存</p>
+<h3 id="2-配置K8s仓库-阿里云"><a href="#2-配置K8s仓库-阿里云" class="headerlink" title="2.配置K8s仓库(阿里云)"></a>2.配置K8s仓库(阿里云)</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# vim &#x2F;etc&#x2F;yum.repos.d&#x2F;k8s.repo<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[kubernetes]
+name&#x3D;Kubernetes
+baseurl&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;kubernetes&#x2F;yum&#x2F;repos&#x2F;kubernetes-el7-x86_64&#x2F;
+enabled&#x3D;1
+gpgcheck&#x3D;1
+repo_gpgcheck&#x3D;0
+gpgkey&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;kubernetes&#x2F;yum&#x2F;doc&#x2F;yum-key.gpg https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;kubernetes&#x2F;yum&#x2F;doc&#x2F;rpm-package-key.gpg<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>：wq保存</p>
+<h3 id="3-讲上述2个仓库拷贝到node1和node2"><a href="#3-讲上述2个仓库拷贝到node1和node2" class="headerlink" title="3.讲上述2个仓库拷贝到node1和node2"></a>3.讲上述2个仓库拷贝到node1和node2</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# scp &#x2F;etc&#x2F;yum.repos.d&#x2F;docker.repo root@192.168.137.129:&#x2F;etc&#x2F;yum.repos.d&#x2F;
+docker.repo                                                                                                                100% 2081     1.8MB&#x2F;s   00:00    
+[root@k8s-master ~]# scp &#x2F;etc&#x2F;yum.repos.d&#x2F;docker.repo root@192.168.137.128:&#x2F;etc&#x2F;yum.repos.d&#x2F;
+docker.repo                                                                                                                100% 2081     2.8MB&#x2F;s   00:00    
+[root@k8s-master ~]# 
+[root@k8s-master ~]# scp &#x2F;etc&#x2F;yum.repos.d&#x2F;k8s.repo root@192.168.137.129:&#x2F;etc&#x2F;yum.repos.d&#x2F;
+k8s.repo                                                                                                                   100%  276   360.6KB&#x2F;s   00:00    
+[root@k8s-master ~]# scp &#x2F;etc&#x2F;yum.repos.d&#x2F;k8s.repo root@192.168.137.128:&#x2F;etc&#x2F;yum.repos.d&#x2F;
+k8s.repo<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-升级系统到最新版本-Centos7-9"><a href="#4-升级系统到最新版本-Centos7-9" class="headerlink" title="4.升级系统到最新版本(Centos7.9)"></a>4.升级系统到最新版本(Centos7.9)</h3><pre class="line-numbers language-none"><code class="language-none">yum update -y	#三个虚拟机都要执行<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">reboot<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>查看系统版本</p>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# uname -a
+Linux k8s-master.linux.com 3.10.0-1160.80.1.el7.x86_64 #1 SMP Tue Nov 8 15:48:59 UTC 2022 x86_64 x86_64 x86_64 GNU&#x2F;Linux<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h2 id="七、调整系统参数-master、node1、node2"><a href="#七、调整系统参数-master、node1、node2" class="headerlink" title="七、调整系统参数(master、node1、node2)"></a>七、调整系统参数(master、node1、node2)</h2><h3 id="1-安装IPVS"><a href="#1-安装IPVS" class="headerlink" title="1.安装IPVS"></a>1.安装IPVS</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# yum install ipvsadm ipset sysstat conntrack libseccomp -y	#三个主机都要运行<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="2-加载IPVS模块"><a href="#2-加载IPVS模块" class="headerlink" title="2.加载IPVS模块"></a>2.加载IPVS模块</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# vim &#x2F;etc&#x2F;modules-load.d&#x2F;ipvs.conf<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">ip_vs
+ip_vs_lc
+ip_vs_wlc
+ip_vs_rr
+ip_vs_wrr
+ip_vs_lblc
+ip_vs_lblcr
+ip_vs_dh
+ip_vs_sh
+ip_vs_fo
+ip_vs_nq
+ip_vs_sed
+ip_vs_ftp
+ip_vs_sh
+nf_conntrack_ipv4
+ip_tables
+ip_set
+xt_set
+ipt_set
+ipt_rpfilter
+ipt_REJECT
+ipip<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>：wq保存</p>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# scp &#x2F;etc&#x2F;modules-load.d&#x2F;ipvs.conf root@192.168.137.129:&#x2F;etc&#x2F;modules-load.d&#x2F;ipvs.conf	#拷贝到node1
+ipvs.conf                                                                                                                  100%  211   123.4KB&#x2F;s   00:00    
+[root@k8s-master ~]# scp &#x2F;etc&#x2F;modules-load.d&#x2F;ipvs.conf root@192.168.137.128:&#x2F;etc&#x2F;modules-load.d&#x2F;ipvs.conf	#拷贝到node2
+ipvs.conf<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# systemctl enable --now systemd-modules-load	#三台虚拟机都要运行<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="4-调整内核参数"><a href="#4-调整内核参数" class="headerlink" title="4.调整内核参数"></a>4.调整内核参数</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# vim &#x2F;etc&#x2F;sysctl.d&#x2F;k8s.conf<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">net.ipv4.ip_forward &#x3D; 1
+net.bridge.bridge-nf-call-iptables &#x3D; 1
+net.bridge.bridge-nf-call-ip6tables &#x3D; 1
+fs.may_detach_mounts &#x3D; 1
+vm.overcommit_memory&#x3D;1
+vm.panic_on_oom&#x3D;0
+fs.inotify.max_user_watches&#x3D;89100
+fs.file-max&#x3D;52706963
+fs.nr_open&#x3D;52706963
+net.netfilter.nf_conntrack_max&#x3D;2310720
+
+net.ipv4.tcp_keepalive_time &#x3D; 600
+net.ipv4.tcp_keepalive_probes &#x3D; 3
+net.ipv4.tcp_keepalive_intvl &#x3D;15
+net.ipv4.tcp_max_tw_buckets &#x3D; 36000
+net.ipv4.tcp_tw_reuse &#x3D; 1
+net.ipv4.tcp_max_orphans &#x3D; 327680
+net.ipv4.tcp_orphan_retries &#x3D; 3
+net.ipv4.tcp_syncookies &#x3D; 1
+net.ipv4.tcp_max_syn_backlog &#x3D; 16384
+net.ipv4.ip_conntrack_max &#x3D; 65536
+net.ipv4.tcp_max_syn_backlog &#x3D; 16384
+net.ipv4.tcp_timestamps &#x3D; 0
+net.core.somaxconn &#x3D; 16384<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>：wq保存</p>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# scp &#x2F;etc&#x2F;sysctl.d&#x2F;k8s.conf root@192.168.137.129:&#x2F;etc&#x2F;sysctl.d&#x2F;	#拷贝到node1
+k8s.conf                                                                                                                   100%  704   654.4KB&#x2F;s   00:00    
+[root@k8s-master ~]# scp &#x2F;etc&#x2F;sysctl.d&#x2F;k8s.conf root@192.168.137.128:&#x2F;etc&#x2F;sysctl.d&#x2F;	#拷贝到node2
+k8s.conf<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# sysctl --system	#三个虚拟机都要运行<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h2 id="八、安装软件-master、node1、node2"><a href="#八、安装软件-master、node1、node2" class="headerlink" title="八、安装软件(master、node1、node2)"></a>八、安装软件(master、node1、node2)</h2><h3 id="1-安装Docker"><a href="#1-安装Docker" class="headerlink" title="1.安装Docker"></a>1.安装Docker</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# yum install -y docker-ce-19.03*	#注意版本<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# systemctl enable --now docker<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><strong>配置镜像加速</strong></p>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# vim &#x2F;etc&#x2F;docker&#x2F;daemon.json<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">&#123;
+&quot;registry-mirrors&quot;: [&quot;http:&#x2F;&#x2F;hub-mirror.c.163.com&quot;,
+&quot;https:&#x2F;&#x2F;docker.mirrors.ustc.edu.cn&quot;]
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>：wq保存</p>
+<p><strong>重启服务</strong></p>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# systemctl restart docker<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="2-安装kubernetes"><a href="#2-安装kubernetes" class="headerlink" title="2.安装kubernetes"></a>2.安装kubernetes</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# yum install -y kubeadm-1.20.7 kubelet-1.20.7 kubectl-1.20.7<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# vim &#x2F;etc&#x2F;sysconfig&#x2F;kubelet<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">KUBELET_EXTRA_ARGS&#x3D;&quot;--pod-infra-container-image&#x3D;registry.cn-hangzhou.aliyuncs.com&#x2F;google_containers&#x2F;pause-amd64:3.2&quot;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>：wq保存</p>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# systemctl enable --now kubelet<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h2 id="九、配置master节点的初始文件"><a href="#九、配置master节点的初始文件" class="headerlink" title="九、配置master节点的初始文件"></a>九、配置master节点的初始文件</h2><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# vim new.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">apiVersion: kubeadm.k8s.io&#x2F;v1beta2
+bootstrapTokens:
+- groups:
+  - system:bootstrappers:kubeadm:default-node-token
+  token: 7t2weq.bjbawausm0jaxury
+  ttl: 96h0m0s
+  usages:
+  - signing
+  - authentication
+kind: InitConfiguration
+localAPIEndpoint:
+  advertiseAddress: 192.168.137.130      #master节点IP
+  bindPort: 6443
+nodeRegistration:
+  criSocket: &#x2F;var&#x2F;run&#x2F;dockershim.sock
+  name: k8s-master01
+  taints:
+  - effect: NoSchedule
+    key: node-role.kubernetes.io&#x2F;master
+---
+apiServer:
+  certSANs:
+  - 192.168.183.10              #master节点IP
+  timeoutForControlPlane: 4m0s
+apiVersion: kubeadm.k8s.io&#x2F;v1beta2
+certificatesDir: &#x2F;etc&#x2F;kubernetes&#x2F;pki
+clusterName: kubernetes
+controlPlaneEndpoint: 192.168.137.130:6443            #master节点IP
+controllerManager: &#123;&#125;
+dns:
+  type: CoreDNS
+etcd:
+  local:
+    dataDir: &#x2F;var&#x2F;lib&#x2F;etcd
+imageRepository: registry.cn-hangzhou.aliyuncs.com&#x2F;google_containers
+kind: ClusterConfiguration
+kubernetesVersion: v1.20.7
+networking:
+  dnsDomain: cluster.local
+  podSubnet: 10.88.0.0&#x2F;16	#之前配置的网段
+  serviceSubnet: 172.16.0.0&#x2F;16	#之前配置的网段
+scheduler: &#123;&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>：wq保存</p>
+<h3 id="1-在master节点事先下载初始化需要的镜像"><a href="#1-在master节点事先下载初始化需要的镜像" class="headerlink" title="1.在master节点事先下载初始化需要的镜像"></a>1.在master节点事先下载初始化需要的镜像</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# kubeadm config images pull --config &#x2F;root&#x2F;new.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="2-在master节点上初始化集群"><a href="#2-在master节点上初始化集群" class="headerlink" title="2.在master节点上初始化集群"></a>2.在master节点上初始化集群</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# kubeadm init --config &#x2F;root&#x2F;new.yaml --upload-certs<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>输出信息如下图</p>
+<pre class="line-numbers language-none"><code class="language-none">[init] Using Kubernetes version: v1.20.7
+[preflight] Running pre-flight checks
+	[WARNING IsDockerSystemdCheck]: detected &quot;cgroupfs&quot; as the Docker cgroup driver. The recommended driver is &quot;systemd&quot;. Please follow the guide at https:&#x2F;&#x2F;kubernetes.io&#x2F;docs&#x2F;setup&#x2F;cri&#x2F;
+	[WARNING Hostname]: hostname &quot;k8s-master01&quot; could not be reached
+	[WARNING Hostname]: hostname &quot;k8s-master01&quot;: lookup k8s-master01 on 114.114.114.114:53: no such host
+[preflight] Pulling images required for setting up a Kubernetes cluster
+[preflight] This might take a minute or two, depending on the speed of your internet connection
+[preflight] You can also perform this action in beforehand using &#39;kubeadm config images pull&#39;
+[certs] Using certificateDir folder &quot;&#x2F;etc&#x2F;kubernetes&#x2F;pki&quot;
+[certs] Generating &quot;ca&quot; certificate and key
+[certs] Generating &quot;apiserver&quot; certificate and key
+[certs] apiserver serving cert is signed for DNS names [k8s-master01 kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local] and IPs [172.16.0.1 192.168.183.10]
+[certs] Generating &quot;apiserver-kubelet-client&quot; certificate and key
+[certs] Generating &quot;front-proxy-ca&quot; certificate and key
+[certs] Generating &quot;front-proxy-client&quot; certificate and key
+[certs] Generating &quot;etcd&#x2F;ca&quot; certificate and key
+[certs] Generating &quot;etcd&#x2F;server&quot; certificate and key
+[certs] etcd&#x2F;server serving cert is signed for DNS names [k8s-master01 localhost] and IPs [192.168.183.10 127.0.0.1 ::1]
+[certs] Generating &quot;etcd&#x2F;peer&quot; certificate and key
+[certs] etcd&#x2F;peer serving cert is signed for DNS names [k8s-master01 localhost] and IPs [192.168.183.10 127.0.0.1 ::1]
+[certs] Generating &quot;etcd&#x2F;healthcheck-client&quot; certificate and key
+[certs] Generating &quot;apiserver-etcd-client&quot; certificate and key
+[certs] Generating &quot;sa&quot; key and public key
+[kubeconfig] Using kubeconfig folder &quot;&#x2F;etc&#x2F;kubernetes&quot;
+[kubeconfig] Writing &quot;admin.conf&quot; kubeconfig file
+[kubeconfig] Writing &quot;kubelet.conf&quot; kubeconfig file
+[kubeconfig] Writing &quot;controller-manager.conf&quot; kubeconfig file
+[kubeconfig] Writing &quot;scheduler.conf&quot; kubeconfig file
+[kubelet-start] Writing kubelet environment file with flags to file &quot;&#x2F;var&#x2F;lib&#x2F;kubelet&#x2F;kubeadm-flags.env&quot;
+[kubelet-start] Writing kubelet configuration to file &quot;&#x2F;var&#x2F;lib&#x2F;kubelet&#x2F;config.yaml&quot;
+[kubelet-start] Starting the kubelet
+[control-plane] Using manifest folder &quot;&#x2F;etc&#x2F;kubernetes&#x2F;manifests&quot;
+[control-plane] Creating static Pod manifest for &quot;kube-apiserver&quot;
+[control-plane] Creating static Pod manifest for &quot;kube-controller-manager&quot;
+[control-plane] Creating static Pod manifest for &quot;kube-scheduler&quot;
+[etcd] Creating static Pod manifest for local etcd in &quot;&#x2F;etc&#x2F;kubernetes&#x2F;manifests&quot;
+[wait-control-plane] Waiting for the kubelet to boot up the control plane as static Pods from directory &quot;&#x2F;etc&#x2F;kubernetes&#x2F;manifests&quot;. This can take up to 4m0s
+[apiclient] All control plane components are healthy after 12.026038 seconds
+[upload-config] Storing the configuration used in ConfigMap &quot;kubeadm-config&quot; in the &quot;kube-system&quot; Namespace
+[kubelet] Creating a ConfigMap &quot;kubelet-config-1.20&quot; in namespace kube-system with the configuration for the kubelets in the cluster
+[upload-certs] Storing the certificates in Secret &quot;kubeadm-certs&quot; in the &quot;kube-system&quot; Namespace
+[upload-certs] Using certificate key:
+4c95b29d3f062b0b005d7f6ddd74dc1b227ad8f76dbe5b5c2a13da883d93d73f
+[mark-control-plane] Marking the node k8s-master01 as control-plane by adding the labels &quot;node-role.kubernetes.io&#x2F;master&#x3D;&#39;&#39;&quot; and &quot;node-role.kubernetes.io&#x2F;control-plane&#x3D;&#39;&#39; (deprecated)&quot;
+[mark-control-plane] Marking the node k8s-master01 as control-plane by adding the taints [node-role.kubernetes.io&#x2F;master:NoSchedule]
+[bootstrap-token] Using token: 7t2weq.bjbawausm0jaxury
+[bootstrap-token] Configuring bootstrap tokens, cluster-info ConfigMap, RBAC Roles
+[bootstrap-token] configured RBAC rules to allow Node Bootstrap tokens to get nodes
+[bootstrap-token] configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order for nodes to get long term certificate credentials
+[bootstrap-token] configured RBAC rules to allow the csrapprover controller automatically approve CSRs from a Node Bootstrap Token
+[bootstrap-token] configured RBAC rules to allow certificate rotation for all node client certificates in the cluster
+[bootstrap-token] Creating the &quot;cluster-info&quot; ConfigMap in the &quot;kube-public&quot; namespace
+[kubelet-finalize] Updating &quot;&#x2F;etc&#x2F;kubernetes&#x2F;kubelet.conf&quot; to point to a rotatable kubelet client certificate and key
+[addons] Applied essential addon: CoreDNS
+[addons] Applied essential addon: kube-proxy
+
+Your Kubernetes control-plane has initialized successfully!
+
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME&#x2F;.kube
+  sudo cp -i &#x2F;etc&#x2F;kubernetes&#x2F;admin.conf $HOME&#x2F;.kube&#x2F;config
+  sudo chown $(id -u):$(id -g) $HOME&#x2F;.kube&#x2F;config
+
+Alternatively, if you are the root user, you can run:
+
+  export KUBECONFIG&#x3D;&#x2F;etc&#x2F;kubernetes&#x2F;admin.conf
+
+You should now deploy a pod network to the cluster.
+Run &quot;kubectl apply -f [podnetwork].yaml&quot; with one of the options listed at:
+  https:&#x2F;&#x2F;kubernetes.io&#x2F;docs&#x2F;concepts&#x2F;cluster-administration&#x2F;addons&#x2F;
+
+You can now join any number of the control-plane node running the following command on each as root:
+
+  kubeadm join 192.168.137.130:6443 --token 7t2weq.bjbawausm0jaxury \
+    --discovery-token-ca-cert-hash sha256:26b04c860890abb6fabbca8dd194eb089aa6a3811be1fe2edff3b4a08c6bb38c \
+    --control-plane --certificate-key 4c95b29d3f062b0b005d7f6ddd74dc1b227ad8f76dbe5b5c2a13da883d93d73f
+
+Please note that the certificate-key gives access to cluster sensitive data, keep it secret!
+As a safeguard, uploaded-certs will be deleted in two hours; If necessary, you can use
+&quot;kubeadm init phase upload-certs --upload-certs&quot; to reload certs afterward.
+
+Then you can join any number of worker nodes by running the following on each as root:
+
+kubeadm join 192.168.137.130:6443 --token 7t2weq.bjbawausm0jaxury \
+    --discovery-token-ca-cert-hash sha256:26b04c860890abb6fabbca8dd194eb089aa6a3811be1fe2edff3b4a08c6bb38c	#一会node加入master的命令，注意：每个人的token不一样！<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-定义kubeconfig环境变量"><a href="#3-定义kubeconfig环境变量" class="headerlink" title="3.定义kubeconfig环境变量"></a>3.定义kubeconfig环境变量</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# vim &#x2F;etc&#x2F;profile<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>在末尾加上</p>
+<pre class="line-numbers language-none"><code class="language-none">export KUBECONFIG&#x3D;&#x2F;etc&#x2F;kubernetes&#x2F;admin.conf<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>：wq保存</p>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# source &#x2F;etc&#x2F;profile<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="4-将node节点加入master"><a href="#4-将node节点加入master" class="headerlink" title="4.将node节点加入master"></a>4.将node节点加入master</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-node01 ~]# kubeadm join 192.168.137.130:6443 --token 7t2weq.bjbawausm0jaxury \
+&gt;     --discovery-token-ca-cert-hash sha256:26b04c860890abb6fabbca8dd194eb089aa6a3811be1fe2edff3b4a08c6bb38c	#在node1上运行，注意！每个人的token不一样，看自己终端生成的！<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-node02 ~]# kubeadm join 192.168.137.130:6443 --token 7t2weq.bjbawausm0jaxury \
+&gt;     --discovery-token-ca-cert-hash sha256:26b04c860890abb6fabbca8dd194eb089aa6a3811be1fe2edff3b4a08c6bb38c	#在node2上运行，注意！每个人的token不一样，看自己终端生成的！<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h3 id="5-查看集群节点"><a href="#5-查看集群节点" class="headerlink" title="5.查看集群节点"></a>5.查看集群节点</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# kubectl get nodes
+NAME                   STATUS     ROLES                  AGE     VERSION
+k8s-master01           NotReady   control-plane,master   7m55s   v1.20.7
+k8s-node01.linux.com   NotReady   &lt;none&gt;                 97s     v1.20.7
+k8s-node02.linux.com   NotReady   &lt;none&gt;                 42s     v1.20.7<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="十、部署calico网络，实现容器间的通信"><a href="#十、部署calico网络，实现容器间的通信" class="headerlink" title="十、部署calico网络，实现容器间的通信"></a>十、部署calico网络，实现容器间的通信</h2><ul>
+<li><p>calico基于BGP协议实现通信 </p>
+</li>
+<li><p>只需要在master节点上进行操作即可</p>
+</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# vim calico-etcd.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>把下面的内容全部复制进去</p>
+<pre class="line-numbers language-none"><code class="language-none">---
+# Source: calico&#x2F;templates&#x2F;calico-etcd-secrets.yaml
+# The following contains k8s Secrets for use with a TLS enabled etcd cluster.
+# For information on populating Secrets, see http:&#x2F;&#x2F;kubernetes.io&#x2F;docs&#x2F;user-guide&#x2F;secrets&#x2F;
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: calico-etcd-secrets
+  namespace: kube-system
+data:
+  # Populate the following with etcd TLS configuration if desired, but leave blank if
+  # not using TLS for etcd.
+  # The keys below should be uncommented and the values populated with the base64
+  # encoded contents of each file that would be associated with the TLS data.
+  # Example command for encoding a file contents: cat &lt;file&gt; | base64 -w 0
+  # etcd-key: null
+  # etcd-cert: null
+  # etcd-ca: null
+---
+# Source: calico&#x2F;templates&#x2F;calico-config.yaml
+# This ConfigMap is used to configure a self-hosted Calico installation.
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: calico-config
+  namespace: kube-system
+data:
+  # Configure this with the location of your etcd cluster.
+  etcd_endpoints: &quot;http:&#x2F;&#x2F;&lt;ETCD_IP&gt;:&lt;ETCD_PORT&gt;&quot;
+  # If you&#39;re using TLS enabled etcd uncomment the following.
+  # You must also populate the Secret below with these files.
+  etcd_ca: &quot;&quot;   # &quot;&#x2F;calico-secrets&#x2F;etcd-ca&quot;
+  etcd_cert: &quot;&quot; # &quot;&#x2F;calico-secrets&#x2F;etcd-cert&quot;
+  etcd_key: &quot;&quot;  # &quot;&#x2F;calico-secrets&#x2F;etcd-key&quot;
+  # Typha is disabled.
+  typha_service_name: &quot;none&quot;
+  # Configure the backend to use.
+  calico_backend: &quot;bird&quot;
+  # Configure the MTU to use for workload interfaces and tunnels.
+  # - If Wireguard is enabled, set to your network MTU - 60
+  # - Otherwise, if VXLAN or BPF mode is enabled, set to your network MTU - 50
+  # - Otherwise, if IPIP is enabled, set to your network MTU - 20
+  # - Otherwise, if not using any encapsulation, set to your network MTU.
+  veth_mtu: &quot;1440&quot;
+
+  # The CNI network configuration to install on each node. The special
+  # values in this config will be automatically populated.
+  cni_network_config: |-
+    &#123;
+      &quot;name&quot;: &quot;k8s-pod-network&quot;,
+      &quot;cniVersion&quot;: &quot;0.3.1&quot;,
+      &quot;plugins&quot;: [
+        &#123;
+          &quot;type&quot;: &quot;calico&quot;,
+          &quot;log_level&quot;: &quot;info&quot;,
+          &quot;etcd_endpoints&quot;: &quot;__ETCD_ENDPOINTS__&quot;,
+          &quot;etcd_key_file&quot;: &quot;__ETCD_KEY_FILE__&quot;,
+          &quot;etcd_cert_file&quot;: &quot;__ETCD_CERT_FILE__&quot;,
+          &quot;etcd_ca_cert_file&quot;: &quot;__ETCD_CA_CERT_FILE__&quot;,
+          &quot;mtu&quot;: __CNI_MTU__,
+          &quot;ipam&quot;: &#123;
+              &quot;type&quot;: &quot;calico-ipam&quot;
+          &#125;,
+          &quot;policy&quot;: &#123;
+              &quot;type&quot;: &quot;k8s&quot;
+          &#125;,
+          &quot;kubernetes&quot;: &#123;
+              &quot;kubeconfig&quot;: &quot;__KUBECONFIG_FILEPATH__&quot;
+          &#125;
+        &#125;,
+        &#123;
+          &quot;type&quot;: &quot;portmap&quot;,
+          &quot;snat&quot;: true,
+          &quot;capabilities&quot;: &#123;&quot;portMappings&quot;: true&#125;
+        &#125;,
+        &#123;
+          &quot;type&quot;: &quot;bandwidth&quot;,
+          &quot;capabilities&quot;: &#123;&quot;bandwidth&quot;: true&#125;
+        &#125;
+      ]
+    &#125;
+
+---
+# Source: calico&#x2F;templates&#x2F;calico-kube-controllers-rbac.yaml
+
+# Include a clusterrole for the kube-controllers component,
+# and bind it to the calico-kube-controllers serviceaccount.
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io&#x2F;v1
+metadata:
+  name: calico-kube-controllers
+rules:
+  # Pods are monitored for changing labels.
+  # The node controller monitors Kubernetes nodes.
+  # Namespace and serviceaccount labels are used for policy.
+  - apiGroups: [&quot;&quot;]
+    resources:
+      - pods
+      - nodes
+      - namespaces
+      - serviceaccounts
+    verbs:
+      - watch
+      - list
+      - get
+  # Watch for changes to Kubernetes NetworkPolicies.
+  - apiGroups: [&quot;networking.k8s.io&quot;]
+    resources:
+      - networkpolicies
+    verbs:
+      - watch
+      - list
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io&#x2F;v1
+metadata:
+  name: calico-kube-controllers
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: calico-kube-controllers
+subjects:
+- kind: ServiceAccount
+  name: calico-kube-controllers
+  namespace: kube-system
+---
+
+---
+# Source: calico&#x2F;templates&#x2F;calico-node-rbac.yaml
+# Include a clusterrole for the calico-node DaemonSet,
+# and bind it to the calico-node serviceaccount.
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io&#x2F;v1
+metadata:
+  name: calico-node
+rules:
+  # The CNI plugin needs to get pods, nodes, and namespaces.
+  - apiGroups: [&quot;&quot;]
+    resources:
+      - pods
+      - nodes
+      - namespaces
+    verbs:
+      - get
+  - apiGroups: [&quot;&quot;]
+    resources:
+      - endpoints
+      - services
+    verbs:
+      # Used to discover service IPs for advertisement.
+      - watch
+      - list
+  # Pod CIDR auto-detection on kubeadm needs access to config maps.
+  - apiGroups: [&quot;&quot;]
+    resources:
+      - configmaps
+    verbs:
+      - get
+  - apiGroups: [&quot;&quot;]
+    resources:
+      - nodes&#x2F;status
+    verbs:
+      # Needed for clearing NodeNetworkUnavailable flag.
+      - patch
+
+---
+apiVersion: rbac.authorization.k8s.io&#x2F;v1
+kind: ClusterRoleBinding
+metadata:
+  name: calico-node
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: calico-node
+subjects:
+- kind: ServiceAccount
+  name: calico-node
+  namespace: kube-system
+
+---
+# Source: calico&#x2F;templates&#x2F;calico-node.yaml
+# This manifest installs the calico-node container, as well
+# as the CNI plugins and network config on
+# each master and worker node in a Kubernetes cluster.
+kind: DaemonSet
+apiVersion: apps&#x2F;v1
+metadata:
+  name: calico-node
+  namespace: kube-system
+  labels:
+    k8s-app: calico-node
+spec:
+  selector:
+    matchLabels:
+      k8s-app: calico-node
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        k8s-app: calico-node
+    spec:
+      nodeSelector:
+        kubernetes.io&#x2F;os: linux
+      hostNetwork: true
+      tolerations:
+        # Make sure calico-node gets scheduled on all nodes.
+        - effect: NoSchedule
+          operator: Exists
+        # Mark the pod as a critical add-on for rescheduling.
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - effect: NoExecute
+          operator: Exists
+      serviceAccountName: calico-node
+      # Minimize downtime during a rolling upgrade or deletion; tell Kubernetes to do a &quot;force
+      # deletion&quot;: https:&#x2F;&#x2F;kubernetes.io&#x2F;docs&#x2F;concepts&#x2F;workloads&#x2F;pods&#x2F;pod&#x2F;#termination-of-pods.
+      terminationGracePeriodSeconds: 0
+      priorityClassName: system-node-critical
+      initContainers:
+        # This container installs the CNI binaries
+        # and CNI network config file on each node.
+        - name: install-cni
+          image: registry.cn-beijing.aliyuncs.com&#x2F;dotbalo&#x2F;cni:v3.15.3
+          command: [&quot;&#x2F;install-cni.sh&quot;]
+          env:
+            # Name of the CNI config file to create.
+            - name: CNI_CONF_NAME
+              value: &quot;10-calico.conflist&quot;
+            # The CNI network config to install on each node.
+            - name: CNI_NETWORK_CONFIG
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: cni_network_config
+            # The location of the etcd cluster.
+            - name: ETCD_ENDPOINTS
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_endpoints
+            # CNI MTU Config variable
+            - name: CNI_MTU
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: veth_mtu
+            # Prevents the container from sleeping forever.
+            - name: SLEEP
+              value: &quot;false&quot;
+          volumeMounts:
+            - mountPath: &#x2F;host&#x2F;opt&#x2F;cni&#x2F;bin
+              name: cni-bin-dir
+            - mountPath: &#x2F;host&#x2F;etc&#x2F;cni&#x2F;net.d
+              name: cni-net-dir
+            - mountPath: &#x2F;calico-secrets
+              name: etcd-certs
+          securityContext:
+            privileged: true
+        # Adds a Flex Volume Driver that creates a per-pod Unix Domain Socket to allow Dikastes
+        # to communicate with Felix over the Policy Sync API.
+        - name: flexvol-driver
+          image: registry.cn-beijing.aliyuncs.com&#x2F;dotbalo&#x2F;pod2daemon-flexvol:v3.15.3
+          volumeMounts:
+          - name: flexvol-driver-host
+            mountPath: &#x2F;host&#x2F;driver
+          securityContext:
+            privileged: true
+      containers:
+        # Runs calico-node container on each Kubernetes node. This
+        # container programs network policy and routes on each
+        # host.
+        - name: calico-node
+          image: registry.cn-beijing.aliyuncs.com&#x2F;dotbalo&#x2F;node:v3.15.3
+          env:
+            # The location of the etcd cluster.
+            - name: ETCD_ENDPOINTS
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_endpoints
+            # Location of the CA certificate for etcd.
+            - name: ETCD_CA_CERT_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_ca
+            # Location of the client key for etcd.
+            - name: ETCD_KEY_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_key
+            # Location of the client certificate for etcd.
+            - name: ETCD_CERT_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_cert
+            # Set noderef for node controller.
+            - name: CALICO_K8S_NODE_REF
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            # Choose the backend to use.
+            - name: CALICO_NETWORKING_BACKEND
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: calico_backend
+            # Cluster type to identify the deployment type
+            - name: CLUSTER_TYPE
+              value: &quot;k8s,bgp&quot;
+            # Auto-detect the BGP IP address.
+            - name: IP
+              value: &quot;autodetect&quot;
+            # Enable IPIP
+            - name: CALICO_IPV4POOL_IPIP
+              value: &quot;Always&quot;
+            # Enable or Disable VXLAN on the default IP pool.
+            - name: CALICO_IPV4POOL_VXLAN
+              value: &quot;Never&quot;
+            # Set MTU for tunnel device used if ipip is enabled
+            - name: FELIX_IPINIPMTU
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: veth_mtu
+            # Set MTU for the VXLAN tunnel device.
+            - name: FELIX_VXLANMTU
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: veth_mtu
+            # Set MTU for the Wireguard tunnel device.
+            - name: FELIX_WIREGUARDMTU
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: veth_mtu
+            # The default IPv4 pool to create on startup if none exists. Pod IPs will be
+            # chosen from this range. Changing this value after installation will have
+            # no effect. This should fall within &#96;--cluster-cidr&#96;.
+            # - name: CALICO_IPV4POOL_CIDR
+            #   value: &quot;192.168.0.0&#x2F;16&quot;
+            # Disable file logging so &#96;kubectl logs&#96; works.
+            - name: CALICO_DISABLE_FILE_LOGGING
+              value: &quot;true&quot;
+            # Set Felix endpoint to host default action to ACCEPT.
+            - name: FELIX_DEFAULTENDPOINTTOHOSTACTION
+              value: &quot;ACCEPT&quot;
+            # Disable IPv6 on Kubernetes.
+            - name: FELIX_IPV6SUPPORT
+              value: &quot;false&quot;
+            # Set Felix logging to &quot;info&quot;
+            - name: FELIX_LOGSEVERITYSCREEN
+              value: &quot;info&quot;
+            - name: FELIX_HEALTHENABLED
+              value: &quot;true&quot;
+          securityContext:
+            privileged: true
+          resources:
+            requests:
+              cpu: 250m
+          livenessProbe:
+            exec:
+              command:
+              - &#x2F;bin&#x2F;calico-node
+              - -felix-live
+              - -bird-live
+            periodSeconds: 10
+            initialDelaySeconds: 10
+            failureThreshold: 6
+          readinessProbe:
+            exec:
+              command:
+              - &#x2F;bin&#x2F;calico-node
+              - -felix-ready
+              - -bird-ready
+            periodSeconds: 10
+          volumeMounts:
+            - mountPath: &#x2F;lib&#x2F;modules
+              name: lib-modules
+              readOnly: true
+            - mountPath: &#x2F;run&#x2F;xtables.lock
+              name: xtables-lock
+              readOnly: false
+            - mountPath: &#x2F;var&#x2F;run&#x2F;calico
+              name: var-run-calico
+              readOnly: false
+            - mountPath: &#x2F;var&#x2F;lib&#x2F;calico
+              name: var-lib-calico
+              readOnly: false
+            - mountPath: &#x2F;calico-secrets
+              name: etcd-certs
+            - name: policysync
+              mountPath: &#x2F;var&#x2F;run&#x2F;nodeagent
+      volumes:
+        # Used by calico-node.
+        - name: lib-modules
+          hostPath:
+            path: &#x2F;lib&#x2F;modules
+        - name: var-run-calico
+          hostPath:
+            path: &#x2F;var&#x2F;run&#x2F;calico
+        - name: var-lib-calico
+          hostPath:
+            path: &#x2F;var&#x2F;lib&#x2F;calico
+        - name: xtables-lock
+          hostPath:
+            path: &#x2F;run&#x2F;xtables.lock
+            type: FileOrCreate
+        # Used to install CNI.
+        - name: cni-bin-dir
+          hostPath:
+            path: &#x2F;opt&#x2F;cni&#x2F;bin
+        - name: cni-net-dir
+          hostPath:
+            path: &#x2F;etc&#x2F;cni&#x2F;net.d
+        # Mount in the etcd TLS secrets with mode 400.
+        # See https:&#x2F;&#x2F;kubernetes.io&#x2F;docs&#x2F;concepts&#x2F;configuration&#x2F;secret&#x2F;
+        - name: etcd-certs
+          secret:
+            secretName: calico-etcd-secrets
+            defaultMode: 0400
+        # Used to create per-pod Unix Domain Sockets
+        - name: policysync
+          hostPath:
+            type: DirectoryOrCreate
+            path: &#x2F;var&#x2F;run&#x2F;nodeagent
+        # Used to install Flex Volume Driver
+        - name: flexvol-driver-host
+          hostPath:
+            type: DirectoryOrCreate
+            path: &#x2F;usr&#x2F;libexec&#x2F;kubernetes&#x2F;kubelet-plugins&#x2F;volume&#x2F;exec&#x2F;nodeagent~uds
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: calico-node
+  namespace: kube-system
+
+---
+# Source: calico&#x2F;templates&#x2F;calico-kube-controllers.yaml
+# See https:&#x2F;&#x2F;github.com&#x2F;projectcalico&#x2F;kube-controllers
+apiVersion: apps&#x2F;v1
+kind: Deployment
+metadata:
+  name: calico-kube-controllers
+  namespace: kube-system
+  labels:
+    k8s-app: calico-kube-controllers
+spec:
+  # The controllers can only have a single active instance.
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: calico-kube-controllers
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      name: calico-kube-controllers
+      namespace: kube-system
+      labels:
+        k8s-app: calico-kube-controllers
+    spec:
+      nodeSelector:
+        kubernetes.io&#x2F;os: linux
+      tolerations:
+        # Mark the pod as a critical add-on for rescheduling.
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - key: node-role.kubernetes.io&#x2F;master
+          effect: NoSchedule
+      serviceAccountName: calico-kube-controllers
+      priorityClassName: system-cluster-critical
+      # The controllers must run in the host network namespace so that
+      # it isn&#39;t governed by policy that would prevent it from working.
+      hostNetwork: true
+      containers:
+        - name: calico-kube-controllers
+          image: registry.cn-beijing.aliyuncs.com&#x2F;dotbalo&#x2F;kube-controllers:v3.15.3
+          env:
+            # The location of the etcd cluster.
+            - name: ETCD_ENDPOINTS
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_endpoints
+            # Location of the CA certificate for etcd.
+            - name: ETCD_CA_CERT_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_ca
+            # Location of the client key for etcd.
+            - name: ETCD_KEY_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_key
+            # Location of the client certificate for etcd.
+            - name: ETCD_CERT_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_cert
+            # Choose which controllers to run.
+            - name: ENABLED_CONTROLLERS
+              value: policy,namespace,serviceaccount,workloadendpoint,node
+          volumeMounts:
+            # Mount in the etcd TLS secrets.
+            - mountPath: &#x2F;calico-secrets
+              name: etcd-certs
+          readinessProbe:
+            exec:
+              command:
+              - &#x2F;usr&#x2F;bin&#x2F;check-status
+              - -r
+      volumes:
+        # Mount in the etcd TLS secrets with mode 400.
+        # See https:&#x2F;&#x2F;kubernetes.io&#x2F;docs&#x2F;concepts&#x2F;configuration&#x2F;secret&#x2F;
+        - name: etcd-certs
+          secret:
+            secretName: calico-etcd-secrets
+            defaultMode: 0400
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: calico-kube-controllers
+  namespace: kube-system
+
+---
+# Source: calico&#x2F;templates&#x2F;calico-typha.yaml
+
+---
+# Source: calico&#x2F;templates&#x2F;configure-canal.yaml
+
+---
+# Source: calico&#x2F;templates&#x2F;kdd-crds.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>：wq保存</p>
+<h3 id="1-在calico-etcd-yaml指定etcd数据库的连接地址"><a href="#1-在calico-etcd-yaml指定etcd数据库的连接地址" class="headerlink" title="1.在calico-etcd.yaml指定etcd数据库的连接地址"></a>1.在calico-etcd.yaml指定etcd数据库的连接地址</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# sed -i &#39;s#etcd_endpoints: &quot;http:&#x2F;&#x2F;&lt;ETCD_IP&gt;:&lt;ETCD_PORT&gt;&quot;#etcd_endpoints: &quot;https:&#x2F;&#x2F;192.168.137.130:2379&quot;#g&#39; calico-etcd.yaml	#注意：命令后面的IP地址为master的IP<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="2-指定连接etcd数据库使用的证书信息"><a href="#2-指定连接etcd数据库使用的证书信息" class="headerlink" title="2.指定连接etcd数据库使用的证书信息"></a>2.指定连接etcd数据库使用的证书信息</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# ETCD_CA&#x3D;&#96;cat &#x2F;etc&#x2F;kubernetes&#x2F;pki&#x2F;etcd&#x2F;ca.crt | base64 | tr -d &#39;\n&#39;&#96;
+[root@k8s-master ~]# ETCD_CERT&#x3D;&#96;cat &#x2F;etc&#x2F;kubernetes&#x2F;pki&#x2F;etcd&#x2F;server.crt | base64 | tr -d &#39;\n&#39;&#96;
+[root@k8s-master ~]# ETCD_KEY&#x3D;&#96;cat &#x2F;etc&#x2F;kubernetes&#x2F;pki&#x2F;etcd&#x2F;server.key | base64 | tr -d &#39;\n&#39;&#96;
+[root@k8s-master ~]# sed -i &quot;s@# etcd-key: null@etcd-key: $&#123;ETCD_KEY&#125;@g; s@# etcd-cert: null@etcd-cert: $&#123;ETCD_CERT&#125;@g; s@# etcd-ca: null@etcd-ca: $&#123;ETCD_CA&#125;@g&quot; calico-etcd.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# sed -i &#39;s#etcd_ca: &quot;&quot;#etcd_ca: &quot;&#x2F;calico-secrets&#x2F;etcd-ca&quot;#g; s#etcd_cert: &quot;&quot;#etcd_cert: &quot;&#x2F;calico-secrets&#x2F;etcd-cert&quot;#g; s#etcd_key: &quot;&quot; #etcd_key: &quot;&#x2F;calico-secrets&#x2F;etcd-key&quot; #g&#39; calico-etcd.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="3-指定通信的网段"><a href="#3-指定通信的网段" class="headerlink" title="3.指定通信的网段"></a>3.指定通信的网段</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# vim calico-etcd.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">346             # no effect. This should fall within &#96;--cluster-cidr&#96;.
+347             - name: CALICO_IPV4POOL_CIDR	#把这里的注释删掉，并且和下面的对齐
+348               value: &quot;192.168.0.0&#x2F;16&quot;	#把这里的注释删掉，并且和下面的对齐
+349             # Disable file logging so &#96;kubectl logs&#96; works.
+350             - name: CALICO_DISABLE_FILE_LOGGING
+351               value: &quot;true&quot;
+352             # Set Felix endpoint to host default action to ACCEPT.
+353             - name: FELIX_DEFAULTENDPOINTTOHOSTACTION
+354               value: &quot;ACCEPT&quot;
+355             # Disable IPv6 on Kubernetes.
+356             - name: FELIX_IPV6SUPPORT
+357               value: &quot;false&quot;
+358             # Set Felix logging to &quot;info&quot;
+359             - name: FELIX_LOGSEVERITYSCREEN
+360               value: &quot;info&quot;
+361             - name: FELIX_HEALTHENABLED<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-部署calico网络"><a href="#4-部署calico网络" class="headerlink" title="4.部署calico网络"></a>4.部署calico网络</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# kubectl create -f calico-etcd.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# kubectl get pods -A -o wide
+NAMESPACE     NAME                                       READY   STATUS    RESTARTS   AGE    IP               NODE                   NOMINATED NODE   READINESS GATES
+kube-system   calico-kube-controllers-5f6d4b864b-sv9kc   1&#x2F;1     Running   0          10m    192.168.137.130  k8s-master01           &lt;none&gt;           &lt;none&gt;
+kube-system   calico-node-bcsxg                          1&#x2F;1     Running   0          10m    192.168.137.129   k8s-node01.linux.com   &lt;none&gt;           &lt;none&gt;
+kube-system   calico-node-g6k4d                          1&#x2F;1     Running   0          10m    192.168.137.128   k8s-node02.linux.com   &lt;none&gt;           &lt;none&gt;
+kube-system   calico-node-wp8hj                          1&#x2F;1     Running   0          10m    192.168.137.130   k8s-master01           &lt;none&gt;           &lt;none&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="5-再次查看集群节点的状态"><a href="#5-再次查看集群节点的状态" class="headerlink" title="5.再次查看集群节点的状态"></a>5.再次查看集群节点的状态</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# kubectl get nodes
+NAME                   STATUS   ROLES                  AGE    VERSION
+k8s-master01           Ready    control-plane,master   130m   v1.20.7
+k8s-node01.linux.com   Ready    &lt;none&gt;                 124m   v1.20.7
+k8s-node02.linux.com   Ready    &lt;none&gt;                 123m   v1.20.7<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="十一、安装metric插件"><a href="#十一、安装metric插件" class="headerlink" title="十一、安装metric插件"></a>十一、安装metric插件</h2><ul>
+<li>搜集、监控node节点CPU、内存使用情况</li>
+</ul>
+<h3 id="1-将front-proxy-ca-crt证书拷贝到所有node节点"><a href="#1-将front-proxy-ca-crt证书拷贝到所有node节点" class="headerlink" title="1.将front-proxy-ca.crt证书拷贝到所有node节点"></a>1.将front-proxy-ca.crt证书拷贝到所有node节点</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# scp &#x2F;etc&#x2F;kubernetes&#x2F;pki&#x2F;front-proxy-ca.crt root@192.168.137.129:&#x2F;etc&#x2F;kubernetes&#x2F;pki&#x2F;front-proxy-ca.crt	#拷贝到node1节点
+front-proxy-ca.crt                                                                                                                       100% 1078   754.4KB&#x2F;s   00:00    
+[root@k8s-master ~]# scp &#x2F;etc&#x2F;kubernetes&#x2F;pki&#x2F;front-proxy-ca.crt root@192.168.137.128:&#x2F;etc&#x2F;kubernetes&#x2F;pki&#x2F;front-proxy-ca.crt	#拷贝到node2节点
+front-proxy-ca.crt  <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="2-部署Metric插件"><a href="#2-部署Metric插件" class="headerlink" title="2.部署Metric插件"></a>2.部署Metric插件</h3><pre class="line-numbers language-none"><code class="language-none">vim comp.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>复制以下内容</p>
+<pre class="line-numbers language-none"><code class="language-none">apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    k8s-app: metrics-server
+  name: metrics-server
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io&#x2F;v1
+kind: ClusterRole
+metadata:
+  labels:
+    k8s-app: metrics-server
+    rbac.authorization.k8s.io&#x2F;aggregate-to-admin: &quot;true&quot;
+    rbac.authorization.k8s.io&#x2F;aggregate-to-edit: &quot;true&quot;
+    rbac.authorization.k8s.io&#x2F;aggregate-to-view: &quot;true&quot;
+  name: system:aggregated-metrics-reader
+rules:
+  - apiGroups:
+      - metrics.k8s.io
+    resources:
+      - pods
+      - nodes
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io&#x2F;v1
+kind: ClusterRole
+metadata:
+  labels:
+    k8s-app: metrics-server
+  name: system:metrics-server
+rules:
+  - apiGroups:
+      - &quot;&quot;
+    resources:
+      - pods
+      - nodes
+      - nodes&#x2F;stats
+      - namespaces
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io&#x2F;v1
+kind: RoleBinding
+metadata:
+  labels:
+    k8s-app: metrics-server
+  name: metrics-server-auth-reader
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: extension-apiserver-authentication-reader
+subjects:
+  - kind: ServiceAccount
+    name: metrics-server
+    namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io&#x2F;v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    k8s-app: metrics-server
+  name: metrics-server:system:auth-delegator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+subjects:
+  - kind: ServiceAccount
+    name: metrics-server
+    namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io&#x2F;v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    k8s-app: metrics-server
+  name: system:metrics-server
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:metrics-server
+subjects:
+  - kind: ServiceAccount
+    name: metrics-server
+    namespace: kube-system
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: metrics-server
+  name: metrics-server
+  namespace: kube-system
+spec:
+  ports:
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: https
+  selector:
+    k8s-app: metrics-server
+---
+apiVersion: apps&#x2F;v1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: metrics-server
+  name: metrics-server
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      k8s-app: metrics-server
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        k8s-app: metrics-server
+    spec:
+      containers:
+        - args:
+            - --cert-dir&#x3D;&#x2F;tmp
+            - --secure-port&#x3D;4443
+            - --metric-resolution&#x3D;30s
+            - --kubelet-insecure-tls
+            - --kubelet-preferred-address-types&#x3D;InternalIP,ExternalIP,Hostname
+            - --requestheader-client-ca-file&#x3D;&#x2F;etc&#x2F;kubernetes&#x2F;pki&#x2F;front-proxy-ca.crt # change to front-proxy-ca.crt for kubeadm
+            - --requestheader-username-headers&#x3D;X-Remote-User
+            - --requestheader-group-headers&#x3D;X-Remote-Group
+            - --requestheader-extra-headers-prefix&#x3D;X-Remote-Extra-
+          image: registry.cn-beijing.aliyuncs.com&#x2F;dotbalo&#x2F;metrics-server:v0.4.1
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: &#x2F;livez
+              port: https
+              scheme: HTTPS
+            periodSeconds: 10
+          name: metrics-server
+          ports:
+            - containerPort: 4443
+              name: https
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: &#x2F;readyz
+              port: https
+              scheme: HTTPS
+            periodSeconds: 10
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+          volumeMounts:
+            - mountPath: &#x2F;tmp
+              name: tmp-dir
+            - name: ca-ssl
+              mountPath: &#x2F;etc&#x2F;kubernetes&#x2F;pki
+      nodeSelector:
+        kubernetes.io&#x2F;os: linux
+      priorityClassName: system-cluster-critical
+      serviceAccountName: metrics-server
+      volumes:
+        - emptyDir: &#123;&#125;
+          name: tmp-dir
+        - name: ca-ssl
+          hostPath:
+            path: &#x2F;etc&#x2F;kubernetes&#x2F;pki
+---
+apiVersion: apiregistration.k8s.io&#x2F;v1
+kind: APIService
+metadata:
+  labels:
+    k8s-app: metrics-server
+  name: v1beta1.metrics.k8s.io
+spec:
+  group: metrics.k8s.io
+  groupPriorityMinimum: 100
+  insecureSkipTLSVerify: true
+  service:
+    name: metrics-server
+    namespace: kube-system
+  version: v1beta1
+  versionPriority: 100<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>：wq保存</p>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# kubectl create -f comp.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="3-测试Metric插件"><a href="#3-测试Metric插件" class="headerlink" title="3.测试Metric插件"></a>3.测试Metric插件</h3><p>可以等待1分钟左右再测试</p>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# kubectl top nodes 
+NAME                   CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%     
+k8s-node02.linux.com   154m         3%     834Mi           22%<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="十二、部署dashboard插件"><a href="#十二、部署dashboard插件" class="headerlink" title="十二、部署dashboard插件"></a>十二、部署dashboard插件</h2><ul>
+<li>提供web UI界面</li>
+</ul>
+<p>涉及到的包<a target="_blank" rel="noopener" href="https://wangshengjj.work/s/wRSz">下载链接</a></p>
+<h3 id="1-部署dashboard"><a href="#1-部署dashboard" class="headerlink" title="1.部署dashboard"></a>1.部署dashboard</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# cd dashboard&#x2F;	#网盘提供下载
+[root@k8s-master dashboard]# kubectl create -f .&#x2F;	#里面有2个yaml格式的文件<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h3 id="2-将dashboard服务类型修改为nodePort-默认ClusterIP模式，其他机器不能访问"><a href="#2-将dashboard服务类型修改为nodePort-默认ClusterIP模式，其他机器不能访问" class="headerlink" title="2.将dashboard服务类型修改为nodePort(默认ClusterIP模式，其他机器不能访问)"></a>2.将dashboard服务类型修改为nodePort(默认ClusterIP模式，其他机器不能访问)</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master dashboard]# kubectl edit svc kubernetes-dashboard -n kubernetes-dashboard<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none"> 1 # Please edit the object below. Lines beginning with a &#39;#&#39; will be ignored,
+ 2 # and an empty file will abort the edit. If an error occurs while saving this file         will be
+ 3 # reopened with the relevant failures.
+ 4 #
+ 5 apiVersion: v1
+ 6 kind: Service
+ 7 metadata:
+ 8   creationTimestamp: &quot;2022-11-20T07:28:30Z&quot;
+ 9   labels:
+10     k8s-app: kubernetes-dashboard
+11   name: kubernetes-dashboard
+12   namespace: kubernetes-dashboard
+13   resourceVersion: &quot;6565&quot;
+14   uid: de981c75-46e1-4721-b633-f64e2d7511f2
+15 spec:
+16   clusterIP: 172.16.63.54
+17   clusterIPs:
+18   - 172.16.63.54 
+19   externalTrafficPolicy: Cluster
+20   ports:
+21   - nodePort: 31077
+22     port: 443
+23     protocol: TCP
+24     targetPort: 8443
+25   selector:
+26     k8s-app: kubernetes-dashboard
+27   sessionAffinity: None
+28   type: NodePort	#把这里默认的ClusterIP改成NodePort
+29 status: 
+30   loadBalancer: &#123;&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-验证修改结果"><a href="#3-验证修改结果" class="headerlink" title="3.验证修改结果"></a>3.验证修改结果</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master dashboard]# kubectl get service -n kubernetes-dashboard
+NAME                        TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)         AGE
+dashboard-metrics-scraper   ClusterIP   172.16.188.225   &lt;none&gt;        8000&#x2F;TCP        8m44s
+kubernetes-dashboard        NodePort    172.16.1.18      &lt;none&gt;        443:32205&#x2F;TCP   8m45s	#注意这里端口443映射到了32205端口<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-查看dashboard容器运行的主机"><a href="#4-查看dashboard容器运行的主机" class="headerlink" title="4.查看dashboard容器运行的主机"></a>4.查看dashboard容器运行的主机</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master dashboard]# kubectl get pods -n kubernetes-dashboard -o wide 
+NAME                                         READY   STATUS    RESTARTS   AGE   IP                NODE                   NOMINATED NODE   READINESS GATES
+dashboard-metrics-scraper-7645f69d8c-hxz8n   1&#x2F;1     Running   0          11m   192.168.242.130   k8s-node02.linux.com   &lt;none&gt;           &lt;none&gt;
+kubernetes-dashboard-78cb679857-8hdnc        1&#x2F;1     Running   0          11m   192.168.201.193   k8s-node01.linux.com   &lt;none&gt;           &lt;none&gt;	#通过这里我们知道了dashboard服务跑在了node1机器上<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>浏览器访问node1的IP+32205端口即可访问：<a target="_blank" rel="noopener" href="https://192.168.137.129:32205/">https://192.168.137.129:32205</a>	#每个人的IP不一样仅供参考</p>
+<h3 id="5-获取token令牌，登录dashboard"><a href="#5-获取token令牌，登录dashboard" class="headerlink" title="5.获取token令牌，登录dashboard"></a>5.获取token令牌，登录dashboard</h3><p><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/11/k8s1.png" alt="k8s1"></p>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master dashboard]# kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk &#39;&#123;print $1&#125;&#39;)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">Name:         admin-user-token-crx2f
+Namespace:    kube-system
+Labels:       &lt;none&gt;
+Annotations:  kubernetes.io&#x2F;service-account.name: admin-user
+              kubernetes.io&#x2F;service-account.uid: 289b1d24-93ec-4af0-abdc-99d51dafa133
+
+Type:  kubernetes.io&#x2F;service-account-token
+
+Data
+&#x3D;&#x3D;&#x3D;&#x3D;
+namespace:  11 bytes
+token:      eyJhbGciOiJSUzI1NiIsImtpZCI6IlBUNDdadjNDQ3hPbWZ1enlNMGZCU09SNlpZOW9GdkIxckI1LWdWclIwUTgifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi11c2VyLXRva2VuLWNyeDJmIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImFkbWluLXVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiIyODliMWQyNC05M2VjLTRhZjAtYWJkYy05OWQ1MWRhZmExMzMiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06YWRtaW4tdXNlciJ9.FuU7y1LTqlEMSLFMkilOS2-9Q6uaoSYSvn7hr2aS4vGN5CvIeXbWRr-SJKmMTsDGr3ZfQcPc06ixFN1IafSAXZ0Ao6V6dPpuY37DmJ4Uv8Kvinrg1gRZeVSjpeFsTa9cXWod6tDDI7zxEF7byimkGTwXPjgGui2eRwFObu7UzdhAyNZMbALhKM3ot36Acbt8kQoZgkPeZLrbsuy--Qd1tdUH3rirvNEI9v_YDUYx_o5NxMM5OHvrtWConVtenRBYmIllsV4gx_-KQHFwWvx8IAtV4fQFMp5E-hcjOcxhIXkjnUPzr1BlhV68H7yZF2YYkama4y7EKPI6E1hlBYPcHA
+#上面的token是我们需要复制到浏览器的！
+ca.crt:     1066 bytes<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="6-登录成功"><a href="#6-登录成功" class="headerlink" title="6.登录成功"></a>6.登录成功</h3><p>把刚刚获取到的token复制进去即可</p>
+<p><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/11/k8s2.png" alt="k8s2"></p>
+<p>教程未完结，等待补充……</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work">网笙久久</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work/2022/11/20/k8s/">https://blog.wangshengjj.work/2022/11/20/k8s/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.wangshengjj.work" target="_blank">WangShengJJのblog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/">服务器搭建</a><a class="post-meta__tags" href="/tags/linux%E6%90%AD%E5%BB%BA%E6%9C%8D%E5%8A%A1%E5%99%A8/">linux搭建服务器</a><a class="post-meta__tags" href="/tags/centos/">centos</a><a class="post-meta__tags" href="/tags/docker/">docker</a><a class="post-meta__tags" href="/tags/%E8%99%9A%E6%8B%9F%E6%9C%BA/">虚拟机</a><a class="post-meta__tags" href="/tags/k8s/">k8s</a><a class="post-meta__tags" href="/tags/kubernetes/">kubernetes</a></div><div class="post_share"><div class="social-share" data-image="https://api.ghser.com/random/api.php" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/11/25/23/" title="Kubernetes(K8s)部署WordPress博客"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Kubernetes(K8s)部署WordPress博客</div></div></a></div><div class="next-post pull-right"><a href="/2022/11/09/22/" title="Centos7安装配置Ansible教程"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Centos7安装配置Ansible教程</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/11/25/23/" title="Kubernetes(K8s)部署WordPress博客"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-11-25</div><div class="title">Kubernetes(K8s)部署WordPress博客</div></div></a></div><div><a href="/2022/12/22/25/" title="Centos7部署Cloudreve公私兼备网盘系统"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-22</div><div class="title">Centos7部署Cloudreve公私兼备网盘系统</div></div></a></div><div><a href="/2023/01/07/wxedge/" title="Centos7网心云搭建教程"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-01-07</div><div class="title">Centos7网心云搭建教程</div></div></a></div><div><a href="/2022/10/26/18/" title="Centos7安装并配置Zabbix Server端"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-10-26</div><div class="title">Centos7安装并配置Zabbix Server端</div></div></a></div><div><a href="/2022/10/26/19/" title="Centos7安装并配置Zabbix Agent端"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-10-26</div><div class="title">Centos7安装并配置Zabbix Agent端</div></div></a></div><div><a href="/2022/11/04/21/" title="Centos7安装并配置Zabbix Proxy端"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-11-04</div><div class="title">Centos7安装并配置Zabbix Proxy端</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">网笙久久</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">126</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">168</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">230</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wangshengjj"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wangshengjj" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:wangshengjj@wangshengjj.work" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.wangshengjj.work" target="_blank" title="Blog"><i class="fa fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到网笙久久的博客</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Centos7%E5%AE%89%E8%A3%85%E5%B9%B6%E9%85%8D%E7%BD%AEKubernetes-K8s"><span class="toc-number">1.</span> <span class="toc-text">Centos7安装并配置Kubernetes(K8s)</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%87%86%E5%A4%87%E9%98%B6%E6%AE%B5"><span class="toc-number">1.1.</span> <span class="toc-text">一、准备阶段</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E5%8F%B0%E8%99%9A%E6%8B%9F%E6%9C%BA%EF%BC%9A"><span class="toc-number">1.1.1.</span> <span class="toc-text">三台虚拟机：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BD%AF%E4%BB%B6%E7%89%88%E6%9C%AC"><span class="toc-number">1.1.2.</span> <span class="toc-text">软件版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BD%91%E6%AE%B5"><span class="toc-number">1.1.3.</span> <span class="toc-text">网段</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%85%B3%E9%97%ADSElinux%E5%92%8C%E9%98%B2%E7%81%AB%E5%A2%99-%E4%B8%89%E5%8F%B0%E8%99%9A%E6%8B%9F%E6%9C%BA%E9%83%BD%E8%A6%81%E9%85%8D%E7%BD%AE"><span class="toc-number">1.2.</span> <span class="toc-text">二、关闭SElinux和防火墙(三台虚拟机都要配置)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%85%B3%E9%97%AD%E9%98%B2%E7%81%AB%E5%A2%99%E5%B9%B6%E4%B8%94%E8%AE%BE%E7%BD%AE%E5%BC%80%E6%9C%BA%E4%B8%8D%E8%87%AA%E5%90%AF"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.关闭防火墙并且设置开机不自启</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%85%B3%E9%97%ADselinux"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.关闭selinux</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E9%87%8D%E5%90%AF"><span class="toc-number">1.2.3.</span> <span class="toc-text">3.重启</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E9%85%8D%E7%BD%AEyum%E6%BA%90%E5%92%8Cepel%E6%BA%90"><span class="toc-number">1.2.4.</span> <span class="toc-text">4.配置yum源和epel源</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%BF%AE%E6%94%B9%E4%B8%BB%E6%9C%BA%E5%90%8D%E5%92%8C%E5%9F%9F%E5%90%8D"><span class="toc-number">1.3.</span> <span class="toc-text">三、修改主机名和域名</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%BF%AE%E6%94%B9%E4%B8%BB%E6%9C%BA%E5%90%8D"><span class="toc-number">1.3.1.</span> <span class="toc-text">1.修改主机名</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E4%BF%AE%E6%94%B9hosts"><span class="toc-number">1.3.2.</span> <span class="toc-text">2.修改hosts</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E4%BD%BF%E7%94%A8ping%E5%91%BD%E4%BB%A4%E6%B5%8B%E8%AF%95"><span class="toc-number">1.3.3.</span> <span class="toc-text">3.使用ping命令测试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E7%BB%99%E4%B8%89%E5%8F%B0%E8%99%9A%E6%8B%9F%E6%9C%BA%E9%85%8D%E7%BD%AE%E5%85%8D%E5%AF%86SSH-master%E4%B8%8A%E6%93%8D%E4%BD%9C"><span class="toc-number">1.4.</span> <span class="toc-text">四、给三台虚拟机配置免密SSH(master上操作)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E9%85%8D%E7%BD%AE%E4%B8%BB%E6%9C%BA%E8%B5%84%E6%BA%90"><span class="toc-number">1.5.</span> <span class="toc-text">五、配置主机资源</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%89%80%E6%9C%89%E4%B8%BB%E6%9C%BA%E7%A6%81%E7%94%A8swap%E4%BA%A4%E6%8D%A2%E5%88%86%E5%8C%BA-master%E3%80%81node1%E3%80%81node2"><span class="toc-number">1.5.1.</span> <span class="toc-text">1.所有主机禁用swap交换分区(master、node1、node2)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%89%80%E6%9C%89%E4%B8%BB%E6%9C%BA%E8%B0%83%E6%95%B4%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%B5%84%E6%BA%90%E9%99%90%E5%88%B6-master%E3%80%81node1%E3%80%81node2"><span class="toc-number">1.5.2.</span> <span class="toc-text">2.所有主机调整系统的资源限制(master、node1、node2)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E9%85%8D%E7%BD%AEDocekr%E4%BB%93%E5%BA%93%E5%92%8CK8s%E4%BB%93%E5%BA%93"><span class="toc-number">1.6.</span> <span class="toc-text">六、配置Docekr仓库和K8s仓库</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E9%85%8D%E7%BD%AEDocker%E4%BB%93%E5%BA%93-%E9%98%BF%E9%87%8C%E4%BA%91"><span class="toc-number">1.6.1.</span> <span class="toc-text">1.配置Docker仓库(阿里云)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%85%8D%E7%BD%AEK8s%E4%BB%93%E5%BA%93-%E9%98%BF%E9%87%8C%E4%BA%91"><span class="toc-number">1.6.2.</span> <span class="toc-text">2.配置K8s仓库(阿里云)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E8%AE%B2%E4%B8%8A%E8%BF%B02%E4%B8%AA%E4%BB%93%E5%BA%93%E6%8B%B7%E8%B4%9D%E5%88%B0node1%E5%92%8Cnode2"><span class="toc-number">1.6.3.</span> <span class="toc-text">3.讲上述2个仓库拷贝到node1和node2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%8D%87%E7%BA%A7%E7%B3%BB%E7%BB%9F%E5%88%B0%E6%9C%80%E6%96%B0%E7%89%88%E6%9C%AC-Centos7-9"><span class="toc-number">1.6.4.</span> <span class="toc-text">4.升级系统到最新版本(Centos7.9)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E8%B0%83%E6%95%B4%E7%B3%BB%E7%BB%9F%E5%8F%82%E6%95%B0-master%E3%80%81node1%E3%80%81node2"><span class="toc-number">1.7.</span> <span class="toc-text">七、调整系统参数(master、node1、node2)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%AE%89%E8%A3%85IPVS"><span class="toc-number">1.7.1.</span> <span class="toc-text">1.安装IPVS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%8A%A0%E8%BD%BDIPVS%E6%A8%A1%E5%9D%97"><span class="toc-number">1.7.2.</span> <span class="toc-text">2.加载IPVS模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E8%B0%83%E6%95%B4%E5%86%85%E6%A0%B8%E5%8F%82%E6%95%B0"><span class="toc-number">1.7.3.</span> <span class="toc-text">4.调整内核参数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E5%AE%89%E8%A3%85%E8%BD%AF%E4%BB%B6-master%E3%80%81node1%E3%80%81node2"><span class="toc-number">1.8.</span> <span class="toc-text">八、安装软件(master、node1、node2)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%AE%89%E8%A3%85Docker"><span class="toc-number">1.8.1.</span> <span class="toc-text">1.安装Docker</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%AE%89%E8%A3%85kubernetes"><span class="toc-number">1.8.2.</span> <span class="toc-text">2.安装kubernetes</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E9%85%8D%E7%BD%AEmaster%E8%8A%82%E7%82%B9%E7%9A%84%E5%88%9D%E5%A7%8B%E6%96%87%E4%BB%B6"><span class="toc-number">1.9.</span> <span class="toc-text">九、配置master节点的初始文件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%9C%A8master%E8%8A%82%E7%82%B9%E4%BA%8B%E5%85%88%E4%B8%8B%E8%BD%BD%E5%88%9D%E5%A7%8B%E5%8C%96%E9%9C%80%E8%A6%81%E7%9A%84%E9%95%9C%E5%83%8F"><span class="toc-number">1.9.1.</span> <span class="toc-text">1.在master节点事先下载初始化需要的镜像</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%9C%A8master%E8%8A%82%E7%82%B9%E4%B8%8A%E5%88%9D%E5%A7%8B%E5%8C%96%E9%9B%86%E7%BE%A4"><span class="toc-number">1.9.2.</span> <span class="toc-text">2.在master节点上初始化集群</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%AE%9A%E4%B9%89kubeconfig%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-number">1.9.3.</span> <span class="toc-text">3.定义kubeconfig环境变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%B0%86node%E8%8A%82%E7%82%B9%E5%8A%A0%E5%85%A5master"><span class="toc-number">1.9.4.</span> <span class="toc-text">4.将node节点加入master</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E6%9F%A5%E7%9C%8B%E9%9B%86%E7%BE%A4%E8%8A%82%E7%82%B9"><span class="toc-number">1.9.5.</span> <span class="toc-text">5.查看集群节点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E9%83%A8%E7%BD%B2calico%E7%BD%91%E7%BB%9C%EF%BC%8C%E5%AE%9E%E7%8E%B0%E5%AE%B9%E5%99%A8%E9%97%B4%E7%9A%84%E9%80%9A%E4%BF%A1"><span class="toc-number">1.10.</span> <span class="toc-text">十、部署calico网络，实现容器间的通信</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%9C%A8calico-etcd-yaml%E6%8C%87%E5%AE%9Aetcd%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E8%BF%9E%E6%8E%A5%E5%9C%B0%E5%9D%80"><span class="toc-number">1.10.1.</span> <span class="toc-text">1.在calico-etcd.yaml指定etcd数据库的连接地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%8C%87%E5%AE%9A%E8%BF%9E%E6%8E%A5etcd%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BD%BF%E7%94%A8%E7%9A%84%E8%AF%81%E4%B9%A6%E4%BF%A1%E6%81%AF"><span class="toc-number">1.10.2.</span> <span class="toc-text">2.指定连接etcd数据库使用的证书信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%8C%87%E5%AE%9A%E9%80%9A%E4%BF%A1%E7%9A%84%E7%BD%91%E6%AE%B5"><span class="toc-number">1.10.3.</span> <span class="toc-text">3.指定通信的网段</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E9%83%A8%E7%BD%B2calico%E7%BD%91%E7%BB%9C"><span class="toc-number">1.10.4.</span> <span class="toc-text">4.部署calico网络</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%86%8D%E6%AC%A1%E6%9F%A5%E7%9C%8B%E9%9B%86%E7%BE%A4%E8%8A%82%E7%82%B9%E7%9A%84%E7%8A%B6%E6%80%81"><span class="toc-number">1.10.5.</span> <span class="toc-text">5.再次查看集群节点的状态</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%B8%80%E3%80%81%E5%AE%89%E8%A3%85metric%E6%8F%92%E4%BB%B6"><span class="toc-number">1.11.</span> <span class="toc-text">十一、安装metric插件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%B0%86front-proxy-ca-crt%E8%AF%81%E4%B9%A6%E6%8B%B7%E8%B4%9D%E5%88%B0%E6%89%80%E6%9C%89node%E8%8A%82%E7%82%B9"><span class="toc-number">1.11.1.</span> <span class="toc-text">1.将front-proxy-ca.crt证书拷贝到所有node节点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%83%A8%E7%BD%B2Metric%E6%8F%92%E4%BB%B6"><span class="toc-number">1.11.2.</span> <span class="toc-text">2.部署Metric插件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%B5%8B%E8%AF%95Metric%E6%8F%92%E4%BB%B6"><span class="toc-number">1.11.3.</span> <span class="toc-text">3.测试Metric插件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%BA%8C%E3%80%81%E9%83%A8%E7%BD%B2dashboard%E6%8F%92%E4%BB%B6"><span class="toc-number">1.12.</span> <span class="toc-text">十二、部署dashboard插件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E9%83%A8%E7%BD%B2dashboard"><span class="toc-number">1.12.1.</span> <span class="toc-text">1.部署dashboard</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%B0%86dashboard%E6%9C%8D%E5%8A%A1%E7%B1%BB%E5%9E%8B%E4%BF%AE%E6%94%B9%E4%B8%BAnodePort-%E9%BB%98%E8%AE%A4ClusterIP%E6%A8%A1%E5%BC%8F%EF%BC%8C%E5%85%B6%E4%BB%96%E6%9C%BA%E5%99%A8%E4%B8%8D%E8%83%BD%E8%AE%BF%E9%97%AE"><span class="toc-number">1.12.2.</span> <span class="toc-text">2.将dashboard服务类型修改为nodePort(默认ClusterIP模式，其他机器不能访问)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E9%AA%8C%E8%AF%81%E4%BF%AE%E6%94%B9%E7%BB%93%E6%9E%9C"><span class="toc-number">1.12.3.</span> <span class="toc-text">3.验证修改结果</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%9F%A5%E7%9C%8Bdashboard%E5%AE%B9%E5%99%A8%E8%BF%90%E8%A1%8C%E7%9A%84%E4%B8%BB%E6%9C%BA"><span class="toc-number">1.12.4.</span> <span class="toc-text">4.查看dashboard容器运行的主机</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E8%8E%B7%E5%8F%96token%E4%BB%A4%E7%89%8C%EF%BC%8C%E7%99%BB%E5%BD%95dashboard"><span class="toc-number">1.12.5.</span> <span class="toc-text">5.获取token令牌，登录dashboard</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E7%99%BB%E5%BD%95%E6%88%90%E5%8A%9F"><span class="toc-number">1.12.6.</span> <span class="toc-text">6.登录成功</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/05/19/120/" title="【Linux应用系列教程】基于Jenkins发布maven项目"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】基于Jenkins发布maven项目"/></a><div class="content"><a class="title" href="/2023/05/19/120/" title="【Linux应用系列教程】基于Jenkins发布maven项目">【Linux应用系列教程】基于Jenkins发布maven项目</a><time datetime="2023-05-19T03:49:39.490Z" title="发表于 2023-05-19 11:49:39">2023-05-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/19/119/" title="【Linux应用系列教程】Jenkins持续集成工具安装教程"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】Jenkins持续集成工具安装教程"/></a><div class="content"><a class="title" href="/2023/05/19/119/" title="【Linux应用系列教程】Jenkins持续集成工具安装教程">【Linux应用系列教程】Jenkins持续集成工具安装教程</a><time datetime="2023-05-19T02:49:24.709Z" title="发表于 2023-05-19 10:49:24">2023-05-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/18/118/" title="【Linux应用系列教程】Git分布式版本控制器"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】Git分布式版本控制器"/></a><div class="content"><a class="title" href="/2023/05/18/118/" title="【Linux应用系列教程】Git分布式版本控制器">【Linux应用系列教程】Git分布式版本控制器</a><time datetime="2023-05-18T12:19:54.279Z" title="发表于 2023-05-18 20:19:54">2023-05-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/16/117/" title="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客"/></a><div class="content"><a class="title" href="/2023/05/16/117/" title="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客">【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客</a><time datetime="2023-05-16T11:30:05.268Z" title="发表于 2023-05-16 19:30:05">2023-05-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【自动化运维系列教程】Ansible Playbook剧本"/></a><div class="content"><a class="title" href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本">【自动化运维系列教程】Ansible Playbook剧本</a><time datetime="2023-05-15T12:27:43.911Z" title="发表于 2023-05-15 20:27:43">2023-05-15</time></div></div></div></div></div></div></main><footer id="footer" style="background: flase"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By 网笙久久</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><div class="js-pjax"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js"></script><script>(() => {
+  document.querySelectorAll('#article-container span.katex-display').forEach(item => {
+    btf.wrap(item, 'div', { class: 'katex-wrap'})
+  })
+})()</script></div><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div><script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(n){n.imageLazyLoadSetting.processImages=i;var e=n.imageLazyLoadSetting.isSPA,r=(n.imageLazyLoadSetting.preloadRatio,Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));function i(){e&&(r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));for(var t,a=0;a<r.length;a++)0<=(t=(t=r[a]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(n.innerHeight+240||document.documentElement.clientHeight+240)&&function(){var t,e,n,i,o=r[a];t=o,e=function(){r=r.filter(function(t){return o!==t})},n=new Image,i=t.getAttribute("data-original"),n.onload=function(){t.src=i,e&&e()},t.src!==i&&(n.src=i)}()}i(),n.addEventListener("scroll",function(){var t,e;t=i,e=n,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(e)},500)})}(this);</script></body></html>

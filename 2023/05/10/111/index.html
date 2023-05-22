@@ -1,0 +1,304 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>【Zabbix系列教程】触发器和报警器 | WangShengJJのblog</title><meta name="author" content="网笙久久"><meta name="copyright" content="网笙久久"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="【Zabbix系列教程】触发器和报警 第一期教程：【Zabbix系列教程】Server端部署教程上一期教程：【Zabbix系列教程】Agent端部署教程  一、触发器1.作用 触发某个监控项状态的变化 基于监控项创建 一个监控项可以有多个触发器  2.触发器语法&amp;#123;&lt;server&gt;:&lt;key&gt;.&lt;function&gt;(&lt;parameter&gt;)&amp;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Zabbix系列教程】触发器和报警器">
+<meta property="og:url" content="https://blog.wangshengjj.work/2023/05/10/111/index.html">
+<meta property="og:site_name" content="WangShengJJのblog">
+<meta property="og:description" content="【Zabbix系列教程】触发器和报警 第一期教程：【Zabbix系列教程】Server端部署教程上一期教程：【Zabbix系列教程】Agent端部署教程  一、触发器1.作用 触发某个监控项状态的变化 基于监控项创建 一个监控项可以有多个触发器  2.触发器语法&amp;#123;&lt;server&gt;:&lt;key&gt;.&lt;function&gt;(&lt;parameter&gt;)&amp;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.dmoe.cc/random.php">
+<meta property="article:published_time" content="2023-05-10T12:07:18.574Z">
+<meta property="article:modified_time" content="2023-05-10T12:13:53.694Z">
+<meta property="article:author" content="网笙久久">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="zabbix">
+<meta property="article:tag" content="zabbix agent">
+<meta property="article:tag" content="触发器">
+<meta property="article:tag" content="报警器">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.dmoe.cc/random.php"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://blog.wangshengjj.work/2023/05/10/111/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"prismjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【Zabbix系列教程】触发器和报警器',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-05-10 20:13:53'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><meting-js server="netease" type="playlist" id="7386208265" lrc-type="0" volume="0.5" fixed="true" mini="true" order="random" loop="all" autoplay="true" preload="auto" list-folded="true"></meting-js><script src="https://fastly.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/autoload.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script><meta name="generator" content="Hexo 6.1.0"></head><body><link rel="stylesheet" href="/css/barber-shop.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">126</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">168</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">230</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://www.dmoe.cc/random.php')"><nav id="nav"><span id="blog-info"><a href="/" title="WangShengJJのblog"><span class="site-name">WangShengJJのblog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【Zabbix系列教程】触发器和报警器</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-05-10T12:07:18.574Z" title="发表于 2023-05-10 20:07:18">2023-05-10</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-05-10T12:13:53.694Z" title="更新于 2023-05-10 20:13:53">2023-05-10</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/">服务器搭建</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/zabbix/">zabbix</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/zabbix/%E7%AC%94%E8%AE%B0/">笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/zabbix/%E7%AC%94%E8%AE%B0/linux%E7%9B%91%E6%8E%A7/">linux监控</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/zabbix/%E7%AC%94%E8%AE%B0/linux%E7%9B%91%E6%8E%A7/%E5%BA%94%E7%94%A8/">应用</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">890</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>3分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="【Zabbix系列教程】触发器和报警器"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="【Zabbix系列教程】触发器和报警"><a href="#【Zabbix系列教程】触发器和报警" class="headerlink" title="【Zabbix系列教程】触发器和报警"></a>【Zabbix系列教程】触发器和报警</h1><blockquote>
+<p><strong>第一期教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/109">【Zabbix系列教程】Server端部署教程</a></strong><br><strong>上一期教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/110">【Zabbix系列教程】Agent端部署教程</a></strong></p>
+</blockquote>
+<h2 id="一、触发器"><a href="#一、触发器" class="headerlink" title="一、触发器"></a>一、触发器</h2><h3 id="1-作用"><a href="#1-作用" class="headerlink" title="1.作用"></a>1.作用</h3><ul>
+<li>触发某个监控项状态的变化</li>
+<li>基于监控项创建</li>
+<li>一个监控项可以有多个触发器</li>
+</ul>
+<h3 id="2-触发器语法"><a href="#2-触发器语法" class="headerlink" title="2.触发器语法"></a>2.触发器语法</h3><pre class="line-numbers language-none"><code class="language-none">&#123;&lt;server&gt;:&lt;key&gt;.&lt;function&gt;(&lt;parameter&gt;)&#125;&lt;operator&gt;&lt;constant&gt;
+&#123;&lt;被监控机名称&gt;:&lt;键值&gt;.函数(参数)&#125;&lt;操作符&gt;&lt;常量&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="例：监控node01主机上的TCP22号端口的最新数据"><a href="#例：监控node01主机上的TCP22号端口的最新数据" class="headerlink" title="例：监控node01主机上的TCP22号端口的最新数据"></a>例：监控node01主机上的TCP22号端口的最新数据</h4><pre class="line-numbers language-none"><code class="language-none">&#123;node01.linux.com:net.tcp.port[22].last()&#125;&#x3D;0<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="操作符"><a href="#操作符" class="headerlink" title="操作符"></a>操作符</h4><blockquote>
+<p><code>&gt;</code>大于<br><code> &gt;=</code>大于等于<br><code>&lt;</code>小于<br><code>&lt;=</code>小于等于<br><code>=</code>等于<br><code>&lt;&gt;</code>不等于<br><code>+</code>加<br><code>-</code>减<br><code>*</code>乘<br><code>/</code>除<br><code>and</code>并且<br><code>or</code>或者</p>
+</blockquote>
+<h4 id="常见函数"><a href="#常见函数" class="headerlink" title="常见函数"></a>常见函数</h4><ul>
+<li>sum( )求和<ul>
+<li>sum(5m)	#5分钟的数据求和</li>
+<li>sum(10)	#10秒内所有的数据求和</li>
+<li>sum(#3)	#最后三个值的和</li>
+</ul>
+</li>
+<li>avg( )<ul>
+<li>平均</li>
+</ul>
+</li>
+<li>max( )<ul>
+<li>最大值</li>
+</ul>
+</li>
+<li>min( )<ul>
+<li>最小值</li>
+</ul>
+</li>
+<li>count( )<ul>
+<li>统计</li>
+</ul>
+</li>
+<li>last( )<ul>
+<li>获取某个监控项最新的数据</li>
+</ul>
+</li>
+<li>diff( )	<ul>
+<li>判断数据与上一次的数据是否不同</li>
+</ul>
+</li>
+<li>date( )<ul>
+<li>获取日期	YYYYMMDD</li>
+</ul>
+</li>
+<li>time( )<ul>
+<li>获取时间	HHMMSS</li>
+</ul>
+</li>
+</ul>
+<h4 id="示例1：www-zabbix-com网站处理器负载过高"><a href="#示例1：www-zabbix-com网站处理器负载过高" class="headerlink" title="示例1：www.zabbix.com网站处理器负载过高"></a>示例1：<code>www.zabbix.com</code>网站处理器负载过高</h4><pre class="line-numbers language-none"><code class="language-none">&#123;www.zabbix.com:system.cpu.load[all,avg1].last()&#125;&gt;5<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<blockquote>
+<p><strong><code>www.zabbix.com:system.cpu.load[all,avg1]</code>给出了被监控参数的简短名称。它指定了服务器是<code>www.zabbix.com</code>，监控项的键值是<code>system.cpu.load[all,avg1]</code>。通过使用函数<code>last()</code>获取最新的值。最后，<code>&gt;5</code>意味着当<code>www.zabbix.com</code>最新获取的处理器负载值<code>大于5</code>时触发器就会处于异常状态。</strong></p>
+</blockquote>
+<h4 id="示例2：passwd文件是否改动"><a href="#示例2：passwd文件是否改动" class="headerlink" title="示例2：passwd文件是否改动"></a>示例2：<code>passwd</code>文件是否改动</h4><pre class="line-numbers language-none"><code class="language-none">&#123;www.zabbix.com:vfs.file.cksum[&#x2F;etc&#x2F;passwd].diff()&#125;&#x3D;1<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<blockquote>
+<p><strong>当文件<code>/etc/passwd</code>的<code>checksum</code>值与最近的值不同时，表达式为<code>true</code>。</strong></p>
+</blockquote>
+<h4 id="示例3：夜间CPU的负载情况"><a href="#示例3：夜间CPU的负载情况" class="headerlink" title="示例3：夜间CPU的负载情况"></a>示例3：夜间<code>CPU</code>的负载情况</h4><pre class="line-numbers language-none"><code class="language-none">&#123;zabbix:system.cpu.load[all,avg1].min(5m)&#125;&gt;2 and &#123;zabbix:system.cpu.load[all,avg1].time()&#125;&gt;000000 and &#123;zabbix:system.cpu.load[all,avg1].time()&#125;&lt;060000<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<blockquote>
+<p><strong>仅在夜间<code>00:00-06:00</code>，触发器状态变可以变为真</strong></p>
+</blockquote>
+<h4 id="更多示例请查看官方文档：https-www-zabbix-com-documentation-4-0-zh-manual-config-triggers-expression"><a href="#更多示例请查看官方文档：https-www-zabbix-com-documentation-4-0-zh-manual-config-triggers-expression" class="headerlink" title="更多示例请查看官方文档：https://www.zabbix.com/documentation/4.0/zh/manual/config/triggers/expression"></a><strong>更多示例请查看官方文档：<a target="_blank" rel="noopener" href="https://www.zabbix.com/documentation/4.0/zh/manual/config/triggers/expression">https://www.zabbix.com/documentation/4.0/zh/manual/config/triggers/expression</a></strong></h4><h3 id="3-创建触发器"><a href="#3-创建触发器" class="headerlink" title="3.创建触发器"></a>3.创建触发器</h3><h4 id="A-在创建-x3D-x3D-触发器-x3D-x3D-之前，请先创建-x3D-x3D-监控项-x3D-x3D"><a href="#A-在创建-x3D-x3D-触发器-x3D-x3D-之前，请先创建-x3D-x3D-监控项-x3D-x3D" class="headerlink" title="A.在创建&#x3D;&#x3D;触发器&#x3D;&#x3D;之前，请先创建&#x3D;&#x3D;监控项&#x3D;&#x3D;"></a>A.在创建&#x3D;&#x3D;触发器&#x3D;&#x3D;之前，请先创建&#x3D;&#x3D;监控项&#x3D;&#x3D;</h4><blockquote>
+<p><strong>这里以检测<code>httpd</code>的<code>80</code>端口为例子</strong></p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-32.png" alt="zabbix4-32"></p>
+<h4 id="B-创建触发器"><a href="#B-创建触发器" class="headerlink" title="B.创建触发器"></a>B.创建触发器</h4><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-33.png" alt="zabbix4-33"></p>
+<blockquote>
+<p><strong>一个简单的触发器创建好了</strong></p>
+</blockquote>
+<h4 id="C-测试触发器"><a href="#C-测试触发器" class="headerlink" title="C.测试触发器"></a>C.测试触发器</h4><h5 id="停掉httpd服务"><a href="#停掉httpd服务" class="headerlink" title="停掉httpd服务"></a>停掉httpd服务</h5><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# systemctl stop httpd<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h5 id="回到web界面，测试触发器是否工作"><a href="#回到web界面，测试触发器是否工作" class="headerlink" title="回到web界面，测试触发器是否工作"></a>回到web界面，测试触发器是否工作</h5><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-34.png" alt="zabbix4-34"></p>
+<h2 id="二、报警器"><a href="#二、报警器" class="headerlink" title="二、报警器"></a>二、报警器</h2><blockquote>
+<p><strong>本教程以邮件报警为例</strong></p>
+</blockquote>
+<h3 id="1-恢复httpd服务"><a href="#1-恢复httpd服务" class="headerlink" title="1.恢复httpd服务"></a>1.恢复httpd服务</h3><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# systemctl start httpd<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-35.png" alt="zabbix4-35"></p>
+<h3 id="2-以刚才创建的触发器为例，创建报警器"><a href="#2-以刚才创建的触发器为例，创建报警器" class="headerlink" title="2.以刚才创建的触发器为例，创建报警器"></a>2.以刚才创建的触发器为例，创建报警器</h3><h4 id="先配置报警媒介"><a href="#先配置报警媒介" class="headerlink" title="先配置报警媒介"></a>先配置报警媒介</h4><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-36.png" alt="zabbix4-36"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-37.png" alt="zabbix4-37"></p>
+<h4 id="QQ邮箱获取SMTP服务秘钥"><a href="#QQ邮箱获取SMTP服务秘钥" class="headerlink" title="QQ邮箱获取SMTP服务秘钥"></a>QQ邮箱获取SMTP服务秘钥</h4><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-38.png" alt="zabbix4-38"></p>
+<blockquote>
+<p><strong>如果您是第一次启用，会生成一个随机的秘钥，请妥善保管，并且把秘钥输入到<code>zabbix</code>的配置中！</strong></p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-39.png" alt="zabbix4-39"></p>
+<h4 id="测试邮件"><a href="#测试邮件" class="headerlink" title="测试邮件"></a>测试邮件</h4><blockquote>
+<p><strong>这里的邮件地址不一定是别人的，也可以自己发给自己哦！</strong></p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-40.png" alt="zabbix4-40"></p>
+<h3 id="3-给zabbix管理员绑定邮箱-重要"><a href="#3-给zabbix管理员绑定邮箱-重要" class="headerlink" title="3.给zabbix管理员绑定邮箱(重要)"></a>3.给<code>zabbix</code>管理员绑定邮箱(重要)</h3><blockquote>
+<p><strong>此配置用于，今后报警器自动发送邮件的时候，接收邮件的用户！</strong></p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-41.png" alt="zabbix4-41"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-42.png" alt="zabbix4-42"></p>
+<h3 id="4-创建动作"><a href="#4-创建动作" class="headerlink" title="4.创建动作"></a>4.创建动作</h3><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-43.png" alt="zabbix4-43"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-44.png" alt="zabbix4-44"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-45.png" alt="zabbix4-45"></p>
+<blockquote>
+<p><strong>也可以自定义<code>蓝色框框</code>中的内容</strong><br><strong>关于更多<code>宏</code>官方文档：<a target="_blank" rel="noopener" href="https://www.zabbix.com/documentation/4.0/zh/manual/appendix/macros/supported_by_location">https://www.zabbix.com/documentation/4.0/zh/manual/appendix/macros/supported_by_location</a></strong></p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-46.png" alt="zabbix4-46"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-47.png" alt="zabbix4-47"></p>
+<blockquote>
+<p><strong>到这里，我们的报警器就创建完成了</strong></p>
+</blockquote>
+<h3 id="5-测试报警器"><a href="#5-测试报警器" class="headerlink" title="5.测试报警器"></a>5.测试报警器</h3><h4 id="A-停用httpd服务"><a href="#A-停用httpd服务" class="headerlink" title="A.停用httpd服务"></a>A.停用<code>httpd</code>服务</h4><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# systemctl stop httpd<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="B-查看web端和邮箱"><a href="#B-查看web端和邮箱" class="headerlink" title="B.查看web端和邮箱"></a>B.查看web端和邮箱</h4><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-48.png" alt="zabbix4-48"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-49.png" alt="zabbix4-49"></p>
+<h4 id="C-恢复服务"><a href="#C-恢复服务" class="headerlink" title="C.恢复服务"></a>C.恢复服务</h4><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# systemctl start httpd<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="D-查看邮件"><a href="#D-查看邮件" class="headerlink" title="D.查看邮件"></a>D.查看邮件</h4><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-50.png" alt="zabbix4-50"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work">网笙久久</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work/2023/05/10/111/">https://blog.wangshengjj.work/2023/05/10/111/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.wangshengjj.work" target="_blank">WangShengJJのblog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/linux/">linux</a><a class="post-meta__tags" href="/tags/zabbix/">zabbix</a><a class="post-meta__tags" href="/tags/zabbix-agent/">zabbix agent</a><a class="post-meta__tags" href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/">触发器</a><a class="post-meta__tags" href="/tags/%E6%8A%A5%E8%AD%A6%E5%99%A8/">报警器</a></div><div class="post_share"><div class="social-share" data-image="https://www.dmoe.cc/random.php" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/05/11/112/" title="【Zabbix系列教程】监控MySQL、Nginx、Redis常用键值"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【Zabbix系列教程】监控MySQL、Nginx、Redis常用键值</div></div></a></div><div class="next-post pull-right"><a href="/2023/05/09/110/" title="【Zabbix系列教程】Agent端部署教程"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【Zabbix系列教程】Agent端部署教程</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/05/09/110/" title="【Zabbix系列教程】Agent端部署教程"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-09</div><div class="title">【Zabbix系列教程】Agent端部署教程</div></div></a></div><div><a href="/2023/05/12/113/" title="【Zabbix系列教程】自动发现和自动注册"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-12</div><div class="title">【Zabbix系列教程】自动发现和自动注册</div></div></a></div><div><a href="/2023/05/11/112/" title="【Zabbix系列教程】监控MySQL、Nginx、Redis常用键值"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-11</div><div class="title">【Zabbix系列教程】监控MySQL、Nginx、Redis常用键值</div></div></a></div><div><a href="/2023/05/12/114/" title="【Zabbix系列教程】Proxy端部署教程+分布式监控"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-12</div><div class="title">【Zabbix系列教程】Proxy端部署教程+分布式监控</div></div></a></div><div><a href="/2023/05/04/102/" title="【Linux存储系列教程】常见存储类型"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-04</div><div class="title">【Linux存储系列教程】常见存储类型</div></div></a></div><div><a href="/2023/05/06/104/" title="【Linux存储系列教程】ceph的架构和原理"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-06</div><div class="title">【Linux存储系列教程】ceph的架构和原理</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">网笙久久</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">126</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">168</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">230</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wangshengjj"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wangshengjj" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:wangshengjj@wangshengjj.work" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.wangshengjj.work" target="_blank" title="Blog"><i class="fa fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到网笙久久的博客</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E3%80%90Zabbix%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%E3%80%91%E8%A7%A6%E5%8F%91%E5%99%A8%E5%92%8C%E6%8A%A5%E8%AD%A6"><span class="toc-number">1.</span> <span class="toc-text">【Zabbix系列教程】触发器和报警</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E8%A7%A6%E5%8F%91%E5%99%A8"><span class="toc-number">1.1.</span> <span class="toc-text">一、触发器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%BD%9C%E7%94%A8"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.作用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E8%A7%A6%E5%8F%91%E5%99%A8%E8%AF%AD%E6%B3%95"><span class="toc-number">1.1.2.</span> <span class="toc-text">2.触发器语法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BE%8B%EF%BC%9A%E7%9B%91%E6%8E%A7node01%E4%B8%BB%E6%9C%BA%E4%B8%8A%E7%9A%84TCP22%E5%8F%B7%E7%AB%AF%E5%8F%A3%E7%9A%84%E6%9C%80%E6%96%B0%E6%95%B0%E6%8D%AE"><span class="toc-number">1.1.2.1.</span> <span class="toc-text">例：监控node01主机上的TCP22号端口的最新数据</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%93%8D%E4%BD%9C%E7%AC%A6"><span class="toc-number">1.1.2.2.</span> <span class="toc-text">操作符</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E5%87%BD%E6%95%B0"><span class="toc-number">1.1.2.3.</span> <span class="toc-text">常见函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B1%EF%BC%9Awww-zabbix-com%E7%BD%91%E7%AB%99%E5%A4%84%E7%90%86%E5%99%A8%E8%B4%9F%E8%BD%BD%E8%BF%87%E9%AB%98"><span class="toc-number">1.1.2.4.</span> <span class="toc-text">示例1：www.zabbix.com网站处理器负载过高</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B2%EF%BC%9Apasswd%E6%96%87%E4%BB%B6%E6%98%AF%E5%90%A6%E6%94%B9%E5%8A%A8"><span class="toc-number">1.1.2.5.</span> <span class="toc-text">示例2：passwd文件是否改动</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B3%EF%BC%9A%E5%A4%9C%E9%97%B4CPU%E7%9A%84%E8%B4%9F%E8%BD%BD%E6%83%85%E5%86%B5"><span class="toc-number">1.1.2.6.</span> <span class="toc-text">示例3：夜间CPU的负载情况</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9B%B4%E5%A4%9A%E7%A4%BA%E4%BE%8B%E8%AF%B7%E6%9F%A5%E7%9C%8B%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%EF%BC%9Ahttps-www-zabbix-com-documentation-4-0-zh-manual-config-triggers-expression"><span class="toc-number">1.1.2.7.</span> <span class="toc-text">更多示例请查看官方文档：https:&#x2F;&#x2F;www.zabbix.com&#x2F;documentation&#x2F;4.0&#x2F;zh&#x2F;manual&#x2F;config&#x2F;triggers&#x2F;expression</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%88%9B%E5%BB%BA%E8%A7%A6%E5%8F%91%E5%99%A8"><span class="toc-number">1.1.3.</span> <span class="toc-text">3.创建触发器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E5%9C%A8%E5%88%9B%E5%BB%BA-x3D-x3D-%E8%A7%A6%E5%8F%91%E5%99%A8-x3D-x3D-%E4%B9%8B%E5%89%8D%EF%BC%8C%E8%AF%B7%E5%85%88%E5%88%9B%E5%BB%BA-x3D-x3D-%E7%9B%91%E6%8E%A7%E9%A1%B9-x3D-x3D"><span class="toc-number">1.1.3.1.</span> <span class="toc-text">A.在创建&#x3D;&#x3D;触发器&#x3D;&#x3D;之前，请先创建&#x3D;&#x3D;监控项&#x3D;&#x3D;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E5%88%9B%E5%BB%BA%E8%A7%A6%E5%8F%91%E5%99%A8"><span class="toc-number">1.1.3.2.</span> <span class="toc-text">B.创建触发器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#C-%E6%B5%8B%E8%AF%95%E8%A7%A6%E5%8F%91%E5%99%A8"><span class="toc-number">1.1.3.3.</span> <span class="toc-text">C.测试触发器</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%81%9C%E6%8E%89httpd%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.1.3.3.1.</span> <span class="toc-text">停掉httpd服务</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%9B%9E%E5%88%B0web%E7%95%8C%E9%9D%A2%EF%BC%8C%E6%B5%8B%E8%AF%95%E8%A7%A6%E5%8F%91%E5%99%A8%E6%98%AF%E5%90%A6%E5%B7%A5%E4%BD%9C"><span class="toc-number">1.1.3.3.2.</span> <span class="toc-text">回到web界面，测试触发器是否工作</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%8A%A5%E8%AD%A6%E5%99%A8"><span class="toc-number">1.2.</span> <span class="toc-text">二、报警器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%81%A2%E5%A4%8Dhttpd%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.恢复httpd服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E4%BB%A5%E5%88%9A%E6%89%8D%E5%88%9B%E5%BB%BA%E7%9A%84%E8%A7%A6%E5%8F%91%E5%99%A8%E4%B8%BA%E4%BE%8B%EF%BC%8C%E5%88%9B%E5%BB%BA%E6%8A%A5%E8%AD%A6%E5%99%A8"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.以刚才创建的触发器为例，创建报警器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%88%E9%85%8D%E7%BD%AE%E6%8A%A5%E8%AD%A6%E5%AA%92%E4%BB%8B"><span class="toc-number">1.2.2.1.</span> <span class="toc-text">先配置报警媒介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#QQ%E9%82%AE%E7%AE%B1%E8%8E%B7%E5%8F%96SMTP%E6%9C%8D%E5%8A%A1%E7%A7%98%E9%92%A5"><span class="toc-number">1.2.2.2.</span> <span class="toc-text">QQ邮箱获取SMTP服务秘钥</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95%E9%82%AE%E4%BB%B6"><span class="toc-number">1.2.2.3.</span> <span class="toc-text">测试邮件</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E7%BB%99zabbix%E7%AE%A1%E7%90%86%E5%91%98%E7%BB%91%E5%AE%9A%E9%82%AE%E7%AE%B1-%E9%87%8D%E8%A6%81"><span class="toc-number">1.2.3.</span> <span class="toc-text">3.给zabbix管理员绑定邮箱(重要)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%88%9B%E5%BB%BA%E5%8A%A8%E4%BD%9C"><span class="toc-number">1.2.4.</span> <span class="toc-text">4.创建动作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E6%B5%8B%E8%AF%95%E6%8A%A5%E8%AD%A6%E5%99%A8"><span class="toc-number">1.2.5.</span> <span class="toc-text">5.测试报警器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E5%81%9C%E7%94%A8httpd%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.2.5.1.</span> <span class="toc-text">A.停用httpd服务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E6%9F%A5%E7%9C%8Bweb%E7%AB%AF%E5%92%8C%E9%82%AE%E7%AE%B1"><span class="toc-number">1.2.5.2.</span> <span class="toc-text">B.查看web端和邮箱</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#C-%E6%81%A2%E5%A4%8D%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.2.5.3.</span> <span class="toc-text">C.恢复服务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#D-%E6%9F%A5%E7%9C%8B%E9%82%AE%E4%BB%B6"><span class="toc-number">1.2.5.4.</span> <span class="toc-text">D.查看邮件</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/05/19/120/" title="【Linux应用系列教程】基于Jenkins发布maven项目"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】基于Jenkins发布maven项目"/></a><div class="content"><a class="title" href="/2023/05/19/120/" title="【Linux应用系列教程】基于Jenkins发布maven项目">【Linux应用系列教程】基于Jenkins发布maven项目</a><time datetime="2023-05-19T03:49:39.490Z" title="发表于 2023-05-19 11:49:39">2023-05-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/19/119/" title="【Linux应用系列教程】Jenkins持续集成工具安装教程"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】Jenkins持续集成工具安装教程"/></a><div class="content"><a class="title" href="/2023/05/19/119/" title="【Linux应用系列教程】Jenkins持续集成工具安装教程">【Linux应用系列教程】Jenkins持续集成工具安装教程</a><time datetime="2023-05-19T02:49:24.709Z" title="发表于 2023-05-19 10:49:24">2023-05-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/18/118/" title="【Linux应用系列教程】Git分布式版本控制器"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】Git分布式版本控制器"/></a><div class="content"><a class="title" href="/2023/05/18/118/" title="【Linux应用系列教程】Git分布式版本控制器">【Linux应用系列教程】Git分布式版本控制器</a><time datetime="2023-05-18T12:19:54.279Z" title="发表于 2023-05-18 20:19:54">2023-05-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/16/117/" title="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客"/></a><div class="content"><a class="title" href="/2023/05/16/117/" title="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客">【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客</a><time datetime="2023-05-16T11:30:05.268Z" title="发表于 2023-05-16 19:30:05">2023-05-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【自动化运维系列教程】Ansible Playbook剧本"/></a><div class="content"><a class="title" href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本">【自动化运维系列教程】Ansible Playbook剧本</a><time datetime="2023-05-15T12:27:43.911Z" title="发表于 2023-05-15 20:27:43">2023-05-15</time></div></div></div></div></div></div></main><footer id="footer" style="background: flase"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By 网笙久久</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><div class="js-pjax"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js"></script><script>(() => {
+  document.querySelectorAll('#article-container span.katex-display').forEach(item => {
+    btf.wrap(item, 'div', { class: 'katex-wrap'})
+  })
+})()</script></div><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div><script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(n){n.imageLazyLoadSetting.processImages=i;var e=n.imageLazyLoadSetting.isSPA,r=(n.imageLazyLoadSetting.preloadRatio,Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));function i(){e&&(r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));for(var t,a=0;a<r.length;a++)0<=(t=(t=r[a]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(n.innerHeight+240||document.documentElement.clientHeight+240)&&function(){var t,e,n,i,o=r[a];t=o,e=function(){r=r.filter(function(t){return o!==t})},n=new Image,i=t.getAttribute("data-original"),n.onload=function(){t.src=i,e&&e()},t.src!==i&&(n.src=i)}()}i(),n.addEventListener("scroll",function(){var t,e;t=i,e=n,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(e)},500)})}(this);</script></body></html>

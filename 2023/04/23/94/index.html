@@ -1,0 +1,377 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>【Linux基础服务教程】Redis分片集群 | WangShengJJのblog</title><meta name="author" content="网笙久久"><meta name="copyright" content="网笙久久"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="【Linux基础服务教程】Redis分片集群一、关于分片集群 redis 3.x版本后开始支持1.提高缓存数据读写速度2.提高缓存数据的可用性、可靠性   1.工作原理 Redis集群使用哈希槽slot进行数据分片 Redis集群有16384个哈希槽, 每个key通过CRC16校验后对16384取模来决定放置哪个槽, 集群的每个节点负责一部分hash槽   举个例子：比如当前集群有3个节点。那么:">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Linux基础服务教程】Redis分片集群">
+<meta property="og:url" content="https://blog.wangshengjj.work/2023/04/23/94/index.html">
+<meta property="og:site_name" content="WangShengJJのblog">
+<meta property="og:description" content="【Linux基础服务教程】Redis分片集群一、关于分片集群 redis 3.x版本后开始支持1.提高缓存数据读写速度2.提高缓存数据的可用性、可靠性   1.工作原理 Redis集群使用哈希槽slot进行数据分片 Redis集群有16384个哈希槽, 每个key通过CRC16校验后对16384取模来决定放置哪个槽, 集群的每个节点负责一部分hash槽   举个例子：比如当前集群有3个节点。那么:">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.dmoe.cc/random.php">
+<meta property="article:published_time" content="2023-04-23T13:22:52.732Z">
+<meta property="article:modified_time" content="2023-04-24T11:13:01.381Z">
+<meta property="article:author" content="网笙久久">
+<meta property="article:tag" content="集群">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="linux搭建服务器">
+<meta property="article:tag" content="linux基础服务">
+<meta property="article:tag" content="数据库">
+<meta property="article:tag" content="redis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.dmoe.cc/random.php"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://blog.wangshengjj.work/2023/04/23/94/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"prismjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【Linux基础服务教程】Redis分片集群',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-04-24 19:13:01'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><meting-js server="netease" type="playlist" id="7386208265" lrc-type="0" volume="0.5" fixed="true" mini="true" order="random" loop="all" autoplay="true" preload="auto" list-folded="true"></meting-js><script src="https://fastly.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/autoload.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script><meta name="generator" content="Hexo 6.1.0"></head><body><link rel="stylesheet" href="/css/barber-shop.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">126</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">168</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">230</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://www.dmoe.cc/random.php')"><nav id="nav"><span id="blog-info"><a href="/" title="WangShengJJのblog"><span class="site-name">WangShengJJのblog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【Linux基础服务教程】Redis分片集群</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-04-23T13:22:52.732Z" title="发表于 2023-04-23 21:22:52">2023-04-23</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-04-24T11:13:01.381Z" title="更新于 2023-04-24 19:13:01">2023-04-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1/">linux基础服务</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1/%E6%95%B0%E6%8D%AE%E5%BA%93/redis/">redis</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1/%E6%95%B0%E6%8D%AE%E5%BA%93/redis/%E9%9B%86%E7%BE%A4/">集群</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1/%E6%95%B0%E6%8D%AE%E5%BA%93/redis/%E9%9B%86%E7%BE%A4/redis%E9%9B%86%E7%BE%A4/">redis集群</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">2.2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>10分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="【Linux基础服务教程】Redis分片集群"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="【Linux基础服务教程】Redis分片集群"><a href="#【Linux基础服务教程】Redis分片集群" class="headerlink" title="【Linux基础服务教程】Redis分片集群"></a>【Linux基础服务教程】Redis分片集群</h1><h2 id="一、关于分片集群"><a href="#一、关于分片集群" class="headerlink" title="一、关于分片集群"></a>一、关于分片集群</h2><blockquote>
+<p><code>redis 3.x</code>版本后开始支持<br>1.提高缓存数据读写速度<br>2.提高缓存数据的可用性、可靠性 </p>
+</blockquote>
+<h3 id="1-工作原理"><a href="#1-工作原理" class="headerlink" title="1.工作原理"></a>1.工作原理</h3><ul>
+<li><code>Redis</code>集群使用<code>哈希槽slot</code>进行数据分片</li>
+<li><code>Redis</code>集群有<code>16384</code>个<code>哈希槽</code>, 每个<code>key</code>通过<code>CRC16</code>校验后对<code>16384</code>取模来决定放置哪个槽, 集群的每个节点负责一部分<code>hash槽</code></li>
+</ul>
+<blockquote>
+<p>举个例子：<br>比如当前集群有<code>3</code>个节点。<br>那么:<br>节点 <code>A </code>包含<code>0</code>到<code>5500</code>号哈希槽。<br>节点 <code>B</code> 包含<code>5501</code>到<code>11000</code>号哈希槽。<br>节点 <code>C </code>包含<code>11001</code>到<code>16384</code>号哈希槽。<br>数据究竟存放到哪个槽上？<br>数据做<code>hash运算</code>除以<code>16384</code>除余</p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/04/redis01.png" alt="redis01"></p>
+<h2 id="二、部署Redis分片集群"><a href="#二、部署Redis分片集群" class="headerlink" title="二、部署Redis分片集群"></a>二、部署Redis分片集群</h2><h3 id="1-环境描述"><a href="#1-环境描述" class="headerlink" title="1.环境描述"></a>1.环境描述</h3><blockquote>
+<p><code>10.10.10.128</code>	<code>3</code>个<code>集群模式</code>实例	端口：<code>7001</code>、<code>7002</code>、<code>7003</code><br><code>10.10.10.129</code>	<code>3</code>个<code>集群模式</code>实例	端口：<code>7004</code>、<code>7005</code>、<code>7006</code></p>
+</blockquote>
+<h3 id="2-关闭防火墙、SElinux、同步时间"><a href="#2-关闭防火墙、SElinux、同步时间" class="headerlink" title="2.关闭防火墙、SElinux、同步时间"></a>2.关闭防火墙、SElinux、同步时间</h3><blockquote>
+<p>过程省略，时间<code>一定</code>要同步，否则会出现<code>脑裂</code>问题</p>
+</blockquote>
+<h3 id="3-二台服务器安装Redis"><a href="#3-二台服务器安装Redis" class="headerlink" title="3.二台服务器安装Redis"></a>3.二台服务器安装Redis</h3><p><strong><a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/91">点我跳转</a><code>Redis</code>的安装教程</strong></p>
+<h3 id="4-在第一台服务器上创建3个实例"><a href="#4-在第一台服务器上创建3个实例" class="headerlink" title="4.在第一台服务器上创建3个实例"></a>4.在第一台服务器上创建3个实例</h3><pre class="line-numbers language-none"><code class="language-none">[root@master ~]# mkdir -p &#x2F;opt&#x2F;700&#123;1,2,3&#125;&#x2F;&#123;conf,data&#125;
+
+[root@master ~]# cp  &#x2F;usr&#x2F;local&#x2F;redis&#x2F;conf&#x2F;redis.conf &#x2F;opt&#x2F;7001&#x2F;conf<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="A-修改配置文件"><a href="#A-修改配置文件" class="headerlink" title="A.修改配置文件"></a>A.修改配置文件</h4><pre class="line-numbers language-none"><code class="language-none">[root@master ~]# vim &#x2F;opt&#x2F;7001&#x2F;conf&#x2F;redis.conf
+
+bind 10.10.10.128	#按照规划，更改为本机IP
+port 7001	#按照规划，更改相应端口
+daemonize yes	#启用后台运行
+pidfile &#x2F;var&#x2F;run&#x2F;redis_7001.pid	#按照规划，修改pid命名规则，方便后续区分
+loglevel warning	#默认日志等级太低，修改高等级
+logfile &quot;&#x2F;var&#x2F;log&#x2F;redis_7001.log&quot;	#指定日志存放目录，并且为了区分加上相应的端口号
+dbfilename dump_7001.rdb	#为了方便区分数据文件，修改命名规则
+dir &#x2F;opt&#x2F;7001&#x2F;data	#按照规划，修改默认数据文件存放目录
+appendonly yes	#启动aof日志
+appendfilename &quot;appendonly_7001.aof&quot;	#为了区分aof日志，修改命名规则
+
+cluster-enabled yes	#启用集群模式
+cluster-config-file nodes-7001.conf	#启动集群配置文件，为了方便区分，并修改命名规则
+cluster-node-timeout 15000	#启用超时时间(单位毫秒)，超过限定时间，则判定对面已挂掉<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="B-修改另外2个实例的配置文件"><a href="#B-修改另外2个实例的配置文件" class="headerlink" title="B.修改另外2个实例的配置文件"></a>B.修改另外2个实例的配置文件</h4><pre class="line-numbers language-none"><code class="language-none">[root@master ~]# cp &#x2F;opt&#x2F;7001&#x2F;conf&#x2F;redis.conf &#x2F;opt&#x2F;7002&#x2F;conf&#x2F;
+[root@master ~]# cp &#x2F;opt&#x2F;7001&#x2F;conf&#x2F;redis.conf &#x2F;opt&#x2F;7003&#x2F;conf&#x2F;	#快速拷贝修改好的配置文件<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@master ~]# sed -ri &#39;s|7001|7002|g&#39; &#x2F;opt&#x2F;7002&#x2F;conf&#x2F;redis.conf 
+[root@master ~]# sed -ri &#39;s|7001|7003|g&#39; &#x2F;opt&#x2F;7003&#x2F;conf&#x2F;redis.conf	#可以使用sed命令快速修改端口信息<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="C-启动第一台上的三个实例"><a href="#C-启动第一台上的三个实例" class="headerlink" title="C.启动第一台上的三个实例"></a>C.启动第一台上的三个实例</h4><pre class="line-numbers language-none"><code class="language-none">[root@master ~]# redis-server &#x2F;opt&#x2F;7001&#x2F;conf&#x2F;redis.conf 
+[root@master ~]# redis-server &#x2F;opt&#x2F;7002&#x2F;conf&#x2F;redis.conf 
+[root@master ~]# redis-server &#x2F;opt&#x2F;7003&#x2F;conf&#x2F;redis.conf<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="D-可以使用netstat查看是否启动"><a href="#D-可以使用netstat查看是否启动" class="headerlink" title="D.可以使用netstat查看是否启动"></a>D.可以使用netstat查看是否启动</h4><blockquote>
+<p>如果提示没有<code>netstat</code>命令，可以使用<code>yum install -y net-tools</code>安装</p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@master ~]# netstat -tunlp | grep redis
+tcp        0      0 10.10.10.128:17001      0.0.0.0:*               LISTEN      7474&#x2F;redis-server 1 
+tcp        0      0 10.10.10.128:17002      0.0.0.0:*               LISTEN      7479&#x2F;redis-server 1 
+tcp        0      0 10.10.10.128:17003      0.0.0.0:*               LISTEN      7484&#x2F;redis-server 1 
+tcp        0      0 10.10.10.128:7001       0.0.0.0:*               LISTEN      7474&#x2F;redis-server 1 
+tcp        0      0 10.10.10.128:7002       0.0.0.0:*               LISTEN      7479&#x2F;redis-server 1 
+tcp        0      0 10.10.10.128:7003       0.0.0.0:*               LISTEN      7484&#x2F;redis-server 1<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p>可以看到，除了我们创建好了<code>三个实例</code>，<code>redis</code>还会自动创建一个端口<code>+10000端口</code>的进程，这个进程主要用于后续<code>集群</code>环境，内部<code>互相通信</code>，其中一个作用是：互相检测<code>存活</code>状态。</p>
+</blockquote>
+<h3 id="5-在第二台服务器上创建三个实例"><a href="#5-在第二台服务器上创建三个实例" class="headerlink" title="5.在第二台服务器上创建三个实例"></a>5.在第二台服务器上创建三个实例</h3><blockquote>
+<p>如果没有<code>tree</code>命令，可以使用<code>yum install -y tree</code>安装</p>
+</blockquote>
+<h4 id="A-创建必要的数据目录"><a href="#A-创建必要的数据目录" class="headerlink" title="A.创建必要的数据目录"></a>A.创建必要的数据目录</h4><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# mkdir -p &#x2F;opt&#x2F;700&#123;4,5,6&#125;&#x2F;&#123;conf,data&#125;
+[root@node1 ~]# tree &#x2F;opt
+&#x2F;opt
+├── 7004
+│   ├── conf
+│   └── data
+├── 7005
+│   ├── conf
+│   └── data
+└── 7006
+    ├── conf
+    └── data<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="B-修改配置文件"><a href="#B-修改配置文件" class="headerlink" title="B.修改配置文件"></a>B.修改配置文件</h4><pre class="line-numbers language-none"><code class="language-none">[root@master ~]# scp &#x2F;opt&#x2F;7001&#x2F;conf&#x2F;redis.conf root@10.10.10.129:&#x2F;opt&#x2F;7004&#x2F;conf
+redis.conf                                                    100%   62KB   7.6MB&#x2F;s   00:00		#可以回到第一个服务器上，快速拷贝配置文件
+[root@master ~]# scp &#x2F;opt&#x2F;7001&#x2F;conf&#x2F;redis.conf root@10.10.10.129:&#x2F;opt&#x2F;7005&#x2F;conf
+redis.conf                                                    100%   62KB   6.2MB&#x2F;s   00:00    
+[root@master ~]# scp &#x2F;opt&#x2F;7001&#x2F;conf&#x2F;redis.conf root@10.10.10.129:&#x2F;opt&#x2F;7006&#x2F;conf
+redis.conf                                                    100%   62KB   8.6MB&#x2F;s   00:00<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p>可以使用<code>sed</code>命令，快速修改<code>IP</code>地址，这里使用了<code>sed</code>内的正则<code>反向引用</code><br>关于sed命令反向引用：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/81">https://www.wsjj.top/archives/81</a></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# sed -ri &#39;s|(10.10.10.)128|\1129|g&#39; &#x2F;opt&#x2F;7004&#x2F;conf&#x2F;redis.conf
+[root@node1 ~]# sed -ri &#39;s|(10.10.10.)128|\1129|g&#39; &#x2F;opt&#x2F;7005&#x2F;conf&#x2F;redis.conf 
+[root@node1 ~]# sed -ri &#39;s|(10.10.10.)128|\1129|g&#39; &#x2F;opt&#x2F;7006&#x2F;conf&#x2F;redis.conf<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# sed -ri &#39;s|7001|7004|g&#39; &#x2F;opt&#x2F;7004&#x2F;conf&#x2F;redis.conf	#可以使用sed命令快速改文件内端口
+[root@node1 ~]# sed -ri &#39;s|7001|7005|g&#39; &#x2F;opt&#x2F;7005&#x2F;conf&#x2F;redis.conf
+[root@node1 ~]# sed -ri &#39;s|7001|7006|g&#39; &#x2F;opt&#x2F;7006&#x2F;conf&#x2F;redis.conf<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="C-启动第二台服务器上的三个实例"><a href="#C-启动第二台服务器上的三个实例" class="headerlink" title="C.启动第二台服务器上的三个实例"></a>C.启动第二台服务器上的三个实例</h4><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# redis-server &#x2F;opt&#x2F;7004&#x2F;conf&#x2F;redis.conf 
+[root@node1 ~]# redis-server &#x2F;opt&#x2F;7005&#x2F;conf&#x2F;redis.conf 
+[root@node1 ~]# redis-server &#x2F;opt&#x2F;7006&#x2F;conf&#x2F;redis.conf<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="D-检查实例是否启动"><a href="#D-检查实例是否启动" class="headerlink" title="D.检查实例是否启动"></a>D.检查实例是否启动</h4><blockquote>
+<p>如果提示没有<code>netstat</code>命令，可以使用<code>yum install -y net-tools</code>安装</p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# netstat -tunlp | grep redis
+tcp        0      0 10.10.10.129:17004      0.0.0.0:*               LISTEN      2730&#x2F;redis-server 1 
+tcp        0      0 10.10.10.129:17005      0.0.0.0:*               LISTEN      2748&#x2F;redis-server 1 
+tcp        0      0 10.10.10.129:17006      0.0.0.0:*               LISTEN      2743&#x2F;redis-server 1 
+tcp        0      0 10.10.10.129:7004       0.0.0.0:*               LISTEN      2730&#x2F;redis-server 1 
+tcp        0      0 10.10.10.129:7005       0.0.0.0:*               LISTEN      2748&#x2F;redis-server 1 
+tcp        0      0 10.10.10.129:7006       0.0.0.0:*               LISTEN      2743&#x2F;redis-server 1<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="三、创建Redis分片集群"><a href="#三、创建Redis分片集群" class="headerlink" title="三、创建Redis分片集群"></a>三、创建Redis分片集群</h2><h3 id="1-创建集群"><a href="#1-创建集群" class="headerlink" title="1.创建集群"></a>1.创建集群</h3><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# redis-cli --cluster create \
+&gt; 10.10.10.128:7001 \
+&gt; 10.10.10.128:7002 \
+&gt; 10.10.10.128:7003 \
+&gt; 10.10.10.129:7004 \
+&gt; 10.10.10.129:7005 \
+&gt; 10.10.10.129:7006 \
+&gt; --cluster-replicas 1<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">&gt;&gt;&gt; Performing hash slots allocation on 6 nodes...
+Master[0] -&gt; Slots 0 - 5460
+Master[1] -&gt; Slots 5461 - 10922		#redis会自动帮我们分配好哈希槽
+Master[2] -&gt; Slots 10923 - 16383
+Adding replica 10.10.10.129:7006 to 10.10.10.128:7001
+Adding replica 10.10.10.128:7003 to 10.10.10.129:7004
+Adding replica 10.10.10.129:7005 to 10.10.10.128:7002
+M: 6e108d11270632ca9af9202a6effb77ae11dbebe 10.10.10.128:7001	#默认随机分配主从M为主，S为从
+   slots:[0-5460] (5461 slots) master
+M: 3b7927dce6ad42ff2d5a24b331ee538f4dc745ff 10.10.10.128:7002
+   slots:[10923-16383] (5461 slots) master
+S: 17621d815c5169f30dc861c038efbe614815d602 10.10.10.128:7003
+   replicates bddec0b161e908780d7e7953905322851b822b5e
+M: bddec0b161e908780d7e7953905322851b822b5e 10.10.10.129:7004
+   slots:[5461-10922] (5462 slots) master
+S: 76ba74cdc067f05da20c86f56963ab08f539a7f8 10.10.10.129:7005
+   replicates 3b7927dce6ad42ff2d5a24b331ee538f4dc745ff
+S: cd7479781f15252cd3016837a398dc40761b0267 10.10.10.129:7006
+   replicates 6e108d11270632ca9af9202a6effb77ae11dbebe
+Can I set the above configuration? (type &#39;yes&#39; to accept): yes	#如果这里选择no会重新分配主从
+
+&gt;&gt;&gt; Nodes configuration updated
+&gt;&gt;&gt; Assign a different config epoch to each node
+&gt;&gt;&gt; Sending CLUSTER MEET messages to join the cluster
+Waiting for the cluster to join
+
+&gt;&gt;&gt; Performing Cluster Check (using node 10.10.10.128:7001)
+M: 6e108d11270632ca9af9202a6effb77ae11dbebe 10.10.10.128:7001
+   slots:[0-5460] (5461 slots) master
+   1 additional replica(s)
+S: 17621d815c5169f30dc861c038efbe614815d602 10.10.10.128:7003
+   slots: (0 slots) slave
+   replicates bddec0b161e908780d7e7953905322851b822b5e
+M: bddec0b161e908780d7e7953905322851b822b5e 10.10.10.129:7004
+   slots:[5461-10922] (5462 slots) master
+   1 additional replica(s)
+S: cd7479781f15252cd3016837a398dc40761b0267 10.10.10.129:7006
+   slots: (0 slots) slave
+   replicates 6e108d11270632ca9af9202a6effb77ae11dbebe
+M: 3b7927dce6ad42ff2d5a24b331ee538f4dc745ff 10.10.10.128:7002
+   slots:[10923-16383] (5461 slots) master
+   1 additional replica(s)
+S: 76ba74cdc067f05da20c86f56963ab08f539a7f8 10.10.10.129:7005
+   slots: (0 slots) slave
+   replicates 3b7927dce6ad42ff2d5a24b331ee538f4dc745ff
+[OK] All nodes agree about slots configuration.
+&gt;&gt;&gt; Check for open slots...
+&gt;&gt;&gt; Check slots coverage...
+[OK] All 16384 slots covered.	#成功创建集群<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="2-查看集群信息"><a href="#2-查看集群信息" class="headerlink" title="2.查看集群信息"></a>2.查看集群信息</h3><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# redis-cli --cluster info 10.10.10.128:7001
+10.10.10.128:7001 (6e108d11...) -&gt; 0 keys | 5461 slots | 1 slaves.
+10.10.10.129:7004 (bddec0b1...) -&gt; 0 keys | 5462 slots | 1 slaves.
+10.10.10.128:7002 (3b7927dc...) -&gt; 0 keys | 5461 slots | 1 slaves.
+[OK] 0 keys in 3 masters.
+0.00 keys per slot on average.<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-连接集群，测试读写数据"><a href="#3-连接集群，测试读写数据" class="headerlink" title="3.连接集群，测试读写数据"></a>3.连接集群，测试读写数据</h3><blockquote>
+<p><code>随机</code>选择一个<code>主节点</code>登录即可，一定要加上<code>-c</code>参数，以<code>集群模式</code>登录！</p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@master ~]# redis-cli -h 10.10.10.128 -p 7001 -c
+10.10.10.128:7001&gt; set url https:&#x2F;&#x2F;www.wsjj.top
+-&gt; Redirected to slot [12521] located at 10.10.10.128:7002
+OK
+10.10.10.128:7002&gt; get url
+&quot;https:&#x2F;&#x2F;www.wsjj.top&quot;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="以下是错误操作"><a href="#以下是错误操作" class="headerlink" title="以下是错误操作"></a>以下是错误操作</h4><blockquote>
+<p>不加<code>-c</code>参数，存储数据就会返回错误！</p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@master ~]# redis-cli -h 10.10.10.128 -p 7001
+10.10.10.128:7001&gt; set url https:&#x2F;&#x2F;www.wsjj.top
+(error) MOVED 12521 10.10.10.128:7002<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work">网笙久久</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work/2023/04/23/94/">https://blog.wangshengjj.work/2023/04/23/94/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.wangshengjj.work" target="_blank">WangShengJJのblog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E9%9B%86%E7%BE%A4/">集群</a><a class="post-meta__tags" href="/tags/linux/">linux</a><a class="post-meta__tags" href="/tags/linux%E6%90%AD%E5%BB%BA%E6%9C%8D%E5%8A%A1%E5%99%A8/">linux搭建服务器</a><a class="post-meta__tags" href="/tags/linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1/">linux基础服务</a><a class="post-meta__tags" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a><a class="post-meta__tags" href="/tags/redis/">redis</a></div><div class="post_share"><div class="social-share" data-image="https://www.dmoe.cc/random.php" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/04/23/95/" title="【Linux基础服务教程】memcached缓存服务器"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【Linux基础服务教程】memcached缓存服务器</div></div></a></div><div class="next-post pull-right"><a href="/2023/04/23/93/" title="【Linux基础服务教程】Redis多实例和主从复制"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【Linux基础服务教程】Redis多实例和主从复制</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/04/25/98/" title="【Linux集群系列教程】LB集群(keepalived结合LVS)+LAMP环境+WordPress博客"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-04-25</div><div class="title">【Linux集群系列教程】LB集群(keepalived结合LVS)+LAMP环境+WordPress博客</div></div></a></div><div><a href="/2023/04/21/91/" title="【Linux基础服务教程】Redis安装和基本使用"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-04-21</div><div class="title">【Linux基础服务教程】Redis安装和基本使用</div></div></a></div><div><a href="/2023/04/22/92/" title="【Linux基础服务教程】Redis配置文件"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-04-22</div><div class="title">【Linux基础服务教程】Redis配置文件</div></div></a></div><div><a href="/2023/04/23/93/" title="【Linux基础服务教程】Redis多实例和主从复制"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-04-23</div><div class="title">【Linux基础服务教程】Redis多实例和主从复制</div></div></a></div><div><a href="/2023/05/06/105/" title="【Linux存储系列教程】ceph-mimic集群部署"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-06</div><div class="title">【Linux存储系列教程】ceph-mimic集群部署</div></div></a></div><div><a href="/2023/04/24/96/" title="【Linux集群系列教程】LVS负载均衡集群"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-04-24</div><div class="title">【Linux集群系列教程】LVS负载均衡集群</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">网笙久久</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">126</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">168</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">230</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wangshengjj"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wangshengjj" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:wangshengjj@wangshengjj.work" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.wangshengjj.work" target="_blank" title="Blog"><i class="fa fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到网笙久久的博客</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E3%80%90Linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1%E6%95%99%E7%A8%8B%E3%80%91Redis%E5%88%86%E7%89%87%E9%9B%86%E7%BE%A4"><span class="toc-number">1.</span> <span class="toc-text">【Linux基础服务教程】Redis分片集群</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%85%B3%E4%BA%8E%E5%88%86%E7%89%87%E9%9B%86%E7%BE%A4"><span class="toc-number">1.1.</span> <span class="toc-text">一、关于分片集群</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.工作原理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E9%83%A8%E7%BD%B2Redis%E5%88%86%E7%89%87%E9%9B%86%E7%BE%A4"><span class="toc-number">1.2.</span> <span class="toc-text">二、部署Redis分片集群</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%8E%AF%E5%A2%83%E6%8F%8F%E8%BF%B0"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.环境描述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%85%B3%E9%97%AD%E9%98%B2%E7%81%AB%E5%A2%99%E3%80%81SElinux%E3%80%81%E5%90%8C%E6%AD%A5%E6%97%B6%E9%97%B4"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.关闭防火墙、SElinux、同步时间</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E4%BA%8C%E5%8F%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%AE%89%E8%A3%85Redis"><span class="toc-number">1.2.3.</span> <span class="toc-text">3.二台服务器安装Redis</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%9C%A8%E7%AC%AC%E4%B8%80%E5%8F%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E5%88%9B%E5%BB%BA3%E4%B8%AA%E5%AE%9E%E4%BE%8B"><span class="toc-number">1.2.4.</span> <span class="toc-text">4.在第一台服务器上创建3个实例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.4.1.</span> <span class="toc-text">A.修改配置文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E4%BF%AE%E6%94%B9%E5%8F%A6%E5%A4%962%E4%B8%AA%E5%AE%9E%E4%BE%8B%E7%9A%84%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.4.2.</span> <span class="toc-text">B.修改另外2个实例的配置文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#C-%E5%90%AF%E5%8A%A8%E7%AC%AC%E4%B8%80%E5%8F%B0%E4%B8%8A%E7%9A%84%E4%B8%89%E4%B8%AA%E5%AE%9E%E4%BE%8B"><span class="toc-number">1.2.4.3.</span> <span class="toc-text">C.启动第一台上的三个实例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#D-%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8netstat%E6%9F%A5%E7%9C%8B%E6%98%AF%E5%90%A6%E5%90%AF%E5%8A%A8"><span class="toc-number">1.2.4.4.</span> <span class="toc-text">D.可以使用netstat查看是否启动</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%9C%A8%E7%AC%AC%E4%BA%8C%E5%8F%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E5%88%9B%E5%BB%BA%E4%B8%89%E4%B8%AA%E5%AE%9E%E4%BE%8B"><span class="toc-number">1.2.5.</span> <span class="toc-text">5.在第二台服务器上创建三个实例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E5%88%9B%E5%BB%BA%E5%BF%85%E8%A6%81%E7%9A%84%E6%95%B0%E6%8D%AE%E7%9B%AE%E5%BD%95"><span class="toc-number">1.2.5.1.</span> <span class="toc-text">A.创建必要的数据目录</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.5.2.</span> <span class="toc-text">B.修改配置文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#C-%E5%90%AF%E5%8A%A8%E7%AC%AC%E4%BA%8C%E5%8F%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E7%9A%84%E4%B8%89%E4%B8%AA%E5%AE%9E%E4%BE%8B"><span class="toc-number">1.2.5.3.</span> <span class="toc-text">C.启动第二台服务器上的三个实例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#D-%E6%A3%80%E6%9F%A5%E5%AE%9E%E4%BE%8B%E6%98%AF%E5%90%A6%E5%90%AF%E5%8A%A8"><span class="toc-number">1.2.5.4.</span> <span class="toc-text">D.检查实例是否启动</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%88%9B%E5%BB%BARedis%E5%88%86%E7%89%87%E9%9B%86%E7%BE%A4"><span class="toc-number">1.3.</span> <span class="toc-text">三、创建Redis分片集群</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%88%9B%E5%BB%BA%E9%9B%86%E7%BE%A4"><span class="toc-number">1.3.1.</span> <span class="toc-text">1.创建集群</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%9F%A5%E7%9C%8B%E9%9B%86%E7%BE%A4%E4%BF%A1%E6%81%AF"><span class="toc-number">1.3.2.</span> <span class="toc-text">2.查看集群信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E8%BF%9E%E6%8E%A5%E9%9B%86%E7%BE%A4%EF%BC%8C%E6%B5%8B%E8%AF%95%E8%AF%BB%E5%86%99%E6%95%B0%E6%8D%AE"><span class="toc-number">1.3.3.</span> <span class="toc-text">3.连接集群，测试读写数据</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%A5%E4%B8%8B%E6%98%AF%E9%94%99%E8%AF%AF%E6%93%8D%E4%BD%9C"><span class="toc-number">1.3.3.1.</span> <span class="toc-text">以下是错误操作</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/05/19/120/" title="【Linux应用系列教程】基于Jenkins发布maven项目"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】基于Jenkins发布maven项目"/></a><div class="content"><a class="title" href="/2023/05/19/120/" title="【Linux应用系列教程】基于Jenkins发布maven项目">【Linux应用系列教程】基于Jenkins发布maven项目</a><time datetime="2023-05-19T03:49:39.490Z" title="发表于 2023-05-19 11:49:39">2023-05-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/19/119/" title="【Linux应用系列教程】Jenkins持续集成工具安装教程"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】Jenkins持续集成工具安装教程"/></a><div class="content"><a class="title" href="/2023/05/19/119/" title="【Linux应用系列教程】Jenkins持续集成工具安装教程">【Linux应用系列教程】Jenkins持续集成工具安装教程</a><time datetime="2023-05-19T02:49:24.709Z" title="发表于 2023-05-19 10:49:24">2023-05-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/18/118/" title="【Linux应用系列教程】Git分布式版本控制器"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】Git分布式版本控制器"/></a><div class="content"><a class="title" href="/2023/05/18/118/" title="【Linux应用系列教程】Git分布式版本控制器">【Linux应用系列教程】Git分布式版本控制器</a><time datetime="2023-05-18T12:19:54.279Z" title="发表于 2023-05-18 20:19:54">2023-05-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/16/117/" title="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客"/></a><div class="content"><a class="title" href="/2023/05/16/117/" title="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客">【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客</a><time datetime="2023-05-16T11:30:05.268Z" title="发表于 2023-05-16 19:30:05">2023-05-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【自动化运维系列教程】Ansible Playbook剧本"/></a><div class="content"><a class="title" href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本">【自动化运维系列教程】Ansible Playbook剧本</a><time datetime="2023-05-15T12:27:43.911Z" title="发表于 2023-05-15 20:27:43">2023-05-15</time></div></div></div></div></div></div></main><footer id="footer" style="background: flase"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By 网笙久久</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><div class="js-pjax"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js"></script><script>(() => {
+  document.querySelectorAll('#article-container span.katex-display').forEach(item => {
+    btf.wrap(item, 'div', { class: 'katex-wrap'})
+  })
+})()</script></div><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div><script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(n){n.imageLazyLoadSetting.processImages=i;var e=n.imageLazyLoadSetting.isSPA,r=(n.imageLazyLoadSetting.preloadRatio,Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));function i(){e&&(r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));for(var t,a=0;a<r.length;a++)0<=(t=(t=r[a]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(n.innerHeight+240||document.documentElement.clientHeight+240)&&function(){var t,e,n,i,o=r[a];t=o,e=function(){r=r.filter(function(t){return o!==t})},n=new Image,i=t.getAttribute("data-original"),n.onload=function(){t.src=i,e&&e()},t.src!==i&&(n.src=i)}()}i(),n.addEventListener("scroll",function(){var t,e;t=i,e=n,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(e)},500)})}(this);</script></body></html>

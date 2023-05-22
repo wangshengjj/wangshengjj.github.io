@@ -1,0 +1,1232 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>【自动化运维系列教程】Ansible自动化运维工具 | WangShengJJのblog</title><meta name="author" content="网笙久久"><meta name="copyright" content="网笙久久"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="【自动化运维系列教程】Ansible自动化运维工具一、关于Ansible 基于python语言开发，自动化运维工具实现IT&#x3D;&#x3D;基础设施&#x3D;&#x3D;设备进行批量管控  1.Ansible的特性 开源的、跨平台的 底层基于ssh协议通信的 no server no agent 支持playbook剧本 提供API接口  二、部署Ansible1.关闭防火墙和SElinu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【自动化运维系列教程】Ansible自动化运维工具">
+<meta property="og:url" content="https://blog.wangshengjj.work/2023/05/15/115/index.html">
+<meta property="og:site_name" content="WangShengJJのblog">
+<meta property="og:description" content="【自动化运维系列教程】Ansible自动化运维工具一、关于Ansible 基于python语言开发，自动化运维工具实现IT&#x3D;&#x3D;基础设施&#x3D;&#x3D;设备进行批量管控  1.Ansible的特性 开源的、跨平台的 底层基于ssh协议通信的 no server no agent 支持playbook剧本 提供API接口  二、部署Ansible1.关闭防火墙和SElinu">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.dmoe.cc/random.php">
+<meta property="article:published_time" content="2023-05-15T04:52:55.273Z">
+<meta property="article:modified_time" content="2023-05-18T06:06:17.280Z">
+<meta property="article:author" content="网笙久久">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="centos">
+<meta property="article:tag" content="ansible">
+<meta property="article:tag" content="自动化运维工具">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.dmoe.cc/random.php"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://blog.wangshengjj.work/2023/05/15/115/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"prismjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【自动化运维系列教程】Ansible自动化运维工具',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-05-18 14:06:17'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><meting-js server="netease" type="playlist" id="7386208265" lrc-type="0" volume="0.5" fixed="true" mini="true" order="random" loop="all" autoplay="true" preload="auto" list-folded="true"></meting-js><script src="https://fastly.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/autoload.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script><meta name="generator" content="Hexo 6.1.0"></head><body><link rel="stylesheet" href="/css/barber-shop.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">126</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">168</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">230</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://www.dmoe.cc/random.php')"><nav id="nav"><span id="blog-info"><a href="/" title="WangShengJJのblog"><span class="site-name">WangShengJJのblog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【自动化运维系列教程】Ansible自动化运维工具</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-05-15T04:52:55.273Z" title="发表于 2023-05-15 12:52:55">2023-05-15</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-05-18T06:06:17.280Z" title="更新于 2023-05-18 14:06:17">2023-05-18</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Ansible/">Ansible</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Ansible/%E7%AC%94%E8%AE%B0/">笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Ansible/%E7%AC%94%E8%AE%B0/linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1/">linux基础服务</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Ansible/%E7%AC%94%E8%AE%B0/linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1/%E8%87%AA%E5%8A%A8%E5%8C%96%E8%BF%90%E7%BB%B4%E5%B7%A5%E5%85%B7/">自动化运维工具</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">6.4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>36分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="【自动化运维系列教程】Ansible自动化运维工具"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="【自动化运维系列教程】Ansible自动化运维工具"><a href="#【自动化运维系列教程】Ansible自动化运维工具" class="headerlink" title="【自动化运维系列教程】Ansible自动化运维工具"></a>【自动化运维系列教程】Ansible自动化运维工具</h1><h2 id="一、关于Ansible"><a href="#一、关于Ansible" class="headerlink" title="一、关于Ansible"></a>一、关于Ansible</h2><blockquote>
+<p>基于<code>python</code>语言开发，自动化运维工具<br>实现<code>IT</code>&#x3D;&#x3D;基础设施&#x3D;&#x3D;设备进行批量管控</p>
+</blockquote>
+<h3 id="1-Ansible的特性"><a href="#1-Ansible的特性" class="headerlink" title="1.Ansible的特性"></a>1.Ansible的特性</h3><ul>
+<li>开源的、跨平台的</li>
+<li>底层基于<code>ssh</code>协议通信的</li>
+<li><code>no server</code></li>
+<li><code>no agent</code></li>
+<li>支持<code>playbook</code>剧本</li>
+<li>提供<code>API</code>接口</li>
+</ul>
+<h2 id="二、部署Ansible"><a href="#二、部署Ansible" class="headerlink" title="二、部署Ansible"></a>二、部署Ansible</h2><h3 id="1-关闭防火墙和SElinux、配置时间同步"><a href="#1-关闭防火墙和SElinux、配置时间同步" class="headerlink" title="1.关闭防火墙和SElinux、配置时间同步"></a>1.关闭防火墙和SElinux、配置时间同步</h3><blockquote>
+<p><strong>过程省略</strong></p>
+</blockquote>
+<h3 id="2-配置yum源和epel源"><a href="#2-配置yum源和epel源" class="headerlink" title="2.配置yum源和epel源"></a>2.配置<code>yum</code>源和<code>epel</code>源</h3><pre class="line-numbers language-none"><code class="language-none">[root@zabbix_server ~]# wget -O &#x2F;etc&#x2F;yum.repos.d&#x2F;CentOS-Base.repo http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;repo&#x2F;Centos-7.repo
+[root@zabbix_server ~]# wget -O &#x2F;etc&#x2F;yum.repos.d&#x2F;epel.repo https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;repo&#x2F;epel-7.repo
+[root@zabbix_server ~]# yum clean all &amp;&amp; yum makecache fast<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-配置ssh免密"><a href="#3-配置ssh免密" class="headerlink" title="3.配置ssh免密"></a>3.配置<code>ssh</code>免密</h3><pre class="line-numbers language-none"><code class="language-none">[root@zabbix_server ~]# ssh-keygen -t rsa
+[root@zabbix_server ~]# ssh-copy-id root@192.168.140.11
+[root@zabbix_server ~]# ssh-copy-id root@192.168.140.12<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-在管理机上安装Ansible"><a href="#4-在管理机上安装Ansible" class="headerlink" title="4.在管理机上安装Ansible"></a>4.在管理机上安装<code>Ansible</code></h3><h4 id="A-安装Ansible"><a href="#A-安装Ansible" class="headerlink" title="A.安装Ansible"></a>A.安装<code>Ansible</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@zabbix_server ~]# yum install -y ansible<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="B-查看Ansible配置文件和版本信息"><a href="#B-查看Ansible配置文件和版本信息" class="headerlink" title="B.查看Ansible配置文件和版本信息"></a>B.查看<code>Ansible</code>配置文件和版本信息</h4><pre class="line-numbers language-none"><code class="language-none">[root@zabbix_server ~]# ansible --version
+ansible 2.9.27		#版本信息
+  config file &#x3D; &#x2F;etc&#x2F;ansible&#x2F;ansible.cfg		#当前正在使用的配置文件具体位置
+  configured module search path &#x3D; [u&#39;&#x2F;root&#x2F;.ansible&#x2F;plugins&#x2F;modules&#39;, u&#39;&#x2F;usr&#x2F;share&#x2F;ansible&#x2F;plugins&#x2F;modules&#39;]
+  ansible python module location &#x3D; &#x2F;usr&#x2F;lib&#x2F;python2.7&#x2F;site-packages&#x2F;ansible
+  executable location &#x3D; &#x2F;usr&#x2F;bin&#x2F;ansible
+  python version &#x3D; 2.7.5 (default, Aug  4 2017, 00:39:18) [GCC 4.8.5 20150623 (Red Hat 4.8.5-16)]<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="C-配置子配置文件和连接信息"><a href="#C-配置子配置文件和连接信息" class="headerlink" title="C.配置子配置文件和连接信息"></a>C.配置子配置文件和连接信息</h4><h5 id="创建Ansible用到的目录"><a href="#创建Ansible用到的目录" class="headerlink" title="创建Ansible用到的目录"></a>创建<code>Ansible</code>用到的目录</h5><pre class="line-numbers language-none"><code class="language-none">[root@zabbix_server ~]# mkdir &#x2F;root&#x2F;ansible<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h5 id="复制配置文件"><a href="#复制配置文件" class="headerlink" title="复制配置文件"></a>复制配置文件</h5><pre class="line-numbers language-none"><code class="language-none">[root@zabbix_server ~]# cp &#x2F;etc&#x2F;ansible&#x2F;ansible.cfg &#x2F;root&#x2F;ansible&#x2F;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h5 id="建立连接信息"><a href="#建立连接信息" class="headerlink" title="建立连接信息"></a>建立连接信息</h5><pre class="line-numbers language-none"><code class="language-none">[root@zabbix_server ~]#  cd .&#x2F;ansible<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@zabbix_server ansible]# ansible --version
+ansible 2.9.27
+  config file &#x3D; &#x2F;root&#x2F;ansible&#x2F;ansible.cfg		#这里配置文件目录为当前目录下
+  configured module search path &#x3D; [u&#39;&#x2F;root&#x2F;.ansible&#x2F;plugins&#x2F;modules&#39;, u&#39;&#x2F;usr&#x2F;share&#x2F;ansible&#x2F;plugins&#x2F;modules&#39;]
+  ansible python module location &#x3D; &#x2F;usr&#x2F;lib&#x2F;python2.7&#x2F;site-packages&#x2F;ansible
+  executable location &#x3D; &#x2F;usr&#x2F;bin&#x2F;ansible
+  python version &#x3D; 2.7.5 (default, Aug  4 2017, 00:39:18) [GCC 4.8.5 20150623 (Red Hat 4.8.5-16)]<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h5 id="修改子配置文件"><a href="#修改子配置文件" class="headerlink" title="修改子配置文件"></a>修改子配置文件</h5><pre class="line-numbers language-none"><code class="language-none">[root@zabbix_server ansible]# vim &#x2F;root&#x2F;ansible&#x2F;ansible.cfg
+inventory&#x3D; &#x2F;root&#x2F;ansible&#x2F;hosts		#指定清单路径
+remote_user&#x3D; root		#指定远程用户为root
+host_key_checking&#x3D; false		#免除远程yes操作<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="D-连接客户机"><a href="#D-连接客户机" class="headerlink" title="D.连接客户机"></a>D.连接客户机</h4><h5 id="修改hosts文件"><a href="#修改hosts文件" class="headerlink" title="修改hosts文件"></a>修改<code>hosts</code>文件</h5><pre class="line-numbers language-none"><code class="language-none">[root@zabbix_server ansible]# vim &#x2F;etc&#x2F;hosts
+
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+192.168.140.10 server.example.com server	#添加服务器 IP地址请更换你的
+192.168.140.11 node1.example.com node1	#添加客户机 IP地址请更换你的
+192.168.140.12 node2.example.com node2
+192.168.140.13 node3.example.com node3<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h5 id="拷贝配置文件给客户机"><a href="#拷贝配置文件给客户机" class="headerlink" title="拷贝配置文件给客户机"></a>拷贝配置文件给客户机</h5><pre class="line-numbers language-none"><code class="language-none">[root@zabbix_server ansible]# scp &#x2F;etc&#x2F;hosts root@192.168.140.11:&#x2F;etc&#x2F;hosts
+[root@zabbix_server ansible]# scp &#x2F;etc&#x2F;hosts root@192.168.140.12:&#x2F;etc&#x2F;hosts
+[root@zabbix_server ansible]# scp &#x2F;etc&#x2F;hosts root@192.168.140.13:&#x2F;etc&#x2F;hosts<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="E-测试"><a href="#E-测试" class="headerlink" title="E.测试"></a>E.测试</h4><h5 id="在当前目录下创建一个清单文件"><a href="#在当前目录下创建一个清单文件" class="headerlink" title="在当前目录下创建一个清单文件"></a>在当前目录下创建一个清单文件</h5><pre class="line-numbers language-none"><code class="language-none">[root@zabbix_server ansible]# vim &#x2F;root&#x2F;ansible&#x2F;hosts
+
+[webserver]
+node1
+node2
+
+[dbserver]
+node3
+
+[all:vars]
+ansible_password&#x3D;centos<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h5 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h5><pre class="line-numbers language-none"><code class="language-none">[root@master01 ansible]# ansible webserver -m shell -a &#39;hostname&#39;
+node1 | CHANGED | rc&#x3D;0 &gt;&gt;
+node1
+node2 | CHANGED | rc&#x3D;0 &gt;&gt;
+node2<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="三、Ansible-AD-HOC"><a href="#三、Ansible-AD-HOC" class="headerlink" title="三、Ansible AD HOC"></a>三、Ansible AD HOC</h2><ul>
+<li>调用模块</li>
+</ul>
+<h3 id="1-Ansible命令格式"><a href="#1-Ansible命令格式" class="headerlink" title="1.Ansible命令格式"></a>1.<code>Ansible</code>命令格式</h3><pre class="line-numbers language-none"><code class="language-none"># ansible &lt;被管理机&gt; -m &lt;模块名称&gt; [-a &lt;模块参数&gt;]<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="被管理机的写法"><a href="#被管理机的写法" class="headerlink" title="被管理机的写法"></a>被管理机的写法</h4><ul>
+<li><code>all</code>所有主机 <ul>
+<li><code>[root@zabbix_server ~]# ansible all -m ping</code></li>
+</ul>
+</li>
+<li>单个主机 <ul>
+<li><code>[root@zabbix_server ~]# ansible 192.168.140.11 -m ping</code></li>
+</ul>
+</li>
+<li>主机组名 <ul>
+<li><code>[root@zabbix_server ~]# ansible dbserver -m ping</code></li>
+</ul>
+</li>
+<li>多个主机组 <ul>
+<li><code>[root@zabbix_server ~]# ansible &#39;appserver:!dbserver&#39; -m ping</code><ul>
+<li>差集</li>
+</ul>
+</li>
+<li><code>[root@zabbix_server ~]# ansible &#39;appserver:dbserver&#39; -m ping</code><ul>
+<li>并集</li>
+</ul>
+</li>
+<li><code>[root@zabbix_server ~]# ansible &#39;appserver:&amp;dbserver&#39; -m ping</code><ul>
+<li>交集</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-关于模块帮助"><a href="#2-关于模块帮助" class="headerlink" title="2.关于模块帮助"></a>2.关于模块帮助</h3><pre class="line-numbers language-none"><code class="language-none">[root@master01 ansible]# ansible-doc 模块名称<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h2 id="四、Ansible常用模块"><a href="#四、Ansible常用模块" class="headerlink" title="四、Ansible常用模块"></a>四、Ansible常用模块</h2><h3 id="1-ping模块"><a href="#1-ping模块" class="headerlink" title="1.ping模块"></a>1.<code>ping</code>模块</h3><blockquote>
+<p><strong>测试通信</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@zabbix_server ~]# ansible webserver -m ping
+node1 | SUCCESS &#x3D;&gt; &#123;
+    &quot;ansible_facts&quot;: &#123;
+        &quot;discovered_interpreter_python&quot;: &quot;&#x2F;usr&#x2F;bin&#x2F;python&quot;
+    &#125;, 
+    &quot;changed&quot;: false, 
+    &quot;ping&quot;: &quot;pong&quot;
+&#125;
+node2 | SUCCESS &#x3D;&gt; &#123;
+    &quot;ansible_facts&quot;: &#123;
+        &quot;discovered_interpreter_python&quot;: &quot;&#x2F;usr&#x2F;bin&#x2F;python&quot;
+    &#125;, 
+    &quot;changed&quot;: false, 
+    &quot;ping&quot;: &quot;pong&quot;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="2-shell模块"><a href="#2-shell模块" class="headerlink" title="2.shell模块"></a>2.<code>shell</code>模块</h3><ul>
+<li>在被管理机上统一执行shell命令 </li>
+<li>参数<ul>
+<li><code>chdir=</code>目录名称</li>
+</ul>
+</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">[root@zabbix_server ~]# ansible webserver -m shell -a &#39;uptime&#39;
+node1 | CHANGED | rc&#x3D;0 &gt;&gt;
+ 15:57:44 up  6:16,  2 users,  load average: 0.00, 0.01, 0.05
+node2 | CHANGED | rc&#x3D;0 &gt;&gt;
+ 15:57:44 up  6:33,  3 users,  load average: 0.00, 0.01, 0.05<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@zabbix_server ~]# ansible webserver -m shell -a &#39;chdir&#x3D;&#x2F;tmp ls -l&#39;
+node2 | CHANGED | rc&#x3D;0 &gt;&gt;
+总用量 0
+drwx------ 2 root root 41 5月  15 10:00 ansible_command_payload_5zsIa2
+drwx------ 2 root root 41 5月  15 10:00 ansible_command_payload_atZfHF
+drwx------ 2 root root 41 5月  15 15:58 ansible_command_payload_NwfW4b
+drwx------ 3 root root 17 3月  17 18:42 systemd-private-48a786b208c54b83b538dca3f1ce661b-chronyd.service-Tn7iUG
+drwx------ 2 root root  6 5月  15 09:47 vmware-root_648-2688619569
+node1 | CHANGED | rc&#x3D;0 &gt;&gt;
+总用量 0
+drwx------ 2 root root 41 5月  15 10:00 ansible_command_payload_G2bPre
+drwx------ 2 root root 41 5月  15 15:58 ansible_command_payload_XYZghL
+drwx------ 2 root root 41 5月  15 10:00 ansible_command_payload_yB62n0
+drwx------ 3 root root 17 4月  25 14:05 systemd-private-1e71f30e2c1d45379b48a56d28de1db3-chronyd.service-tB2KfM<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-copy模块"><a href="#3-copy模块" class="headerlink" title="3.copy模块"></a>3.<code>copy</code>模块</h3><ul>
+<li>推送文件</li>
+<li>常用参数:<ul>
+<li><code>src=</code>源文件</li>
+<li><code>dest=</code>目的文件</li>
+<li><code>mode=</code>权限</li>
+<li><code>owner=</code>属主</li>
+<li><code>group=</code>属组</li>
+</ul>
+</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">[root@zabbix_server ~]# ansible webserver -m copy -a &#39;src&#x3D;&#x2F;etc&#x2F;hosts dest&#x3D;&#x2F;tmp&#39;
+
+node2 | CHANGED &#x3D;&gt; &#123;
+    &quot;ansible_facts&quot;: &#123;
+        &quot;discovered_interpreter_python&quot;: &quot;&#x2F;usr&#x2F;bin&#x2F;python&quot;
+    &#125;, 
+    &quot;changed&quot;: true, 
+    &quot;checksum&quot;: &quot;599bcb4c95ad1e9d53603eea627fd2f479e948cd&quot;, 
+    &quot;dest&quot;: &quot;&#x2F;tmp&#x2F;hosts&quot;, 
+    &quot;gid&quot;: 0, 
+    &quot;group&quot;: &quot;root&quot;, 
+    &quot;md5sum&quot;: &quot;1047c02d8443a9e7e464d10bf2bd9079&quot;, 
+    &quot;mode&quot;: &quot;0644&quot;, 
+    &quot;owner&quot;: &quot;root&quot;, 
+    &quot;size&quot;: 308, 
+    &quot;src&quot;: &quot;&#x2F;root&#x2F;.ansible&#x2F;tmp&#x2F;ansible-tmp-1684137792.29-5003-272837908617971&#x2F;source&quot;, 
+    &quot;state&quot;: &quot;file&quot;, 
+    &quot;uid&quot;: 0
+&#125;
+node1 | CHANGED &#x3D;&gt; &#123;
+    &quot;ansible_facts&quot;: &#123;
+        &quot;discovered_interpreter_python&quot;: &quot;&#x2F;usr&#x2F;bin&#x2F;python&quot;
+    &#125;, 
+    &quot;changed&quot;: true, 
+    &quot;checksum&quot;: &quot;599bcb4c95ad1e9d53603eea627fd2f479e948cd&quot;, 
+    &quot;dest&quot;: &quot;&#x2F;tmp&#x2F;hosts&quot;, 
+    &quot;gid&quot;: 0, 
+    &quot;group&quot;: &quot;root&quot;, 
+    &quot;md5sum&quot;: &quot;1047c02d8443a9e7e464d10bf2bd9079&quot;, 
+    &quot;mode&quot;: &quot;0644&quot;, 
+    &quot;owner&quot;: &quot;root&quot;, 
+    &quot;size&quot;: 308, 
+    &quot;src&quot;: &quot;&#x2F;root&#x2F;.ansible&#x2F;tmp&#x2F;ansible-tmp-1684137792.3-5002-165795823996149&#x2F;source&quot;, 
+    &quot;state&quot;: &quot;file&quot;, 
+    &quot;uid&quot;: 0
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@zabbix_server ~]# ansible webserver -m copy -a &#39;src&#x3D;&#x2F;opt&#x2F;file02.txt dest&#x3D;&#x2F;tmp mode&#x3D;0600 owner&#x3D;nobody group&#x3D;nobody&#39;
+
+node2 | CHANGED &#x3D;&gt; &#123;
+    &quot;ansible_facts&quot;: &#123;
+        &quot;discovered_interpreter_python&quot;: &quot;&#x2F;usr&#x2F;bin&#x2F;python&quot;
+    &#125;, 
+    &quot;changed&quot;: true, 
+    &quot;checksum&quot;: &quot;a8d256841c0d7f59f039d47d2de630af6d9a0f34&quot;, 
+    &quot;dest&quot;: &quot;&#x2F;tmp&#x2F;fstab&quot;, 
+    &quot;gid&quot;: 1000, 
+    &quot;group&quot;: &quot;student&quot;, 
+    &quot;md5sum&quot;: &quot;3ea4524e044adad46cd00afddb7d02d9&quot;, 
+    &quot;mode&quot;: &quot;0600&quot;, 
+    &quot;owner&quot;: &quot;student&quot;, 
+    &quot;size&quot;: 465, 
+    &quot;src&quot;: &quot;&#x2F;root&#x2F;.ansible&#x2F;tmp&#x2F;ansible-tmp-1684138025.01-5117-280877163462644&#x2F;source&quot;, 
+    &quot;state&quot;: &quot;file&quot;, 
+    &quot;uid&quot;: 1000
+&#125;
+node1 | CHANGED &#x3D;&gt; &#123;
+    &quot;ansible_facts&quot;: &#123;
+        &quot;discovered_interpreter_python&quot;: &quot;&#x2F;usr&#x2F;bin&#x2F;python&quot;
+    &#125;, 
+    &quot;changed&quot;: true, 
+    &quot;checksum&quot;: &quot;a8d256841c0d7f59f039d47d2de630af6d9a0f34&quot;, 
+    &quot;dest&quot;: &quot;&#x2F;tmp&#x2F;fstab&quot;, 
+    &quot;gid&quot;: 1000, 
+    &quot;group&quot;: &quot;student&quot;, 
+    &quot;md5sum&quot;: &quot;3ea4524e044adad46cd00afddb7d02d9&quot;, 
+    &quot;mode&quot;: &quot;0600&quot;, 
+    &quot;owner&quot;: &quot;student&quot;, 
+    &quot;size&quot;: 465, 
+    &quot;src&quot;: &quot;&#x2F;root&#x2F;.ansible&#x2F;tmp&#x2F;ansible-tmp-1684138025.02-5116-74769411422857&#x2F;source&quot;, 
+    &quot;state&quot;: &quot;file&quot;, 
+    &quot;uid&quot;: 1000
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-fetch模块"><a href="#4-fetch模块" class="headerlink" title="4.fetch模块"></a>4.<code>fetch</code>模块</h3><ul>
+<li>从被管理机拉取文件 </li>
+<li>常用参数:<ul>
+<li><code>src=</code>源文件</li>
+<li><code>dest=</code>目的文件</li>
+</ul>
+</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">[root@ansible ~]# ansible webserver -m fetch -a &#39;src&#x3D;&#x2F;tmp&#x2F;test01 dest&#x3D;&#x2F;tmp&#39;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="5-file模块"><a href="#5-file模块" class="headerlink" title="5.file模块"></a>5.<code>file</code>模块</h3><ul>
+<li>管理服务器文件目录 </li>
+<li>常用参数:<ul>
+<li><code>path=</code>指定文件、目录名称</li>
+<li><code>owner=</code>指明文件的属主</li>
+<li><code>group=</code>指明文件的属组</li>
+<li><code>mode=</code>指明文件的权限</li>
+<li><code>state=directory</code>创建目录</li>
+<li><code>state=link</code>创建软链接文件</li>
+<li><code>state=absent</code>删除文件</li>
+<li><code>state=touch</code>创建文件</li>
+<li><code>src=</code>指定软链接的原文件，配合<code>state=link</code>时有用</li>
+</ul>
+</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">[root@ansible ~]# ansible webserver -m file -a &#39;path&#x3D;&#x2F;tmp&#x2F;file02.txt mode&#x3D;0666 owner&#x3D;root group&#x3D;root&#39;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@ansible ~]# ansible webserver -m file -a &#39;path&#x3D;&#x2F;tmp&#x2F;nginx state&#x3D;directory&#39;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="6-cron模块"><a href="#6-cron模块" class="headerlink" title="6.cron模块"></a>6.<code>cron</code>模块</h3><ul>
+<li>管理周期性计划任务 </li>
+<li>常用参数: <ul>
+<li><code>minute=</code>指明计划任务的分钟，支持格式：<code>0-59</code></li>
+<li><code>hour=</code>指明计划任务的小时，支持的语法：<code>0-23</code></li>
+<li><code>day=</code>指明计划任务的天，支持的语法：<code>1-31</code></li>
+<li><code>month=</code>指明计划任务的月，支持的语法为：<code>1-12</code></li>
+<li><code>weekday=</code>指明计划任务的星期几，支持的语法为：<code>0-6</code></li>
+<li><code>name=</code>给该计划任务取个名称,必须要给明。每个任务的名称不能一样。</li>
+<li><code>job=</code>执行的任务是什么</li>
+<li><code>state=present|absent</code><ul>
+<li><code>present</code>创建</li>
+<li><code>absent</code>删除</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">[root@ansible ~]# ansible webserver -m cron -a &#39;name&#x3D;TimeSync minute&#x3D;*&#x2F;30 job&#x3D;&quot;&#x2F;usr&#x2F;sbin&#x2F;ntpdate  120.25.115.20 &amp;&gt; &#x2F;dev&#x2F;null&quot; state&#x3D;present&#39;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="7-yum模块"><a href="#7-yum模块" class="headerlink" title="7.yum模块"></a>7.<code>yum</code>模块</h3><ul>
+<li>管理RPM软件</li>
+<li>常用参数<ul>
+<li><code>name=</code>软件名称</li>
+<li><code>state=&#123;present|absent|latest&#125;</code><ul>
+<li><code>present</code>启动</li>
+<li><code>absent</code>关闭</li>
+<li><code>latest</code>最新版</li>
+</ul>
+</li>
+<li><code>enablerepo=</code>启用yum仓库</li>
+<li><code>disablerepo=</code>禁用yum仓库</li>
+</ul>
+</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">[root@ansible ~]# ansible webserver -m yum -a &#39;name&#x3D;vsftpd state&#x3D;present&#39;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="8-service模块"><a href="#8-service模块" class="headerlink" title="8.service模块"></a>8.<code>service</code>模块</h3><ul>
+<li>管理系统服务 </li>
+<li>常用参数<ul>
+<li><code>name=</code>服务名称</li>
+<li><code>state=&#123;started|restarted|stopped&#125;</code><ul>
+<li><code>started</code>启动</li>
+<li><code>restarted</code>重启</li>
+<li><code>stopped</code>关闭</li>
+</ul>
+</li>
+<li><code>enabled=&#123;yes|no&#125;</code><ul>
+<li><code>yes</code>开机自启动</li>
+<li><code>no</code>开机不启动</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">[root@ansible ~]# ansible webserver -m service -a &#39;name&#x3D;vsftpd state&#x3D;started enabled&#x3D;yes&#39;
+[root@ansible ~]# ansible webserver -m service -a &#39;name&#x3D;vsftpd state&#x3D;stopped&#39;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h3 id="9-group模块"><a href="#9-group模块" class="headerlink" title="9.group模块"></a>9.<code>group</code>模块</h3><ul>
+<li>管理用户组 </li>
+<li>常用参数: <ul>
+<li><code>name=</code>被管理的组名</li>
+<li><code>state=present|absent</code><ul>
+<li><code>present</code>添加组</li>
+<li><code>absent</code>删除组</li>
+</ul>
+</li>
+<li><code>gid=</code>指明GID</li>
+<li><code>system=yes|no</code>是否为系统组</li>
+</ul>
+</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">[root@ansible ~]# ansible webserver -m group -a &#39;name&#x3D;jishu state&#x3D;present&#39;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="10-user模块"><a href="#10-user模块" class="headerlink" title="10.user模块"></a>10.<code>user</code>模块</h3><ul>
+<li>管理用户 </li>
+<li>常用参数<ul>
+<li><code>name=</code>指明要管理的账号名称</li>
+<li><code>state=present|absent</code> 	<ul>
+<li><code>present</code>表示创建，<code>absent</code>表示删除</li>
+</ul>
+</li>
+<li><code>system=yes|no</code>指明是否为系统账号</li>
+<li><code>uid=</code>指明用户UID</li>
+<li><code>group=</code>指明用户的基本组</li>
+<li><code>groups=</code>指明用户的附加组</li>
+<li><code>shell=</code>指明默认的shell</li>
+<li><code>home=</code>指明用户的家目录</li>
+<li><code>password=</code>指明用户的密码，最好使用加密好的字符</li>
+<li><code>comment=</code>指明用户的注释信息</li>
+<li><code>remove=yes|no</code>当<code>state=absent</code>时，也就是删除用户时，是否要删除用户的家目录</li>
+</ul>
+</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">[root@ansible ~]# ansible webserver -m user -a &#39;name&#x3D;king groups&#x3D;jishu shell&#x3D;&#x2F;sbin&#x2F;nologin state&#x3D;present&#39;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="11-script模块"><a href="#11-script模块" class="headerlink" title="11.script模块"></a>11.<code>script</code>模块</h3><ul>
+<li>推送脚本、自动执行脚本 </li>
+<li>常用参数: <ul>
+<li>脚本名称</li>
+</ul>
+</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">[root@ansible ~]# ansible webserver -m script -a &#39;&#x2F;root&#x2F;test.sh&#39;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="12-lineinfile模块"><a href="#12-lineinfile模块" class="headerlink" title="12.lineinfile模块"></a>12.<code>lineinfile</code>模块</h3><ul>
+<li>管理文件内容</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">[root@ansible ~]# ansible webserver -m lineinfile -a &#39;path&#x3D;&#x2F;etc&#x2F;hosts line&#x3D;&quot;10.1.1.1 agent01.linux.com&quot;&#39;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="13-setup模块-重要"><a href="#13-setup模块-重要" class="headerlink" title="13.setup模块(重要)"></a>13.<code>setup</code>模块(重要)</h3><ul>
+<li>后续的剧本中，会用到这里面的变量</li>
+<li>搜集被管理机的状态信息(IP地址、主机名、系统版本、内存大小、CPU型号等)，统称<code>facts</code>变量</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">[root@master01 ansible]# ansible node1 -m setup 
+
+node1 | SUCCESS &#x3D;&gt; &#123;
+    &quot;ansible_facts&quot;: &#123;
+        &quot;ansible_all_ipv4_addresses&quot;: [
+            &quot;192.168.140.11&quot;
+        ], 
+        &quot;ansible_all_ipv6_addresses&quot;: [
+            &quot;fe80::20c:29ff:fe37:97c7&quot;
+        ], 
+        &quot;ansible_apparmor&quot;: &#123;
+            &quot;status&quot;: &quot;disabled&quot;
+        &#125;, 
+        &quot;ansible_architecture&quot;: &quot;x86_64&quot;, 
+        &quot;ansible_bios_date&quot;: &quot;11&#x2F;12&#x2F;2020&quot;, 
+        &quot;ansible_bios_version&quot;: &quot;6.00&quot;, 
+        &quot;ansible_cmdline&quot;: &#123;
+            &quot;BOOT_IMAGE&quot;: &quot;&#x2F;vmlinuz-3.10.0-1160.el7.x86_64&quot;, 
+            &quot;LANG&quot;: &quot;zh_CN.UTF-8&quot;, 
+            &quot;crashkernel&quot;: &quot;auto&quot;, 
+            &quot;quiet&quot;: true, 
+            &quot;rd.lvm.lv&quot;: &quot;centos&#x2F;swap&quot;, 
+            &quot;rhgb&quot;: true, 
+            &quot;ro&quot;: true, 
+            &quot;root&quot;: &quot;&#x2F;dev&#x2F;mapper&#x2F;centos-root&quot;
+        &#125;, 
+        &quot;ansible_date_time&quot;: &#123;
+            &quot;date&quot;: &quot;2023-05-15&quot;, 
+            &quot;day&quot;: &quot;15&quot;, 
+            &quot;epoch&quot;: &quot;1684142821&quot;, 
+            &quot;hour&quot;: &quot;17&quot;, 
+            &quot;iso8601&quot;: &quot;2023-05-15T09:27:01Z&quot;, 
+            &quot;iso8601_basic&quot;: &quot;20230515T172701434185&quot;, 
+            &quot;iso8601_basic_short&quot;: &quot;20230515T172701&quot;, 
+            &quot;iso8601_micro&quot;: &quot;2023-05-15T09:27:01.434185Z&quot;, 
+            &quot;minute&quot;: &quot;27&quot;, 
+            &quot;month&quot;: &quot;05&quot;, 
+            &quot;second&quot;: &quot;01&quot;, 
+            &quot;time&quot;: &quot;17:27:01&quot;, 
+            &quot;tz&quot;: &quot;CST&quot;, 
+            &quot;tz_offset&quot;: &quot;+0800&quot;, 
+            &quot;weekday&quot;: &quot;星期一&quot;, 
+            &quot;weekday_number&quot;: &quot;1&quot;, 
+            &quot;weeknumber&quot;: &quot;20&quot;, 
+            &quot;year&quot;: &quot;2023&quot;
+        &#125;, 
+        &quot;ansible_default_ipv4&quot;: &#123;
+            &quot;address&quot;: &quot;192.168.140.11&quot;, 
+            &quot;alias&quot;: &quot;ens33&quot;, 
+            &quot;broadcast&quot;: &quot;192.168.140.255&quot;, 
+            &quot;gateway&quot;: &quot;192.168.140.2&quot;, 
+            &quot;interface&quot;: &quot;ens33&quot;, 
+            &quot;macaddress&quot;: &quot;00:0c:29:37:97:c7&quot;, 
+            &quot;mtu&quot;: 1500, 
+            &quot;netmask&quot;: &quot;255.255.255.0&quot;, 
+            &quot;network&quot;: &quot;192.168.140.0&quot;, 
+            &quot;type&quot;: &quot;ether&quot;
+        &#125;, 
+        &quot;ansible_default_ipv6&quot;: &#123;&#125;, 
+        &quot;ansible_device_links&quot;: &#123;
+            &quot;ids&quot;: &#123;
+                &quot;dm-0&quot;: [
+                    &quot;dm-name-centos-root&quot;, 
+                    &quot;dm-uuid-LVM-OLO7GRb67emHfncffRG1XyiYndhJZ4vj1E07jNy6r1SU11s7MIufjbRxpcUPaBco&quot;
+                ], 
+                &quot;dm-1&quot;: [
+                    &quot;dm-name-centos-swap&quot;, 
+                    &quot;dm-uuid-LVM-OLO7GRb67emHfncffRG1XyiYndhJZ4vjnCZ7d33q36i8rG3z6iYmInKuOP8SlbGi&quot;
+                ], 
+                &quot;sda2&quot;: [
+                    &quot;lvm-pv-uuid-8dIHWy-Qxyv-0dZp-bl52-O9s2-4L3q-92KSds&quot;
+                ], 
+                &quot;sr0&quot;: [
+                    &quot;ata-VMware_Virtual_IDE_CDROM_Drive_10000000000000000001&quot;
+                ]
+            &#125;, 
+            &quot;labels&quot;: &#123;&#125;, 
+            &quot;masters&quot;: &#123;
+                &quot;sda2&quot;: [
+                    &quot;dm-0&quot;, 
+                    &quot;dm-1&quot;
+                ]
+            &#125;, 
+            &quot;uuids&quot;: &#123;
+                &quot;dm-0&quot;: [
+                    &quot;39ad21bb-f420-4236-9343-e4c8ad32aefd&quot;
+                ], 
+                &quot;dm-1&quot;: [
+                    &quot;0f2f0244-ae9a-4224-bf65-05518c7210b9&quot;
+                ], 
+                &quot;sda1&quot;: [
+                    &quot;13d01e00-1f54-4718-bc51-041c787cf659&quot;
+                ]
+            &#125;
+        &#125;, 
+        &quot;ansible_devices&quot;: &#123;
+            &quot;dm-0&quot;: &#123;
+                &quot;holders&quot;: [], 
+                &quot;host&quot;: &quot;&quot;, 
+                &quot;links&quot;: &#123;
+                    &quot;ids&quot;: [
+                        &quot;dm-name-centos-root&quot;, 
+                        &quot;dm-uuid-LVM-OLO7GRb67emHfncffRG1XyiYndhJZ4vj1E07jNy6r1SU11s7MIufjbRxpcUPaBco&quot;
+                    ], 
+                    &quot;labels&quot;: [], 
+                    &quot;masters&quot;: [], 
+                    &quot;uuids&quot;: [
+                        &quot;39ad21bb-f420-4236-9343-e4c8ad32aefd&quot;
+                    ]
+                &#125;, 
+                &quot;model&quot;: null, 
+                &quot;partitions&quot;: &#123;&#125;, 
+                &quot;removable&quot;: &quot;0&quot;, 
+                &quot;rotational&quot;: &quot;1&quot;, 
+                &quot;sas_address&quot;: null, 
+                &quot;sas_device_handle&quot;: null, 
+                &quot;scheduler_mode&quot;: &quot;&quot;, 
+                &quot;sectors&quot;: &quot;36716544&quot;, 
+                &quot;sectorsize&quot;: &quot;512&quot;, 
+                &quot;size&quot;: &quot;17.51 GB&quot;, 
+                &quot;support_discard&quot;: &quot;0&quot;, 
+                &quot;vendor&quot;: null, 
+                &quot;virtual&quot;: 1
+            &#125;, 
+            &quot;dm-1&quot;: &#123;
+                &quot;holders&quot;: [], 
+                &quot;host&quot;: &quot;&quot;, 
+                &quot;links&quot;: &#123;
+                    &quot;ids&quot;: [
+                        &quot;dm-name-centos-swap&quot;, 
+                        &quot;dm-uuid-LVM-OLO7GRb67emHfncffRG1XyiYndhJZ4vjnCZ7d33q36i8rG3z6iYmInKuOP8SlbGi&quot;
+                    ], 
+                    &quot;labels&quot;: [], 
+                    &quot;masters&quot;: [], 
+                    &quot;uuids&quot;: [
+                        &quot;0f2f0244-ae9a-4224-bf65-05518c7210b9&quot;
+                    ]
+                &#125;, 
+                &quot;model&quot;: null, 
+                &quot;partitions&quot;: &#123;&#125;, 
+                &quot;removable&quot;: &quot;0&quot;, 
+                &quot;rotational&quot;: &quot;1&quot;, 
+                &quot;sas_address&quot;: null, 
+                &quot;sas_device_handle&quot;: null, 
+                &quot;scheduler_mode&quot;: &quot;&quot;, 
+                &quot;sectors&quot;: &quot;4194304&quot;, 
+                &quot;sectorsize&quot;: &quot;512&quot;, 
+                &quot;size&quot;: &quot;2.00 GB&quot;, 
+                &quot;support_discard&quot;: &quot;0&quot;, 
+                &quot;vendor&quot;: null, 
+                &quot;virtual&quot;: 1
+            &#125;, 
+            &quot;sda&quot;: &#123;
+                &quot;holders&quot;: [], 
+                &quot;host&quot;: &quot;SCSI storage controller: Broadcom &#x2F; LSI 53c1030 PCI-X Fusion-MPT Dual Ultra320 SCSI (rev 01)&quot;, 
+                &quot;links&quot;: &#123;
+                    &quot;ids&quot;: [], 
+                    &quot;labels&quot;: [], 
+                    &quot;masters&quot;: [], 
+                    &quot;uuids&quot;: []
+                &#125;, 
+                &quot;model&quot;: &quot;VMware Virtual S&quot;, 
+                &quot;partitions&quot;: &#123;
+                    &quot;sda1&quot;: &#123;
+                        &quot;holders&quot;: [], 
+                        &quot;links&quot;: &#123;
+                            &quot;ids&quot;: [], 
+                            &quot;labels&quot;: [], 
+                            &quot;masters&quot;: [], 
+                            &quot;uuids&quot;: [
+                                &quot;13d01e00-1f54-4718-bc51-041c787cf659&quot;
+                            ]
+                        &#125;, 
+                        &quot;sectors&quot;: &quot;1024000&quot;, 
+                        &quot;sectorsize&quot;: 512, 
+                        &quot;size&quot;: &quot;500.00 MB&quot;, 
+                        &quot;start&quot;: &quot;2048&quot;, 
+                        &quot;uuid&quot;: &quot;13d01e00-1f54-4718-bc51-041c787cf659&quot;
+                    &#125;, 
+                    &quot;sda2&quot;: &#123;
+                        &quot;holders&quot;: [
+                            &quot;centos-root&quot;, 
+                            &quot;centos-swap&quot;
+                        ], 
+                        &quot;links&quot;: &#123;
+                            &quot;ids&quot;: [
+                                &quot;lvm-pv-uuid-8dIHWy-Qxyv-0dZp-bl52-O9s2-4L3q-92KSds&quot;
+                            ], 
+                            &quot;labels&quot;: [], 
+                            &quot;masters&quot;: [
+                                &quot;dm-0&quot;, 
+                                &quot;dm-1&quot;
+                            ], 
+                            &quot;uuids&quot;: []
+                        &#125;, 
+                        &quot;sectors&quot;: &quot;40916992&quot;, 
+                        &quot;sectorsize&quot;: 512, 
+                        &quot;size&quot;: &quot;19.51 GB&quot;, 
+                        &quot;start&quot;: &quot;1026048&quot;, 
+                        &quot;uuid&quot;: null
+                    &#125;
+                &#125;, 
+                &quot;removable&quot;: &quot;0&quot;, 
+                &quot;rotational&quot;: &quot;1&quot;, 
+                &quot;sas_address&quot;: null, 
+                &quot;sas_device_handle&quot;: null, 
+                &quot;scheduler_mode&quot;: &quot;deadline&quot;, 
+                &quot;sectors&quot;: &quot;41943040&quot;, 
+                &quot;sectorsize&quot;: &quot;512&quot;, 
+                &quot;size&quot;: &quot;20.00 GB&quot;, 
+                &quot;support_discard&quot;: &quot;0&quot;, 
+                &quot;vendor&quot;: &quot;VMware,&quot;, 
+                &quot;virtual&quot;: 1
+            &#125;, 
+            &quot;sr0&quot;: &#123;
+                &quot;holders&quot;: [], 
+                &quot;host&quot;: &quot;IDE interface: Intel Corporation 82371AB&#x2F;EB&#x2F;MB PIIX4 IDE (rev 01)&quot;, 
+                &quot;links&quot;: &#123;
+                    &quot;ids&quot;: [
+                        &quot;ata-VMware_Virtual_IDE_CDROM_Drive_10000000000000000001&quot;
+                    ], 
+                    &quot;labels&quot;: [], 
+                    &quot;masters&quot;: [], 
+                    &quot;uuids&quot;: []
+                &#125;, 
+                &quot;model&quot;: &quot;VMware IDE CDR10&quot;, 
+                &quot;partitions&quot;: &#123;&#125;, 
+                &quot;removable&quot;: &quot;1&quot;, 
+                &quot;rotational&quot;: &quot;1&quot;, 
+                &quot;sas_address&quot;: null, 
+                &quot;sas_device_handle&quot;: null, 
+                &quot;scheduler_mode&quot;: &quot;deadline&quot;, 
+                &quot;sectors&quot;: &quot;2097151&quot;, 
+                &quot;sectorsize&quot;: &quot;512&quot;, 
+                &quot;size&quot;: &quot;1024.00 MB&quot;, 
+                &quot;support_discard&quot;: &quot;0&quot;, 
+                &quot;vendor&quot;: &quot;NECVMWar&quot;, 
+                &quot;virtual&quot;: 1
+            &#125;
+        &#125;, 
+        &quot;ansible_distribution&quot;: &quot;CentOS&quot;, 
+        &quot;ansible_distribution_file_parsed&quot;: true, 
+        &quot;ansible_distribution_file_path&quot;: &quot;&#x2F;etc&#x2F;redhat-release&quot;, 
+        &quot;ansible_distribution_file_variety&quot;: &quot;RedHat&quot;, 
+        &quot;ansible_distribution_major_version&quot;: &quot;7&quot;, 
+        &quot;ansible_distribution_release&quot;: &quot;Core&quot;, 
+        &quot;ansible_distribution_version&quot;: &quot;7.9&quot;, 
+        &quot;ansible_dns&quot;: &#123;
+            &quot;nameservers&quot;: [
+                &quot;114.114.114.114&quot;, 
+                &quot;8.8.8.8&quot;
+            ]
+        &#125;, 
+        &quot;ansible_domain&quot;: &quot;linux.com&quot;, 
+        &quot;ansible_effective_group_id&quot;: 0, 
+        &quot;ansible_effective_user_id&quot;: 0, 
+        &quot;ansible_ens33&quot;: &#123;
+            &quot;active&quot;: true, 
+            &quot;device&quot;: &quot;ens33&quot;, 
+            &quot;features&quot;: &#123;
+                &quot;busy_poll&quot;: &quot;off [fixed]&quot;, 
+                &quot;fcoe_mtu&quot;: &quot;off [fixed]&quot;, 
+                &quot;generic_receive_offload&quot;: &quot;on&quot;, 
+                &quot;generic_segmentation_offload&quot;: &quot;on&quot;, 
+                &quot;highdma&quot;: &quot;off [fixed]&quot;, 
+                &quot;hw_tc_offload&quot;: &quot;off [fixed]&quot;, 
+                &quot;l2_fwd_offload&quot;: &quot;off [fixed]&quot;, 
+                &quot;large_receive_offload&quot;: &quot;off [fixed]&quot;, 
+                &quot;loopback&quot;: &quot;off [fixed]&quot;, 
+                &quot;netns_local&quot;: &quot;off [fixed]&quot;, 
+                &quot;ntuple_filters&quot;: &quot;off [fixed]&quot;, 
+                &quot;receive_hashing&quot;: &quot;off [fixed]&quot;, 
+                &quot;rx_all&quot;: &quot;off&quot;, 
+                &quot;rx_checksumming&quot;: &quot;off&quot;, 
+                &quot;rx_fcs&quot;: &quot;off&quot;, 
+                &quot;rx_gro_hw&quot;: &quot;off [fixed]&quot;, 
+                &quot;rx_udp_tunnel_port_offload&quot;: &quot;off [fixed]&quot;, 
+                &quot;rx_vlan_filter&quot;: &quot;on [fixed]&quot;, 
+                &quot;rx_vlan_offload&quot;: &quot;on&quot;, 
+                &quot;rx_vlan_stag_filter&quot;: &quot;off [fixed]&quot;, 
+                &quot;rx_vlan_stag_hw_parse&quot;: &quot;off [fixed]&quot;, 
+                &quot;scatter_gather&quot;: &quot;on&quot;, 
+                &quot;tcp_segmentation_offload&quot;: &quot;on&quot;, 
+                &quot;tx_checksum_fcoe_crc&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_checksum_ip_generic&quot;: &quot;on&quot;, 
+                &quot;tx_checksum_ipv4&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_checksum_ipv6&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_checksum_sctp&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_checksumming&quot;: &quot;on&quot;, 
+                &quot;tx_fcoe_segmentation&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_gre_csum_segmentation&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_gre_segmentation&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_gso_partial&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_gso_robust&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_ipip_segmentation&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_lockless&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_nocache_copy&quot;: &quot;off&quot;, 
+                &quot;tx_scatter_gather&quot;: &quot;on&quot;, 
+                &quot;tx_scatter_gather_fraglist&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_sctp_segmentation&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_sit_segmentation&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_tcp6_segmentation&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_tcp_ecn_segmentation&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_tcp_mangleid_segmentation&quot;: &quot;off&quot;, 
+                &quot;tx_tcp_segmentation&quot;: &quot;on&quot;, 
+                &quot;tx_udp_tnl_csum_segmentation&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_udp_tnl_segmentation&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_vlan_offload&quot;: &quot;on [fixed]&quot;, 
+                &quot;tx_vlan_stag_hw_insert&quot;: &quot;off [fixed]&quot;, 
+                &quot;udp_fragmentation_offload&quot;: &quot;off [fixed]&quot;, 
+                &quot;vlan_challenged&quot;: &quot;off [fixed]&quot;
+            &#125;, 
+            &quot;hw_timestamp_filters&quot;: [], 
+            &quot;ipv4&quot;: &#123;
+                &quot;address&quot;: &quot;192.168.140.11&quot;, 
+                &quot;broadcast&quot;: &quot;192.168.140.255&quot;, 
+                &quot;netmask&quot;: &quot;255.255.255.0&quot;, 
+                &quot;network&quot;: &quot;192.168.140.0&quot;
+            &#125;, 
+            &quot;ipv6&quot;: [
+                &#123;
+                    &quot;address&quot;: &quot;fe80::20c:29ff:fe37:97c7&quot;, 
+                    &quot;prefix&quot;: &quot;64&quot;, 
+                    &quot;scope&quot;: &quot;link&quot;
+                &#125;
+            ], 
+            &quot;macaddress&quot;: &quot;00:0c:29:37:97:c7&quot;, 
+            &quot;module&quot;: &quot;e1000&quot;, 
+            &quot;mtu&quot;: 1500, 
+            &quot;pciid&quot;: &quot;0000:02:01.0&quot;, 
+            &quot;promisc&quot;: false, 
+            &quot;speed&quot;: 1000, 
+            &quot;timestamping&quot;: [
+                &quot;tx_software&quot;, 
+                &quot;rx_software&quot;, 
+                &quot;software&quot;
+            ], 
+            &quot;type&quot;: &quot;ether&quot;
+        &#125;, 
+        &quot;ansible_env&quot;: &#123;
+            &quot;HOME&quot;: &quot;&#x2F;root&quot;, 
+            &quot;LANG&quot;: &quot;zh_CN.UTF-8&quot;, 
+            &quot;LESSOPEN&quot;: &quot;||&#x2F;usr&#x2F;bin&#x2F;lesspipe.sh %s&quot;, 
+            &quot;LOGNAME&quot;: &quot;root&quot;, 
+            &quot;LS_COLORS&quot;: &quot;rs&#x3D;0:di&#x3D;01;34:ln&#x3D;01;36:mh&#x3D;00:pi&#x3D;40;33:so&#x3D;01;35:do&#x3D;01;35:bd&#x3D;40;33;01:cd&#x3D;40;33;01:or&#x3D;40;31;01:mi&#x3D;01;05;37;41:su&#x3D;37;41:sg&#x3D;30;43:ca&#x3D;30;41:tw&#x3D;30;42:ow&#x3D;34;42:st&#x3D;37;44:ex&#x3D;01;32:*.tar&#x3D;01;31:*.tgz&#x3D;01;31:*.arc&#x3D;01;31:*.arj&#x3D;01;31:*.taz&#x3D;01;31:*.lha&#x3D;01;31:*.lz4&#x3D;01;31:*.lzh&#x3D;01;31:*.lzma&#x3D;01;31:*.tlz&#x3D;01;31:*.txz&#x3D;01;31:*.tzo&#x3D;01;31:*.t7z&#x3D;01;31:*.zip&#x3D;01;31:*.z&#x3D;01;31:*.Z&#x3D;01;31:*.dz&#x3D;01;31:*.gz&#x3D;01;31:*.lrz&#x3D;01;31:*.lz&#x3D;01;31:*.lzo&#x3D;01;31:*.xz&#x3D;01;31:*.bz2&#x3D;01;31:*.bz&#x3D;01;31:*.tbz&#x3D;01;31:*.tbz2&#x3D;01;31:*.tz&#x3D;01;31:*.deb&#x3D;01;31:*.rpm&#x3D;01;31:*.jar&#x3D;01;31:*.war&#x3D;01;31:*.ear&#x3D;01;31:*.sar&#x3D;01;31:*.rar&#x3D;01;31:*.alz&#x3D;01;31:*.ace&#x3D;01;31:*.zoo&#x3D;01;31:*.cpio&#x3D;01;31:*.7z&#x3D;01;31:*.rz&#x3D;01;31:*.cab&#x3D;01;31:*.jpg&#x3D;01;35:*.jpeg&#x3D;01;35:*.gif&#x3D;01;35:*.bmp&#x3D;01;35:*.pbm&#x3D;01;35:*.pgm&#x3D;01;35:*.ppm&#x3D;01;35:*.tga&#x3D;01;35:*.xbm&#x3D;01;35:*.xpm&#x3D;01;35:*.tif&#x3D;01;35:*.tiff&#x3D;01;35:*.png&#x3D;01;35:*.svg&#x3D;01;35:*.svgz&#x3D;01;35:*.mng&#x3D;01;35:*.pcx&#x3D;01;35:*.mov&#x3D;01;35:*.mpg&#x3D;01;35:*.mpeg&#x3D;01;35:*.m2v&#x3D;01;35:*.mkv&#x3D;01;35:*.webm&#x3D;01;35:*.ogm&#x3D;01;35:*.mp4&#x3D;01;35:*.m4v&#x3D;01;35:*.mp4v&#x3D;01;35:*.vob&#x3D;01;35:*.qt&#x3D;01;35:*.nuv&#x3D;01;35:*.wmv&#x3D;01;35:*.asf&#x3D;01;35:*.rm&#x3D;01;35:*.rmvb&#x3D;01;35:*.flc&#x3D;01;35:*.avi&#x3D;01;35:*.fli&#x3D;01;35:*.flv&#x3D;01;35:*.gl&#x3D;01;35:*.dl&#x3D;01;35:*.xcf&#x3D;01;35:*.xwd&#x3D;01;35:*.yuv&#x3D;01;35:*.cgm&#x3D;01;35:*.emf&#x3D;01;35:*.axv&#x3D;01;35:*.anx&#x3D;01;35:*.ogv&#x3D;01;35:*.ogx&#x3D;01;35:*.aac&#x3D;01;36:*.au&#x3D;01;36:*.flac&#x3D;01;36:*.mid&#x3D;01;36:*.midi&#x3D;01;36:*.mka&#x3D;01;36:*.mp3&#x3D;01;36:*.mpc&#x3D;01;36:*.ogg&#x3D;01;36:*.ra&#x3D;01;36:*.wav&#x3D;01;36:*.axa&#x3D;01;36:*.oga&#x3D;01;36:*.spx&#x3D;01;36:*.xspf&#x3D;01;36:&quot;, 
+            &quot;MAIL&quot;: &quot;&#x2F;var&#x2F;mail&#x2F;root&quot;, 
+            &quot;PATH&quot;: &quot;&#x2F;usr&#x2F;local&#x2F;sbin:&#x2F;usr&#x2F;local&#x2F;bin:&#x2F;usr&#x2F;sbin:&#x2F;usr&#x2F;bin&quot;, 
+            &quot;PWD&quot;: &quot;&#x2F;root&quot;, 
+            &quot;SHELL&quot;: &quot;&#x2F;bin&#x2F;bash&quot;, 
+            &quot;SHLVL&quot;: &quot;2&quot;, 
+            &quot;SSH_CLIENT&quot;: &quot;192.168.140.10 48140 22&quot;, 
+            &quot;SSH_CONNECTION&quot;: &quot;192.168.140.10 48140 192.168.140.11 22&quot;, 
+            &quot;SSH_TTY&quot;: &quot;&#x2F;dev&#x2F;pts&#x2F;0&quot;, 
+            &quot;TERM&quot;: &quot;xterm&quot;, 
+            &quot;USER&quot;: &quot;root&quot;, 
+            &quot;XDG_RUNTIME_DIR&quot;: &quot;&#x2F;run&#x2F;user&#x2F;0&quot;, 
+            &quot;XDG_SESSION_ID&quot;: &quot;27&quot;, 
+            &quot;_&quot;: &quot;&#x2F;usr&#x2F;bin&#x2F;python&quot;
+        &#125;, 
+        &quot;ansible_fibre_channel_wwn&quot;: [], 
+        &quot;ansible_fips&quot;: false, 
+        &quot;ansible_form_factor&quot;: &quot;Other&quot;, 
+        &quot;ansible_fqdn&quot;: &quot;node1.linux.com&quot;, 
+        &quot;ansible_hostname&quot;: &quot;node1&quot;, 
+        &quot;ansible_hostnqn&quot;: &quot;&quot;, 
+        &quot;ansible_interfaces&quot;: [
+            &quot;lo&quot;, 
+            &quot;ens33&quot;
+        ], 
+        &quot;ansible_is_chroot&quot;: false, 
+        &quot;ansible_iscsi_iqn&quot;: &quot;&quot;, 
+        &quot;ansible_kernel&quot;: &quot;3.10.0-1160.el7.x86_64&quot;, 
+        &quot;ansible_kernel_version&quot;: &quot;#1 SMP Mon Oct 19 16:18:59 UTC 2020&quot;, 
+        &quot;ansible_lo&quot;: &#123;
+            &quot;active&quot;: true, 
+            &quot;device&quot;: &quot;lo&quot;, 
+            &quot;features&quot;: &#123;
+                &quot;busy_poll&quot;: &quot;off [fixed]&quot;, 
+                &quot;fcoe_mtu&quot;: &quot;off [fixed]&quot;, 
+                &quot;generic_receive_offload&quot;: &quot;on&quot;, 
+                &quot;generic_segmentation_offload&quot;: &quot;on&quot;, 
+                &quot;highdma&quot;: &quot;on [fixed]&quot;, 
+                &quot;hw_tc_offload&quot;: &quot;off [fixed]&quot;, 
+                &quot;l2_fwd_offload&quot;: &quot;off [fixed]&quot;, 
+                &quot;large_receive_offload&quot;: &quot;off [fixed]&quot;, 
+                &quot;loopback&quot;: &quot;on [fixed]&quot;, 
+                &quot;netns_local&quot;: &quot;on [fixed]&quot;, 
+                &quot;ntuple_filters&quot;: &quot;off [fixed]&quot;, 
+                &quot;receive_hashing&quot;: &quot;off [fixed]&quot;, 
+                &quot;rx_all&quot;: &quot;off [fixed]&quot;, 
+                &quot;rx_checksumming&quot;: &quot;on [fixed]&quot;, 
+                &quot;rx_fcs&quot;: &quot;off [fixed]&quot;, 
+                &quot;rx_gro_hw&quot;: &quot;off [fixed]&quot;, 
+                &quot;rx_udp_tunnel_port_offload&quot;: &quot;off [fixed]&quot;, 
+                &quot;rx_vlan_filter&quot;: &quot;off [fixed]&quot;, 
+                &quot;rx_vlan_offload&quot;: &quot;off [fixed]&quot;, 
+                &quot;rx_vlan_stag_filter&quot;: &quot;off [fixed]&quot;, 
+                &quot;rx_vlan_stag_hw_parse&quot;: &quot;off [fixed]&quot;, 
+                &quot;scatter_gather&quot;: &quot;on&quot;, 
+                &quot;tcp_segmentation_offload&quot;: &quot;on&quot;, 
+                &quot;tx_checksum_fcoe_crc&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_checksum_ip_generic&quot;: &quot;on [fixed]&quot;, 
+                &quot;tx_checksum_ipv4&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_checksum_ipv6&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_checksum_sctp&quot;: &quot;on [fixed]&quot;, 
+                &quot;tx_checksumming&quot;: &quot;on&quot;, 
+                &quot;tx_fcoe_segmentation&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_gre_csum_segmentation&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_gre_segmentation&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_gso_partial&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_gso_robust&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_ipip_segmentation&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_lockless&quot;: &quot;on [fixed]&quot;, 
+                &quot;tx_nocache_copy&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_scatter_gather&quot;: &quot;on [fixed]&quot;, 
+                &quot;tx_scatter_gather_fraglist&quot;: &quot;on [fixed]&quot;, 
+                &quot;tx_sctp_segmentation&quot;: &quot;on&quot;, 
+                &quot;tx_sit_segmentation&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_tcp6_segmentation&quot;: &quot;on&quot;, 
+                &quot;tx_tcp_ecn_segmentation&quot;: &quot;on&quot;, 
+                &quot;tx_tcp_mangleid_segmentation&quot;: &quot;on&quot;, 
+                &quot;tx_tcp_segmentation&quot;: &quot;on&quot;, 
+                &quot;tx_udp_tnl_csum_segmentation&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_udp_tnl_segmentation&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_vlan_offload&quot;: &quot;off [fixed]&quot;, 
+                &quot;tx_vlan_stag_hw_insert&quot;: &quot;off [fixed]&quot;, 
+                &quot;udp_fragmentation_offload&quot;: &quot;on&quot;, 
+                &quot;vlan_challenged&quot;: &quot;on [fixed]&quot;
+            &#125;, 
+            &quot;hw_timestamp_filters&quot;: [], 
+            &quot;ipv4&quot;: &#123;
+                &quot;address&quot;: &quot;127.0.0.1&quot;, 
+                &quot;broadcast&quot;: &quot;&quot;, 
+                &quot;netmask&quot;: &quot;255.0.0.0&quot;, 
+                &quot;network&quot;: &quot;127.0.0.0&quot;
+            &#125;, 
+            &quot;ipv6&quot;: [
+                &#123;
+                    &quot;address&quot;: &quot;::1&quot;, 
+                    &quot;prefix&quot;: &quot;128&quot;, 
+                    &quot;scope&quot;: &quot;host&quot;
+                &#125;
+            ], 
+            &quot;mtu&quot;: 65536, 
+            &quot;promisc&quot;: false, 
+            &quot;timestamping&quot;: [
+                &quot;rx_software&quot;, 
+                &quot;software&quot;
+            ], 
+            &quot;type&quot;: &quot;loopback&quot;
+        &#125;, 
+        &quot;ansible_local&quot;: &#123;&#125;, 
+        &quot;ansible_lsb&quot;: &#123;&#125;, 
+        &quot;ansible_lvm&quot;: &#123;
+            &quot;lvs&quot;: &#123;
+                &quot;root&quot;: &#123;
+                    &quot;size_g&quot;: &quot;17.51&quot;, 
+                    &quot;vg&quot;: &quot;centos&quot;
+                &#125;, 
+                &quot;swap&quot;: &#123;
+                    &quot;size_g&quot;: &quot;2.00&quot;, 
+                    &quot;vg&quot;: &quot;centos&quot;
+                &#125;
+            &#125;, 
+            &quot;pvs&quot;: &#123;
+                &quot;&#x2F;dev&#x2F;sda2&quot;: &#123;
+                    &quot;free_g&quot;: &quot;0&quot;, 
+                    &quot;size_g&quot;: &quot;19.51&quot;, 
+                    &quot;vg&quot;: &quot;centos&quot;
+                &#125;
+            &#125;, 
+            &quot;vgs&quot;: &#123;
+                &quot;centos&quot;: &#123;
+                    &quot;free_g&quot;: &quot;0&quot;, 
+                    &quot;num_lvs&quot;: &quot;2&quot;, 
+                    &quot;num_pvs&quot;: &quot;1&quot;, 
+                    &quot;size_g&quot;: &quot;19.51&quot;
+                &#125;
+            &#125;
+        &#125;, 
+        &quot;ansible_machine&quot;: &quot;x86_64&quot;, 
+        &quot;ansible_machine_id&quot;: &quot;8dece1781ceb4ea4b1000cdd617091f2&quot;, 
+        &quot;ansible_memfree_mb&quot;: 1471, 
+        &quot;ansible_memory_mb&quot;: &#123;
+            &quot;nocache&quot;: &#123;
+                &quot;free&quot;: 1606, 
+                &quot;used&quot;: 213
+            &#125;, 
+            &quot;real&quot;: &#123;
+                &quot;free&quot;: 1471, 
+                &quot;total&quot;: 1819, 
+                &quot;used&quot;: 348
+            &#125;, 
+            &quot;swap&quot;: &#123;
+                &quot;cached&quot;: 0, 
+                &quot;free&quot;: 2047, 
+                &quot;total&quot;: 2047, 
+                &quot;used&quot;: 0
+            &#125;
+        &#125;, 
+        &quot;ansible_memtotal_mb&quot;: 1819, 
+        &quot;ansible_mounts&quot;: [
+            &#123;
+                &quot;block_available&quot;: 90521, 
+                &quot;block_size&quot;: 4096, 
+                &quot;block_total&quot;: 127145, 
+                &quot;block_used&quot;: 36624, 
+                &quot;device&quot;: &quot;&#x2F;dev&#x2F;sda1&quot;, 
+                &quot;fstype&quot;: &quot;xfs&quot;, 
+                &quot;inode_available&quot;: 255673, 
+                &quot;inode_total&quot;: 256000, 
+                &quot;inode_used&quot;: 327, 
+                &quot;mount&quot;: &quot;&#x2F;boot&quot;, 
+                &quot;options&quot;: &quot;rw,relatime,attr2,inode64,noquota&quot;, 
+                &quot;size_available&quot;: 370774016, 
+                &quot;size_total&quot;: 520785920, 
+                &quot;uuid&quot;: &quot;13d01e00-1f54-4718-bc51-041c787cf659&quot;
+            &#125;, 
+            &#123;
+                &quot;block_available&quot;: 4100956, 
+                &quot;block_size&quot;: 4096, 
+                &quot;block_total&quot;: 4587008, 
+                &quot;block_used&quot;: 486052, 
+                &quot;device&quot;: &quot;&#x2F;dev&#x2F;mapper&#x2F;centos-root&quot;, 
+                &quot;fstype&quot;: &quot;xfs&quot;, 
+                &quot;inode_available&quot;: 9146425, 
+                &quot;inode_total&quot;: 9179136, 
+                &quot;inode_used&quot;: 32711, 
+                &quot;mount&quot;: &quot;&#x2F;&quot;, 
+                &quot;options&quot;: &quot;rw,relatime,attr2,inode64,noquota&quot;, 
+                &quot;size_available&quot;: 16797515776, 
+                &quot;size_total&quot;: 18788384768, 
+                &quot;uuid&quot;: &quot;39ad21bb-f420-4236-9343-e4c8ad32aefd&quot;
+            &#125;
+        ], 
+        &quot;ansible_nodename&quot;: &quot;node1&quot;, 
+        &quot;ansible_os_family&quot;: &quot;RedHat&quot;, 
+        &quot;ansible_pkg_mgr&quot;: &quot;yum&quot;, 
+        &quot;ansible_proc_cmdline&quot;: &#123;
+            &quot;BOOT_IMAGE&quot;: &quot;&#x2F;vmlinuz-3.10.0-1160.el7.x86_64&quot;, 
+            &quot;LANG&quot;: &quot;zh_CN.UTF-8&quot;, 
+            &quot;crashkernel&quot;: &quot;auto&quot;, 
+            &quot;quiet&quot;: true, 
+            &quot;rd.lvm.lv&quot;: [
+                &quot;centos&#x2F;root&quot;, 
+                &quot;centos&#x2F;swap&quot;
+            ], 
+            &quot;rhgb&quot;: true, 
+            &quot;ro&quot;: true, 
+            &quot;root&quot;: &quot;&#x2F;dev&#x2F;mapper&#x2F;centos-root&quot;
+        &#125;, 
+        &quot;ansible_processor&quot;: [
+            &quot;0&quot;, 
+            &quot;GenuineIntel&quot;, 
+            &quot;Intel(R) Core(TM) i7-10875H CPU @ 2.30GHz&quot;
+        ], 
+        &quot;ansible_processor_cores&quot;: 1, 
+        &quot;ansible_processor_count&quot;: 1, 
+        &quot;ansible_processor_threads_per_core&quot;: 1, 
+        &quot;ansible_processor_vcpus&quot;: 1, 
+        &quot;ansible_product_name&quot;: &quot;VMware Virtual Platform&quot;, 
+        &quot;ansible_product_serial&quot;: &quot;VMware-56 4d 91 cd 00 dd 97 a0-86 19 17 7a cc 37 97 c7&quot;, 
+        &quot;ansible_product_uuid&quot;: &quot;CD914D56-DD00-A097-8619-177ACC3797C7&quot;, 
+        &quot;ansible_product_version&quot;: &quot;None&quot;, 
+        &quot;ansible_python&quot;: &#123;
+            &quot;executable&quot;: &quot;&#x2F;usr&#x2F;bin&#x2F;python&quot;, 
+            &quot;has_sslcontext&quot;: true, 
+            &quot;type&quot;: &quot;CPython&quot;, 
+            &quot;version&quot;: &#123;
+                &quot;major&quot;: 2, 
+                &quot;micro&quot;: 5, 
+                &quot;minor&quot;: 7, 
+                &quot;releaselevel&quot;: &quot;final&quot;, 
+                &quot;serial&quot;: 0
+            &#125;, 
+            &quot;version_info&quot;: [
+                2, 
+                7, 
+                5, 
+                &quot;final&quot;, 
+                0
+            ]
+        &#125;, 
+        &quot;ansible_python_version&quot;: &quot;2.7.5&quot;, 
+        &quot;ansible_real_group_id&quot;: 0, 
+        &quot;ansible_real_user_id&quot;: 0, 
+        &quot;ansible_selinux&quot;: &#123;
+            &quot;status&quot;: &quot;disabled&quot;
+        &#125;, 
+        &quot;ansible_selinux_python_present&quot;: true, 
+        &quot;ansible_service_mgr&quot;: &quot;systemd&quot;, 
+        &quot;ansible_ssh_host_key_ecdsa_public&quot;: &quot;AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEJRIK+wptQ36VVPvCLAb&#x2F;DDkXYC45D+u1lUZrLbp&#x2F;uUd554tlbGK1AuXeJ&#x2F;PZ&#x2F;5GXF&#x2F;tg0BKCKEBPaF+sIwMxs&#x3D;&quot;, 
+        &quot;ansible_ssh_host_key_ed25519_public&quot;: &quot;AAAAC3NzaC1lZDI1NTE5AAAAIGRbSN3tNIuTVhZM06Xm3kfxtYmlhCECY+pIfDqmlUob&quot;, 
+        &quot;ansible_ssh_host_key_rsa_public&quot;: &quot;AAAAB3NzaC1yc2EAAAADAQABAAABAQDQpua6HTb+PhJn&#x2F;KFHkoZQdJOsfk8iTtVclSEhEAJHFDilxkghvnR2ErYsVmrTXf7EoKwU6S6I&#x2F;w6QRg3fk2GP6Z4r6o3uO76Cx1rkDC+nf5tQnGIHSgDYxyk3ASVgK0GgSISJVWZr8Okm7gO2sOzQ4VSnuORJ5z0x2bIqobsEIMN+FvfOh7hWSEgAenF3pIP1rpwd+6ADNwo2CALSqi9x7wJ9ClC96ym8X52byL1Eg1ANP7wQ7n+jswLIGJWOoBgXL2w17OMY3AmpLzyvyonl0kb3WKs5boqTmM1TTMvrHD2FOw&#x2F;NRSVbBfse&#x2F;3&#x2F;13Jb5HDXvVLss6qctyfbTCzqd&quot;, 
+        &quot;ansible_swapfree_mb&quot;: 2047, 
+        &quot;ansible_swaptotal_mb&quot;: 2047, 
+        &quot;ansible_system&quot;: &quot;Linux&quot;, 
+        &quot;ansible_system_capabilities&quot;: [
+            &quot;cap_chown&quot;, 
+            &quot;cap_dac_override&quot;, 
+            &quot;cap_dac_read_search&quot;, 
+            &quot;cap_fowner&quot;, 
+            &quot;cap_fsetid&quot;, 
+            &quot;cap_kill&quot;, 
+            &quot;cap_setgid&quot;, 
+            &quot;cap_setuid&quot;, 
+            &quot;cap_setpcap&quot;, 
+            &quot;cap_linux_immutable&quot;, 
+            &quot;cap_net_bind_service&quot;, 
+            &quot;cap_net_broadcast&quot;, 
+            &quot;cap_net_admin&quot;, 
+            &quot;cap_net_raw&quot;, 
+            &quot;cap_ipc_lock&quot;, 
+            &quot;cap_ipc_owner&quot;, 
+            &quot;cap_sys_module&quot;, 
+            &quot;cap_sys_rawio&quot;, 
+            &quot;cap_sys_chroot&quot;, 
+            &quot;cap_sys_ptrace&quot;, 
+            &quot;cap_sys_pacct&quot;, 
+            &quot;cap_sys_admin&quot;, 
+            &quot;cap_sys_boot&quot;, 
+            &quot;cap_sys_nice&quot;, 
+            &quot;cap_sys_resource&quot;, 
+            &quot;cap_sys_time&quot;, 
+            &quot;cap_sys_tty_config&quot;, 
+            &quot;cap_mknod&quot;, 
+            &quot;cap_lease&quot;, 
+            &quot;cap_audit_write&quot;, 
+            &quot;cap_audit_control&quot;, 
+            &quot;cap_setfcap&quot;, 
+            &quot;cap_mac_override&quot;, 
+            &quot;cap_mac_admin&quot;, 
+            &quot;cap_syslog&quot;, 
+            &quot;35&quot;, 
+            &quot;36+ep&quot;
+        ], 
+        &quot;ansible_system_capabilities_enforced&quot;: &quot;True&quot;, 
+        &quot;ansible_system_vendor&quot;: &quot;VMware, Inc.&quot;, 
+        &quot;ansible_uptime_seconds&quot;: 27961, 
+        &quot;ansible_user_dir&quot;: &quot;&#x2F;root&quot;, 
+        &quot;ansible_user_gecos&quot;: &quot;root&quot;, 
+        &quot;ansible_user_gid&quot;: 0, 
+        &quot;ansible_user_id&quot;: &quot;root&quot;, 
+        &quot;ansible_user_shell&quot;: &quot;&#x2F;bin&#x2F;bash&quot;, 
+        &quot;ansible_user_uid&quot;: 0, 
+        &quot;ansible_userspace_architecture&quot;: &quot;x86_64&quot;, 
+        &quot;ansible_userspace_bits&quot;: &quot;64&quot;, 
+        &quot;ansible_virtualization_role&quot;: &quot;guest&quot;, 
+        &quot;ansible_virtualization_type&quot;: &quot;VMware&quot;, 
+        &quot;discovered_interpreter_python&quot;: &quot;&#x2F;usr&#x2F;bin&#x2F;python&quot;, 
+        &quot;gather_subset&quot;: [
+            &quot;all&quot;
+        ], 
+        &quot;module_setup&quot;: true
+    &#125;, 
+    &quot;changed&quot;: false
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work">网笙久久</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work/2023/05/15/115/">https://blog.wangshengjj.work/2023/05/15/115/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.wangshengjj.work" target="_blank">WangShengJJのblog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/linux/">linux</a><a class="post-meta__tags" href="/tags/centos/">centos</a><a class="post-meta__tags" href="/tags/ansible/">ansible</a><a class="post-meta__tags" href="/tags/%E8%87%AA%E5%8A%A8%E5%8C%96%E8%BF%90%E7%BB%B4%E5%B7%A5%E5%85%B7/">自动化运维工具</a></div><div class="post_share"><div class="social-share" data-image="https://www.dmoe.cc/random.php" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【自动化运维系列教程】Ansible Playbook剧本</div></div></a></div><div class="next-post pull-right"><a href="/2023/05/12/114/" title="【Zabbix系列教程】Proxy端部署教程+分布式监控"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【Zabbix系列教程】Proxy端部署教程+分布式监控</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-15</div><div class="title">【自动化运维系列教程】Ansible Playbook剧本</div></div></a></div><div><a href="/2023/05/16/117/" title="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-16</div><div class="title">【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客</div></div></a></div><div><a href="/2023/05/11/112/" title="【Zabbix系列教程】监控MySQL、Nginx、Redis常用键值"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-11</div><div class="title">【Zabbix系列教程】监控MySQL、Nginx、Redis常用键值</div></div></a></div><div><a href="/2023/05/12/113/" title="【Zabbix系列教程】自动发现和自动注册"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-12</div><div class="title">【Zabbix系列教程】自动发现和自动注册</div></div></a></div><div><a href="/2023/05/12/114/" title="【Zabbix系列教程】Proxy端部署教程+分布式监控"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-12</div><div class="title">【Zabbix系列教程】Proxy端部署教程+分布式监控</div></div></a></div><div><a href="/2023/05/18/118/" title="【Linux应用系列教程】Git分布式版本控制器"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-18</div><div class="title">【Linux应用系列教程】Git分布式版本控制器</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">网笙久久</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">126</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">168</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">230</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wangshengjj"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wangshengjj" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:wangshengjj@wangshengjj.work" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.wangshengjj.work" target="_blank" title="Blog"><i class="fa fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到网笙久久的博客</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E3%80%90%E8%87%AA%E5%8A%A8%E5%8C%96%E8%BF%90%E7%BB%B4%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%E3%80%91Ansible%E8%87%AA%E5%8A%A8%E5%8C%96%E8%BF%90%E7%BB%B4%E5%B7%A5%E5%85%B7"><span class="toc-number">1.</span> <span class="toc-text">【自动化运维系列教程】Ansible自动化运维工具</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%85%B3%E4%BA%8EAnsible"><span class="toc-number">1.1.</span> <span class="toc-text">一、关于Ansible</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Ansible%E7%9A%84%E7%89%B9%E6%80%A7"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.Ansible的特性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E9%83%A8%E7%BD%B2Ansible"><span class="toc-number">1.2.</span> <span class="toc-text">二、部署Ansible</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%85%B3%E9%97%AD%E9%98%B2%E7%81%AB%E5%A2%99%E5%92%8CSElinux%E3%80%81%E9%85%8D%E7%BD%AE%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.关闭防火墙和SElinux、配置时间同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%85%8D%E7%BD%AEyum%E6%BA%90%E5%92%8Cepel%E6%BA%90"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.配置yum源和epel源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E9%85%8D%E7%BD%AEssh%E5%85%8D%E5%AF%86"><span class="toc-number">1.2.3.</span> <span class="toc-text">3.配置ssh免密</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%9C%A8%E7%AE%A1%E7%90%86%E6%9C%BA%E4%B8%8A%E5%AE%89%E8%A3%85Ansible"><span class="toc-number">1.2.4.</span> <span class="toc-text">4.在管理机上安装Ansible</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E5%AE%89%E8%A3%85Ansible"><span class="toc-number">1.2.4.1.</span> <span class="toc-text">A.安装Ansible</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E6%9F%A5%E7%9C%8BAnsible%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%92%8C%E7%89%88%E6%9C%AC%E4%BF%A1%E6%81%AF"><span class="toc-number">1.2.4.2.</span> <span class="toc-text">B.查看Ansible配置文件和版本信息</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#C-%E9%85%8D%E7%BD%AE%E5%AD%90%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%92%8C%E8%BF%9E%E6%8E%A5%E4%BF%A1%E6%81%AF"><span class="toc-number">1.2.4.3.</span> <span class="toc-text">C.配置子配置文件和连接信息</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%88%9B%E5%BB%BAAnsible%E7%94%A8%E5%88%B0%E7%9A%84%E7%9B%AE%E5%BD%95"><span class="toc-number">1.2.4.3.1.</span> <span class="toc-text">创建Ansible用到的目录</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%A4%8D%E5%88%B6%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.4.3.2.</span> <span class="toc-text">复制配置文件</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%BB%BA%E7%AB%8B%E8%BF%9E%E6%8E%A5%E4%BF%A1%E6%81%AF"><span class="toc-number">1.2.4.3.3.</span> <span class="toc-text">建立连接信息</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E5%AD%90%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.4.3.4.</span> <span class="toc-text">修改子配置文件</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#D-%E8%BF%9E%E6%8E%A5%E5%AE%A2%E6%88%B7%E6%9C%BA"><span class="toc-number">1.2.4.4.</span> <span class="toc-text">D.连接客户机</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9hosts%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.4.4.1.</span> <span class="toc-text">修改hosts文件</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%8B%B7%E8%B4%9D%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E7%BB%99%E5%AE%A2%E6%88%B7%E6%9C%BA"><span class="toc-number">1.2.4.4.2.</span> <span class="toc-text">拷贝配置文件给客户机</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#E-%E6%B5%8B%E8%AF%95"><span class="toc-number">1.2.4.5.</span> <span class="toc-text">E.测试</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%9C%A8%E5%BD%93%E5%89%8D%E7%9B%AE%E5%BD%95%E4%B8%8B%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E6%B8%85%E5%8D%95%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.4.5.1.</span> <span class="toc-text">在当前目录下创建一个清单文件</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-number">1.2.4.5.2.</span> <span class="toc-text">测试</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81Ansible-AD-HOC"><span class="toc-number">1.3.</span> <span class="toc-text">三、Ansible AD HOC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Ansible%E5%91%BD%E4%BB%A4%E6%A0%BC%E5%BC%8F"><span class="toc-number">1.3.1.</span> <span class="toc-text">1.Ansible命令格式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A2%AB%E7%AE%A1%E7%90%86%E6%9C%BA%E7%9A%84%E5%86%99%E6%B3%95"><span class="toc-number">1.3.1.1.</span> <span class="toc-text">被管理机的写法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%85%B3%E4%BA%8E%E6%A8%A1%E5%9D%97%E5%B8%AE%E5%8A%A9"><span class="toc-number">1.3.2.</span> <span class="toc-text">2.关于模块帮助</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81Ansible%E5%B8%B8%E7%94%A8%E6%A8%A1%E5%9D%97"><span class="toc-number">1.4.</span> <span class="toc-text">四、Ansible常用模块</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-ping%E6%A8%A1%E5%9D%97"><span class="toc-number">1.4.1.</span> <span class="toc-text">1.ping模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-shell%E6%A8%A1%E5%9D%97"><span class="toc-number">1.4.2.</span> <span class="toc-text">2.shell模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-copy%E6%A8%A1%E5%9D%97"><span class="toc-number">1.4.3.</span> <span class="toc-text">3.copy模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-fetch%E6%A8%A1%E5%9D%97"><span class="toc-number">1.4.4.</span> <span class="toc-text">4.fetch模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-file%E6%A8%A1%E5%9D%97"><span class="toc-number">1.4.5.</span> <span class="toc-text">5.file模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-cron%E6%A8%A1%E5%9D%97"><span class="toc-number">1.4.6.</span> <span class="toc-text">6.cron模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-yum%E6%A8%A1%E5%9D%97"><span class="toc-number">1.4.7.</span> <span class="toc-text">7.yum模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-service%E6%A8%A1%E5%9D%97"><span class="toc-number">1.4.8.</span> <span class="toc-text">8.service模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-group%E6%A8%A1%E5%9D%97"><span class="toc-number">1.4.9.</span> <span class="toc-text">9.group模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-user%E6%A8%A1%E5%9D%97"><span class="toc-number">1.4.10.</span> <span class="toc-text">10.user模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-script%E6%A8%A1%E5%9D%97"><span class="toc-number">1.4.11.</span> <span class="toc-text">11.script模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-lineinfile%E6%A8%A1%E5%9D%97"><span class="toc-number">1.4.12.</span> <span class="toc-text">12.lineinfile模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-setup%E6%A8%A1%E5%9D%97-%E9%87%8D%E8%A6%81"><span class="toc-number">1.4.13.</span> <span class="toc-text">13.setup模块(重要)</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/05/19/120/" title="【Linux应用系列教程】基于Jenkins发布maven项目"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】基于Jenkins发布maven项目"/></a><div class="content"><a class="title" href="/2023/05/19/120/" title="【Linux应用系列教程】基于Jenkins发布maven项目">【Linux应用系列教程】基于Jenkins发布maven项目</a><time datetime="2023-05-19T03:49:39.490Z" title="发表于 2023-05-19 11:49:39">2023-05-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/19/119/" title="【Linux应用系列教程】Jenkins持续集成工具安装教程"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】Jenkins持续集成工具安装教程"/></a><div class="content"><a class="title" href="/2023/05/19/119/" title="【Linux应用系列教程】Jenkins持续集成工具安装教程">【Linux应用系列教程】Jenkins持续集成工具安装教程</a><time datetime="2023-05-19T02:49:24.709Z" title="发表于 2023-05-19 10:49:24">2023-05-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/18/118/" title="【Linux应用系列教程】Git分布式版本控制器"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】Git分布式版本控制器"/></a><div class="content"><a class="title" href="/2023/05/18/118/" title="【Linux应用系列教程】Git分布式版本控制器">【Linux应用系列教程】Git分布式版本控制器</a><time datetime="2023-05-18T12:19:54.279Z" title="发表于 2023-05-18 20:19:54">2023-05-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/16/117/" title="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客"/></a><div class="content"><a class="title" href="/2023/05/16/117/" title="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客">【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客</a><time datetime="2023-05-16T11:30:05.268Z" title="发表于 2023-05-16 19:30:05">2023-05-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【自动化运维系列教程】Ansible Playbook剧本"/></a><div class="content"><a class="title" href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本">【自动化运维系列教程】Ansible Playbook剧本</a><time datetime="2023-05-15T12:27:43.911Z" title="发表于 2023-05-15 20:27:43">2023-05-15</time></div></div></div></div></div></div></main><footer id="footer" style="background: flase"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By 网笙久久</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><div class="js-pjax"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js"></script><script>(() => {
+  document.querySelectorAll('#article-container span.katex-display').forEach(item => {
+    btf.wrap(item, 'div', { class: 'katex-wrap'})
+  })
+})()</script></div><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div><script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(n){n.imageLazyLoadSetting.processImages=i;var e=n.imageLazyLoadSetting.isSPA,r=(n.imageLazyLoadSetting.preloadRatio,Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));function i(){e&&(r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));for(var t,a=0;a<r.length;a++)0<=(t=(t=r[a]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(n.innerHeight+240||document.documentElement.clientHeight+240)&&function(){var t,e,n,i,o=r[a];t=o,e=function(){r=r.filter(function(t){return o!==t})},n=new Image,i=t.getAttribute("data-original"),n.onload=function(){t.src=i,e&&e()},t.src!==i&&(n.src=i)}()}i(),n.addEventListener("scroll",function(){var t,e;t=i,e=n,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(e)},500)})}(this);</script></body></html>

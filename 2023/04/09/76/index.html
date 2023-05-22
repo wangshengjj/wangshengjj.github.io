@@ -1,0 +1,1023 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>【数据库系列教程】MySQL主从复制 | WangShengJJのblog</title><meta name="author" content="网笙久久"><meta name="copyright" content="网笙久久"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="【数据库系列教程】MySQL主从复制一、主从复制1.工作原理 Master服务器将写操作保存到二进制日志，通过网络将事件发送给slave服务器；slave服务器产生I&#x2F;O thread线程接收二进制日志事件，并将该事件写入到本地的中继日志relay log，同时产生SQL thread线程从中继日志中读取操作执行操作，确保数据同步。   核心关注点: 数据同步 复制延迟时间  实现流程： 配置se">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【数据库系列教程】MySQL主从复制">
+<meta property="og:url" content="https://blog.wangshengjj.work/2023/04/09/76/index.html">
+<meta property="og:site_name" content="WangShengJJのblog">
+<meta property="og:description" content="【数据库系列教程】MySQL主从复制一、主从复制1.工作原理 Master服务器将写操作保存到二进制日志，通过网络将事件发送给slave服务器；slave服务器产生I&#x2F;O thread线程接收二进制日志事件，并将该事件写入到本地的中继日志relay log，同时产生SQL thread线程从中继日志中读取操作执行操作，确保数据同步。   核心关注点: 数据同步 复制延迟时间  实现流程： 配置se">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://api.ghser.com/random/api.php">
+<meta property="article:published_time" content="2023-04-09T05:40:55.883Z">
+<meta property="article:modified_time" content="2023-05-10T05:36:37.020Z">
+<meta property="article:author" content="网笙久久">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="linux基础服务">
+<meta property="article:tag" content="mysql基本命令">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://api.ghser.com/random/api.php"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://blog.wangshengjj.work/2023/04/09/76/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"prismjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【数据库系列教程】MySQL主从复制',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-05-10 13:36:37'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><meting-js server="netease" type="playlist" id="7386208265" lrc-type="0" volume="0.5" fixed="true" mini="true" order="random" loop="all" autoplay="true" preload="auto" list-folded="true"></meting-js><script src="https://fastly.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/autoload.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script><meta name="generator" content="Hexo 6.1.0"></head><body><link rel="stylesheet" href="/css/barber-shop.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">126</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">168</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">230</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://api.ghser.com/random/api.php')"><nav id="nav"><span id="blog-info"><a href="/" title="WangShengJJのblog"><span class="site-name">WangShengJJのblog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【数据库系列教程】MySQL主从复制</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-04-09T05:40:55.883Z" title="发表于 2023-04-09 13:40:55">2023-04-09</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-05-10T05:36:37.020Z" title="更新于 2023-05-10 13:36:37">2023-05-10</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/">服务器搭建</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/%E7%AC%94%E8%AE%B0/">笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/%E7%AC%94%E8%AE%B0/centos/">centos</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/%E7%AC%94%E8%AE%B0/centos/linux%E6%95%99%E7%A8%8B/">linux教程</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/%E7%AC%94%E8%AE%B0/centos/linux%E6%95%99%E7%A8%8B/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/%E7%AC%94%E8%AE%B0/centos/linux%E6%95%99%E7%A8%8B/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/">mysql</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">4.6k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>21分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="【数据库系列教程】MySQL主从复制"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="【数据库系列教程】MySQL主从复制"><a href="#【数据库系列教程】MySQL主从复制" class="headerlink" title="【数据库系列教程】MySQL主从复制"></a>【数据库系列教程】MySQL主从复制</h1><h2 id="一、主从复制"><a href="#一、主从复制" class="headerlink" title="一、主从复制"></a>一、主从复制</h2><h3 id="1-工作原理"><a href="#1-工作原理" class="headerlink" title="1.工作原理"></a>1.工作原理</h3><blockquote>
+<p><code>Master</code>服务器将写操作保存到二进制日志，通过网络将事件发送给<code>slave</code>服务器；<br><code>slave</code>服务器产生<code>I/O thread线程</code>接收二进制日志事件，并将该事件写入到本地的中继日志<code>relay log</code>，同时产生<code>SQL thread</code>线程从中继日志中读取操作执行操作，确保数据同步。</p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/04/slave1.png" alt="slave1"></p>
+<h4 id="核心关注点"><a href="#核心关注点" class="headerlink" title="核心关注点:"></a>核心关注点:</h4><ul>
+<li>数据同步</li>
+<li>复制延迟时间</li>
+</ul>
+<h4 id="实现流程："><a href="#实现流程：" class="headerlink" title="实现流程："></a>实现流程：</h4><ul>
+<li>配置<code>server_id</code></li>
+<li><code>Master服务器</code>启用二进制日志</li>
+<li><code>Master服务器</code>要存在允许从服务器远程 连接的用户</li>
+</ul>
+<h3 id="2-作用"><a href="#2-作用" class="headerlink" title="2.作用"></a>2.作用</h3><ul>
+<li>避免数据库单点故障</li>
+<li>便于冷备份</li>
+<li>读写分离</li>
+<li>实现方式：<ul>
+<li>开发代码 </li>
+<li>数据库中间件<ul>
+<li><code>mysql-proxy</code></li>
+<li><code>mycat</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-常见主从复制架构"><a href="#3-常见主从复制架构" class="headerlink" title="3.常见主从复制架构"></a>3.常见主从复制架构</h3><ul>
+<li>一主一从</li>
+<li>一主多从<ul>
+<li>实现读操作的负载均衡</li>
+</ul>
+</li>
+<li>双主复制</li>
+</ul>
+<h3 id="4-主从复制工作方式"><a href="#4-主从复制工作方式" class="headerlink" title="4.主从复制工作方式"></a>4.主从复制工作方式</h3><ul>
+<li>异步<ul>
+<li>默认</li>
+</ul>
+</li>
+<li>同步</li>
+<li>半同步<ul>
+<li>借助插件<code>google</code>公司<code>semi</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="二、案列：一主一从复制"><a href="#二、案列：一主一从复制" class="headerlink" title="二、案列：一主一从复制"></a>二、案列：一主一从复制</h2><h3 id="1-准备2台虚拟机"><a href="#1-准备2台虚拟机" class="headerlink" title="1.准备2台虚拟机"></a>1.准备2台虚拟机</h3><blockquote>
+<p>10.10.10.128		<code>Master</code>服务器<br>10.10.10.130		<code>Slave</code>服务器 </p>
+</blockquote>
+<h3 id="2-关闭防火墙和SElinux、时间同步"><a href="#2-关闭防火墙和SElinux、时间同步" class="headerlink" title="2.关闭防火墙和SElinux、时间同步"></a>2.关闭防火墙和SElinux、时间同步</h3><h3 id="3-在Master服务器配置"><a href="#3-在Master服务器配置" class="headerlink" title="3.在Master服务器配置"></a>3.在<code>Master服务器</code>配置</h3><h4 id="A-安装MySQL-5-7"><a href="#A-安装MySQL-5-7" class="headerlink" title="A.安装MySQL 5.7"></a>A.安装MySQL 5.7</h4><p><a target="_blank" rel="noopener" href="https://www.wangshengjj.work/archives/65">点我跳转</a><code>MySQL</code>安装教程</p>
+<h4 id="B-修改配置文件"><a href="#B-修改配置文件" class="headerlink" title="B.修改配置文件"></a>B.修改配置文件</h4><p><strong>tips：如果没有<code>vim命令</code>请使用<code>vi</code>或者安装<code>yum install -y vim</code></strong></p>
+<pre class="line-numbers language-none"><code class="language-none">[root@master ~]# vim &#x2F;etc&#x2F;my.cnf
+
+[mysqld]
+server_id&#x3D;10	#指定serverID
+log_bin&#x3D;master	#开启二进制日志文件
+gtid_mode&#x3D;on	#开启事务ID
+enforce_gtid_consistency&#x3D;true	#强制GTID的一致性
+仅演示添加地方，配置文件并不完整，请勿删改其他<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h5 id="GTID的介绍"><a href="#GTID的介绍" class="headerlink" title="GTID的介绍"></a>GTID的介绍</h5><ul>
+<li>仅<code>MySQL 5.6版本</code>和之后版本支持此功能</li>
+<li><code>GTID</code>全称<code>Global Transaction Identified</code></li>
+<li>中文：全局事务ID</li>
+<li>GTID构成: <ul>
+<li>server_uuid + 事务ID</li>
+</ul>
+</li>
+<li>记录在<code>二进制日志</code>文件内，每一条记录的命令都会有一个<code>单独的GTID</code></li>
+</ul>
+<h5 id="启动MySQL"><a href="#启动MySQL" class="headerlink" title="启动MySQL"></a>启动MySQL</h5><pre class="line-numbers language-none"><code class="language-none">[root@master ~]# systemctl enable --now mysqld<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="C-修改Master节点的MySQL中root用户的密码"><a href="#C-修改Master节点的MySQL中root用户的密码" class="headerlink" title="C.修改Master节点的MySQL中root用户的密码"></a>C.修改<code>Master节点</code>的<code>MySQL</code>中<code>root用户</code>的密码</h4><h5 id="查看临时密码"><a href="#查看临时密码" class="headerlink" title="查看临时密码"></a>查看<code>临时</code>密码</h5><pre class="line-numbers language-none"><code class="language-none">[root@master ~]# cat &#x2F;var&#x2F;log&#x2F;mysqld.log | grep -i password
+2023-04-07T11:00:18.621832Z 1 [Note] A temporary password is generated for root@localhost: kdt&amp;12i_Bqgh
+2023-04-07T11:03:24.803276Z 4 [Note] Access denied for user &#39;root&#39;@&#39;localhost&#39; (using password: YES)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@master ~]# mysql -uroot -p
+Enter password: kdt&amp;12i_Bqgh	#这里填写临时密码，每个人的都不一样！<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h5 id="修改密码"><a href="#修改密码" class="headerlink" title="修改密码"></a>修改密码</h5><pre class="line-numbers language-none"><code class="language-none">mysql&gt; set password for &#39;root&#39;@&#39;localhost&#39; &#x3D; PASSWORD(&quot;WWW.1.com&quot;);		#指定密码为WWW.1.com
+Query OK, 0 rows affected, 1 warning (0.00 sec)		#修改密码成功<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="D-在Master节点创建用于主从复制的用户"><a href="#D-在Master节点创建用于主从复制的用户" class="headerlink" title="D.在Master节点创建用于主从复制的用户"></a>D.在<code>Master节点</code>创建用于主从复制的<code>用户</code></h4><pre class="line-numbers language-none"><code class="language-none">mysql&gt; grant replication slave on *.* to &#39;repluser&#39;@&#39;10.10.10.130&#39; identified by &#39;WWW.1.com&#39;;
+Query OK, 0 rows affected, 1 warning (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<ul>
+<li><code>replication slave</code>授予指定权限</li>
+<li>IP指定为<code>slave服务器</code></li>
+<li>密码：WWW.1.com</li>
+</ul>
+<h3 id="4-在Slave服务器配置"><a href="#4-在Slave服务器配置" class="headerlink" title="4.在Slave服务器配置"></a>4.在<code>Slave服务器</code>配置</h3><h4 id="A-安装MySQL-5-7-1"><a href="#A-安装MySQL-5-7-1" class="headerlink" title="A.安装MySQL 5.7"></a>A.安装MySQL 5.7</h4><p><strong><a target="_blank" rel="noopener" href="https://www.wangshengjj.work/archives/65">点我跳转</a><code>MySQL</code>安装教程</strong></p>
+<h4 id="B-修改配置文件-1"><a href="#B-修改配置文件-1" class="headerlink" title="B.修改配置文件"></a>B.修改配置文件</h4><pre class="line-numbers language-none"><code class="language-none">[root@slave ~]# vim &#x2F;etc&#x2F;my.cnf
+
+[mysqld]
+server_id&#x3D;13	#必须和主节点Master不一样
+log_bin&#x3D;master	#开启二进制日志(可选，方便后续主从切换)
+gtid_mode&#x3D;on	#开启事务ID(可选，方便后续主从切换)
+enforce_gtid_consistency&#x3D;true	#强制GTID的一致性(可选，方便后续主从切换)
+仅演示添加地方，配置文件并不完整，请勿删改其他<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h5 id="启动MySQL服务"><a href="#启动MySQL服务" class="headerlink" title="启动MySQL服务"></a>启动MySQL服务</h5><pre class="line-numbers language-none"><code class="language-none">[root@slave ~]# systemctl enable --now mysqld<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="C-修改Slave节点的MySQL中root用户的密码"><a href="#C-修改Slave节点的MySQL中root用户的密码" class="headerlink" title="C.修改Slave节点的MySQL中root用户的密码"></a>C.修改<code>Slave节点</code>的<code>MySQL</code>中<code>root用户</code>的密码</h4><h5 id="查看临时密码-1"><a href="#查看临时密码-1" class="headerlink" title="查看临时密码"></a>查看<code>临时</code>密码</h5><pre class="line-numbers language-none"><code class="language-none">[root@slave ~]# cat &#x2F;var&#x2F;log&#x2F;mysqld.log | grep -i password
+2023-04-09T05:58:01.597896Z 1 [Note] A temporary password is generated for root@localhost: 3&lt;Oi9&lt;(L0d&#x2F;+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@slave ~]# mysql -uroot -p
+Enter password: 3&lt;Oi9&lt;(L0d&#x2F;+	#这里填写临时密码<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h5 id="修改密码-1"><a href="#修改密码-1" class="headerlink" title="修改密码"></a>修改密码</h5><pre class="line-numbers language-none"><code class="language-none">mysql&gt; set password for &#39;root&#39;@&#39;localhost&#39; &#x3D; PASSWORD(&quot;WWW.1.com&quot;);		#指定密码为WWW.1.com
+Query OK, 0 rows affected, 1 warning (0.00 sec)		#修改密码成功<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="D-创建Slave"><a href="#D-创建Slave" class="headerlink" title="D.创建Slave"></a>D.创建Slave</h4><pre class="line-numbers language-none"><code class="language-none">mysql&gt; change master to
+    -&gt; master_host&#x3D;&quot;10.10.10.128&quot;,	#Mater服务器IP
+    -&gt; master_user&#x3D;&quot;repluser&quot;,	#我们刚刚在Master服务器创建的用户
+    -&gt; master_password&#x3D;&quot;WWW.1.com&quot;,	#指定的密码
+    -&gt; master_auto_position&#x3D;1;	#自动配置，注意Master服务器必须开启GTID服务
+Query OK, 0 rows affected, 2 warnings (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p><strong>如果您的<code>MySQL</code>版本低于<code>5.6</code>，或者您使用的是低版本的<code>MariaDB</code>，不支持<code>GTID</code>功能的，请尝试使用下面的操作！</strong></p>
+</blockquote>
+<h5 id="1-前往-x3D-x3D-主节点-x3D-x3D-查看Master端的二进制日志-上面的不报错，跳过此步骤"><a href="#1-前往-x3D-x3D-主节点-x3D-x3D-查看Master端的二进制日志-上面的不报错，跳过此步骤" class="headerlink" title="1.前往&#x3D;&#x3D;主节点&#x3D;&#x3D;查看Master端的二进制日志(上面的不报错，跳过此步骤)"></a>1.前往&#x3D;&#x3D;主节点&#x3D;&#x3D;查看<code>Master</code>端的二进制日志(上面的不报错，跳过此步骤)</h5><pre class="line-numbers language-none"><code class="language-none">MariaDB [(none)]&gt; show master status\G;
+*************************** 1. row ***************************
+            File: master.000002	#记住这里的二进制日志文件，每个人的不一样
+        Position: 10404018	#记住这里的position，每个人的不一样
+    Binlog_Do_DB: 
+Binlog_Ignore_DB: 
+1 row in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h5 id="2-回到-x3D-x3D-从节点-x3D-x3D-创建Slave-上面的不报错，跳过此步骤"><a href="#2-回到-x3D-x3D-从节点-x3D-x3D-创建Slave-上面的不报错，跳过此步骤" class="headerlink" title="2.回到&#x3D;&#x3D;从节点&#x3D;&#x3D;创建Slave(上面的不报错，跳过此步骤)"></a>2.回到&#x3D;&#x3D;从节点&#x3D;&#x3D;创建<code>Slave</code>(上面的不报错，跳过此步骤)</h5><pre class="line-numbers language-none"><code class="language-none">mysql&gt; change master to
+    -&gt; master_host&#x3D;&quot;10.10.10.128&quot;,	#Mater服务器IP
+    -&gt; master_user&#x3D;&quot;repluser&quot;,	#我们刚刚在Master服务器创建的用户
+    -&gt; master_password&#x3D;&quot;WWW.1.com&quot;,	#指定的密码
+    -&gt; master_log_file&#x3D;&quot;master.000002&quot;,	#必须和Master端查看的一致,指定二进制日志文件
+    -&gt; master_log_pos&#x3D;10404018;	#必须和Master端看到的pos一致
+Query OK, 0 rows affected, 2 warnings (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="E-启动Slave并查看状态"><a href="#E-启动Slave并查看状态" class="headerlink" title="E.启动Slave并查看状态"></a>E.启动<code>Slave</code>并查看状态</h4><pre class="line-numbers language-none"><code class="language-none">mysql&gt; start slave;
+Query OK, 0 rows affected (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">mysql&gt; show slave status\G;
+
+*************************** 1. row ***************************
+               Slave_IO_State: 
+                  Master_Host: 10.10.10.128
+                  Master_User: repluser
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: 
+          Read_Master_Log_Pos: 4
+               Relay_Log_File: slave-relay-bin.000001
+                Relay_Log_Pos: 4
+        Relay_Master_Log_File: 
+             Slave_IO_Running: No	#看到IO线程未启动
+            Slave_SQL_Running: Yes
+              Replicate_Do_DB: 
+          Replicate_Ignore_DB: 
+           Replicate_Do_Table: 
+       Replicate_Ignore_Table: 
+      Replicate_Wild_Do_Table: 
+  Replicate_Wild_Ignore_Table: 
+                   Last_Errno: 0
+                   Last_Error: 
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 0
+              Relay_Log_Space: 154
+              Until_Condition: None
+               Until_Log_File: 
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File: 
+           Master_SSL_CA_Path: 
+              Master_SSL_Cert: 
+            Master_SSL_Cipher: 
+               Master_SSL_Key: 
+        Seconds_Behind_Master: 0
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 1593
+                Last_IO_Error: The replication receiver thread cannot start because the master has GTID_MODE &#x3D; OFF and this server has GTID_MODE &#x3D; ON.	#这里报错提示Master服务器未启动GTID服务
+               Last_SQL_Errno: 0
+               Last_SQL_Error: 
+  Replicate_Ignore_Server_Ids: 
+             Master_Server_Id: 0
+                  Master_UUID: 
+             Master_Info_File: &#x2F;var&#x2F;lib&#x2F;mysql&#x2F;master.info
+                    SQL_Delay: 0
+          SQL_Remaining_Delay: NULL
+      Slave_SQL_Running_State: Slave has read all relay log; waiting for more updates
+           Master_Retry_Count: 86400
+                  Master_Bind: 
+      Last_IO_Error_Timestamp: 230409 14:05:52
+     Last_SQL_Error_Timestamp: 
+               Master_SSL_Crl: 
+           Master_SSL_Crlpath: 
+           Retrieved_Gtid_Set: 
+            Executed_Gtid_Set: 7c541e74-d69b-11ed-bc23-000c29d2b7fd:1
+                Auto_Position: 1
+         Replicate_Rewrite_DB: 
+                 Channel_Name: 
+           Master_TLS_Version: 
+1 row in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="F-检查Master服务器GTID服务"><a href="#F-检查Master服务器GTID服务" class="headerlink" title="F.检查Master服务器GTID服务"></a>F.检查<code>Master服务器</code>GTID服务</h4><pre class="line-numbers language-none"><code class="language-none">[root@master ~]# systemctl restart mysqld	#我这里因为刚才修改配置文件后，未重启服务，导致GTID服务未启动<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="G-回到Slave服务器重启Slave服务"><a href="#G-回到Slave服务器重启Slave服务" class="headerlink" title="G.回到Slave服务器重启Slave服务"></a>G.回到<code>Slave服务器</code>重启Slave服务</h4><pre class="line-numbers language-none"><code class="language-none">mysql&gt; stop slave;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql&gt; start slave;
+Query OK, 0 rows affected (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="H-查看Slave状态"><a href="#H-查看Slave状态" class="headerlink" title="H.查看Slave状态"></a>H.查看<code>Slave</code>状态</h4><pre class="line-numbers language-none"><code class="language-none">mysql&gt; show slave status\G;
+
+*************************** 1. row ***************************
+               Slave_IO_State: Waiting for master to send event
+                  Master_Host: 10.10.10.128
+                  Master_User: repluser
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: master.000001
+          Read_Master_Log_Pos: 154
+               Relay_Log_File: slave-relay-bin.000002
+                Relay_Log_Pos: 361
+        Relay_Master_Log_File: master.000001
+             Slave_IO_Running: Yes	#可以看到IO线程成功启动
+            Slave_SQL_Running: Yes	#SQL线程没有问题
+              Replicate_Do_DB: 
+          Replicate_Ignore_DB: 
+           Replicate_Do_Table: 
+       Replicate_Ignore_Table: 
+      Replicate_Wild_Do_Table: 
+  Replicate_Wild_Ignore_Table: 
+                   Last_Errno: 0
+                   Last_Error: 
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 154
+              Relay_Log_Space: 568
+              Until_Condition: None
+               Until_Log_File: 
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File: 
+           Master_SSL_CA_Path: 
+              Master_SSL_Cert: 
+            Master_SSL_Cipher: 
+               Master_SSL_Key: 
+        Seconds_Behind_Master: 0
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error: 
+               Last_SQL_Errno: 0
+               Last_SQL_Error: 
+  Replicate_Ignore_Server_Ids: 
+             Master_Server_Id: 10
+                  Master_UUID: 62379680-d533-11ed-bd42-000c298e07d7
+             Master_Info_File: &#x2F;var&#x2F;lib&#x2F;mysql&#x2F;master.info
+                    SQL_Delay: 0
+          SQL_Remaining_Delay: NULL
+      Slave_SQL_Running_State: Slave has read all relay log; waiting for more updates
+           Master_Retry_Count: 86400
+                  Master_Bind: 
+      Last_IO_Error_Timestamp: 
+     Last_SQL_Error_Timestamp: 
+               Master_SSL_Crl: 
+           Master_SSL_Crlpath: 
+           Retrieved_Gtid_Set: 
+            Executed_Gtid_Set: 7c541e74-d69b-11ed-bc23-000c29d2b7fd:1
+                Auto_Position: 1
+         Replicate_Rewrite_DB: 
+                 Channel_Name: 
+           Master_TLS_Version: 
+1 row in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="5-测试主从"><a href="#5-测试主从" class="headerlink" title="5.测试主从"></a>5.测试主从</h3><h4 id="A-在Master主服务器创建库"><a href="#A-在Master主服务器创建库" class="headerlink" title="A.在Master主服务器创建库"></a>A.在<code>Master主服务器</code>创建库</h4><pre class="line-numbers language-none"><code class="language-none">mysql&gt; create database A;
+Query OK, 1 row affected (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="B-在Slave从服务器查看是否同步"><a href="#B-在Slave从服务器查看是否同步" class="headerlink" title="B.在Slave从服务器查看是否同步"></a>B.在<code>Slave从服务器</code>查看是否同步</h4><pre class="line-numbers language-none"><code class="language-none">mysql&gt; show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| A                  |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+5 rows in set (0.00 sec)	#可以看到成功同步过来了！<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="6-配置只读属性"><a href="#6-配置只读属性" class="headerlink" title="6.配置只读属性"></a>6.配置只读属性</h3><p><strong>因为<code>主从关系</code>，我们不能在<code>Slave从服务器</code>进行<code>写改</code>操作，这样做会破坏<code>主从线程</code>(包括IO和SQL)的正常运行。</strong></p>
+<h4 id="A-在Slave从服务器配置只读属性"><a href="#A-在Slave从服务器配置只读属性" class="headerlink" title="A.在Slave从服务器配置只读属性"></a>A.在<code>Slave从服务器</code>配置只读属性</h4><pre class="line-numbers language-none"><code class="language-none">[root@slave ~]# vim &#x2F;etc&#x2F;my.cnf
+
+[mysqld]
+server_id&#x3D;13
+read_only&#x3D;1	#启用只读属性
+log_bin&#x3D;master
+gtid_mode&#x3D;on
+enforce_gtid_consistency&#x3D;true
+仅演示添加地方，配置文件并不完整，请勿删改其他<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="B-重启MySQL服务"><a href="#B-重启MySQL服务" class="headerlink" title="B.重启MySQL服务"></a>B.重启MySQL服务</h4><pre class="line-numbers language-none"><code class="language-none">[root@slave ~]# systemctl restart mysqld<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h2 id="三、主从切换"><a href="#三、主从切换" class="headerlink" title="三、主从切换"></a>三、主从切换</h2><h3 id="1-适用场景"><a href="#1-适用场景" class="headerlink" title="1.适用场景"></a>1.适用场景</h3><p><strong>当<code>Master主节点</code>挂掉以后，可以使用<code>Slave从节点</code>，把<code>Slave从节点</code>变成<code>新的Master主节点</code>，<code>旧的Master主节点</code>变成<code>新的Slave从节点</code>。</strong></p>
+<h3 id="2-模拟旧Master主节点挂掉"><a href="#2-模拟旧Master主节点挂掉" class="headerlink" title="2.模拟旧Master主节点挂掉"></a>2.模拟<code>旧Master主节点</code>挂掉</h3><pre class="line-numbers language-none"><code class="language-none">[root@master ~]# systemctl stop mysqld<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="3-删除旧Slave从节点的配置"><a href="#3-删除旧Slave从节点的配置" class="headerlink" title="3.删除旧Slave从节点的配置"></a>3.删除<code>旧Slave从节点</code>的配置</h3><pre class="line-numbers language-none"><code class="language-none">mysql&gt; stop slave; 	#先停止服务
+
+mysql&gt; reset slave all; 	#删除旧的连接关系<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-修改旧Slave从节点改配置文件"><a href="#4-修改旧Slave从节点改配置文件" class="headerlink" title="4.修改旧Slave从节点改配置文件"></a>4.修改<code>旧Slave从节点</code>改配置文件</h3><pre class="line-numbers language-none"><code class="language-none">[mysqld]
+server_id&#x3D;13
+log_bin&#x3D;master	#开启二进制日志
+gtid_mode&#x3D;on	#开启事务ID
+enforce_gtid_consistency&#x3D;true	#强制GTID的一致性
+仅演示添加地方，配置文件并不完整，请勿删改其他<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="5-在旧Slave从节点创建用户"><a href="#5-在旧Slave从节点创建用户" class="headerlink" title="5.在旧Slave从节点创建用户"></a>5.在<code>旧Slave从节点</code>创建用户</h3><pre class="line-numbers language-none"><code class="language-none">mysql&gt; grant replication slave on *.* to &#39;repluser&#39;@&#39;10.10.10.128&#39; identified by &#39;WWW.1.com&#39;;
+Query OK, 0 rows affected, 1 warning (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p><strong>Tips：创建一个授权<code>旧Master主节点</code>(新Slave从节点)登录的用户，IP地址为<code>旧Master主节点</code>。</strong></p>
+<h3 id="6-恢复新Slave从节点-旧Master主节点-服务"><a href="#6-恢复新Slave从节点-旧Master主节点-服务" class="headerlink" title="6.恢复新Slave从节点(旧Master主节点)服务"></a>6.恢复<code>新Slave从节点</code>(旧Master主节点)服务</h3><pre class="line-numbers language-none"><code class="language-none">[root@master ~]# systemctl start mysqld<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="7-在新Slave从节点-旧Master主节点-添加Slave关系"><a href="#7-在新Slave从节点-旧Master主节点-添加Slave关系" class="headerlink" title="7.在新Slave从节点(旧Master主节点)添加Slave关系"></a>7.在<code>新Slave从节点</code>(旧Master主节点)添加Slave关系</h3><pre class="line-numbers language-none"><code class="language-none">mysql&gt; change master to
+    -&gt; master_host&#x3D;&quot;10.10.10.130&quot;,	#新Master主节点(旧Slave从节点)的IP
+    -&gt; master_user&#x3D;&quot;repluser&quot;,
+    -&gt; master_password&#x3D;&quot;WWW.1.com&quot;,
+    -&gt; master_auto_position&#x3D;1;
+Query OK, 0 rows affected, 2 warnings (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">mysql&gt; start slave;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql&gt; show slave status\G;
+
+*************************** 1. row ***************************
+               Slave_IO_State: Waiting for master to send event
+                  Master_Host: 10.10.10.130
+                  Master_User: repluser
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: master.000004
+          Read_Master_Log_Pos: 194
+               Relay_Log_File: master-relay-bin.000005
+                Relay_Log_Pos: 401
+        Relay_Master_Log_File: master.000004
+             Slave_IO_Running: Yes	#成功启动
+            Slave_SQL_Running: Yes	#成功启动
+              Replicate_Do_DB: 
+          Replicate_Ignore_DB: 
+           Replicate_Do_Table: 
+       Replicate_Ignore_Table: 
+      Replicate_Wild_Do_Table: 
+  Replicate_Wild_Ignore_Table: 
+                   Last_Errno: 0
+                   Last_Error: 
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 194
+              Relay_Log_Space: 856
+              Until_Condition: None
+               Until_Log_File: 
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File: 
+           Master_SSL_CA_Path: 
+              Master_SSL_Cert: 
+            Master_SSL_Cipher: 
+               Master_SSL_Key: 
+        Seconds_Behind_Master: 0
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error: 
+               Last_SQL_Errno: 0
+               Last_SQL_Error: 
+  Replicate_Ignore_Server_Ids: 
+             Master_Server_Id: 13
+                  Master_UUID: 7c541e74-d69b-11ed-bc23-000c29d2b7fd
+             Master_Info_File: &#x2F;var&#x2F;lib&#x2F;mysql&#x2F;master.info
+                    SQL_Delay: 0
+          SQL_Remaining_Delay: NULL
+      Slave_SQL_Running_State: Slave has read all relay log; waiting for more updates
+           Master_Retry_Count: 86400
+                  Master_Bind: 
+      Last_IO_Error_Timestamp: 
+     Last_SQL_Error_Timestamp: 
+               Master_SSL_Crl: 
+           Master_SSL_Crlpath: 
+           Retrieved_Gtid_Set: 7c541e74-d69b-11ed-bc23-000c29d2b7fd:1
+            Executed_Gtid_Set: 62379680-d533-11ed-bd42-000c298e07d7:1-2,
+7c541e74-d69b-11ed-bc23-000c29d2b7fd:1
+                Auto_Position: 1
+         Replicate_Rewrite_DB: 
+                 Channel_Name: 
+           Master_TLS_Version: 
+1 row in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="四、双主复制-重要"><a href="#四、双主复制-重要" class="headerlink" title="四、双主复制(重要)"></a>四、双主复制(重要)</h2><ul>
+<li>2台服务器<code>互为主从</code></li>
+</ul>
+<h3 id="1-配置"><a href="#1-配置" class="headerlink" title="1.配置"></a>1.配置</h3><ul>
+<li><code>2台服务器</code>都要开启<code>二进制日志</code>和<code>GTID</code>，需要<code>关闭</code>只读属性</li>
+</ul>
+<h3 id="2-创建用户"><a href="#2-创建用户" class="headerlink" title="2.创建用户"></a>2.创建用户</h3><ul>
+<li><code>2台服务器</code>都要拥有<code>slave用户</code>用于互相登录对方数据库，都需要授权<code>replication slave</code>权限，授权<code>登录IP</code>为<code>对方IP</code>。</li>
+<li><del>如果基于<code>单主单从</code>服务器修改</del>，需要在<code>Master主服务器</code>上创建用户，利用Slave线程<code>自动同步</code>到<code>Slave从服务器</code>上。</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">mysql&gt; grant replication slave on *.* to &#39;repluser&#39;@&#39;10.10.10.128&#39; identified by &#39;WWW.1.com&#39;;
+Query OK, 0 rows affected, 1 warning (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p><strong>Tips：这条数据会<code>自动同步</code>到上一个实验的<code>Slave从服务器</code>上，这就相当于我们的<code>Slave从服务器</code>已经<code>授权</code>了我们<code>Master主服务器</code>远程登录。</strong></p>
+<h3 id="3-互相创建slave服务即可"><a href="#3-互相创建slave服务即可" class="headerlink" title="3.互相创建slave服务即可"></a>3.互相创建<code>slave服务</code>即可</h3><ul>
+<li>双方<code>IO线程</code>和<code>SQL线程</code>都为<code>yes状态</code>就是成功</li>
+<li>效果：<code>任意</code>一台数据库上，<code>创建</code>任意数据库或者<code>增删改数据</code>，<code>对方</code>服务器都能成功<code>同步</code>操作</li>
+</ul>
+<h4 id="在Master主服务器创建Slave"><a href="#在Master主服务器创建Slave" class="headerlink" title="在Master主服务器创建Slave"></a>在<code>Master主服务器</code>创建Slave</h4><pre class="line-numbers language-none"><code class="language-none">mysql&gt; change master to
+    -&gt; master_host&#x3D;&quot;10.10.10.130&quot;,	#Slave从服务器的IP
+    -&gt; master_user&#x3D;&quot;repluser&quot;,
+    -&gt; master_password&#x3D;&quot;WWW.1.com&quot;,
+    -&gt; master_auto_position&#x3D;1;
+Query OK, 0 rows affected, 2 warnings (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">mysql&gt; start slave;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql&gt; show slave status\G;
+
+*************************** 1. row ***************************
+               Slave_IO_State: Waiting for master to send event
+                  Master_Host: 10.10.10.130
+                  Master_User: repluser
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: master.000004
+          Read_Master_Log_Pos: 194
+               Relay_Log_File: master-relay-bin.000005
+                Relay_Log_Pos: 401
+        Relay_Master_Log_File: master.000004
+             Slave_IO_Running: Yes	#成功启动
+            Slave_SQL_Running: Yes	#成功启动
+              Replicate_Do_DB: 
+          Replicate_Ignore_DB: 
+           Replicate_Do_Table: 
+       Replicate_Ignore_Table: 
+      Replicate_Wild_Do_Table: 
+  Replicate_Wild_Ignore_Table: 
+                   Last_Errno: 0
+                   Last_Error: 
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 194
+              Relay_Log_Space: 856
+              Until_Condition: None
+               Until_Log_File: 
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File: 
+           Master_SSL_CA_Path: 
+              Master_SSL_Cert: 
+            Master_SSL_Cipher: 
+               Master_SSL_Key: 
+        Seconds_Behind_Master: 0
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error: 
+               Last_SQL_Errno: 0
+               Last_SQL_Error: 
+  Replicate_Ignore_Server_Ids: 
+             Master_Server_Id: 13
+                  Master_UUID: 7c541e74-d69b-11ed-bc23-000c29d2b7fd
+             Master_Info_File: &#x2F;var&#x2F;lib&#x2F;mysql&#x2F;master.info
+                    SQL_Delay: 0
+          SQL_Remaining_Delay: NULL
+      Slave_SQL_Running_State: Slave has read all relay log; waiting for more updates
+           Master_Retry_Count: 86400
+                  Master_Bind: 
+      Last_IO_Error_Timestamp: 
+     Last_SQL_Error_Timestamp: 
+               Master_SSL_Crl: 
+           Master_SSL_Crlpath: 
+           Retrieved_Gtid_Set: 7c541e74-d69b-11ed-bc23-000c29d2b7fd:1
+            Executed_Gtid_Set: 62379680-d533-11ed-bd42-000c298e07d7:1-2,
+7c541e74-d69b-11ed-bc23-000c29d2b7fd:1
+                Auto_Position: 1
+         Replicate_Rewrite_DB: 
+                 Channel_Name: 
+           Master_TLS_Version: 
+1 row in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="五、多主单从-多源复制"><a href="#五、多主单从-多源复制" class="headerlink" title="五、多主单从(多源复制)"></a>五、多主单从(多源复制)</h2><h3 id="1-关于多源复制的介绍"><a href="#1-关于多源复制的介绍" class="headerlink" title="1.关于多源复制的介绍"></a>1.关于多源复制的介绍</h3><ul>
+<li><code>MySQL 5.7版本</code>开始支持 </li>
+<li>支持<code>多个主服务器</code>向<code>同一个从服务器</code>上复制数据 </li>
+<li>通过<code>channel隧道</code>来区分不同的主服务器</li>
+<li>master.info, relay-log.info文件中存储的信息要记录到<code>表</code>中</li>
+</ul>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/04/slave2.png" alt="slave2"></p>
+<p><strong>Tips：<code>多主单从</code>情况下，<code>从服务器</code>会存储<code>所有主服务器</code>的数据，<code>主服务器</code>之间的数据，不会<code>互相</code>影响</strong></p>
+<h3 id="2-环境准备"><a href="#2-环境准备" class="headerlink" title="2.环境准备"></a>2.环境准备</h3><ul>
+<li>三台虚拟机<ul>
+<li>10.10.10.128	Master1主节点</li>
+<li>10.10.10.129	Slave从节点</li>
+<li>10.10.10.130	Master2主节点</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-配置2台主Master服务器"><a href="#3-配置2台主Master服务器" class="headerlink" title="3.配置2台主Master服务器"></a>3.配置2台<code>主Master服务器</code></h3><blockquote>
+<p>如果刚才已经配置了<code>互主互从</code>关系，可以使用<code>stop slave;</code>停止服务，然后使用<code>reset slave all;</code>清除连接关系，并且执行<code>flush logs;</code>刷新一下<code>二进制日志</code>。</p>
+</blockquote>
+<h4 id="A-修改配置文件"><a href="#A-修改配置文件" class="headerlink" title="A.修改配置文件"></a>A.修改配置文件</h4><h5 id="Master1"><a href="#Master1" class="headerlink" title="Master1"></a>Master1</h5><pre class="line-numbers language-none"><code class="language-none">[root@master1 ~]# vim &#x2F;etc&#x2F;my.cnf
+
+[mysqld]
+server_id&#x3D;10	#这里的ID是唯一的
+log_bin&#x3D;master	#开启二进制日志
+gtid_mode&#x3D;on	#开启GTID
+enforce_gtid_consistency&#x3D;true
+仅演示添加地方，配置文件并不完整，请勿删改其他<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h5 id="Master2"><a href="#Master2" class="headerlink" title="Master2"></a>Master2</h5><pre class="line-numbers language-none"><code class="language-none">[root@master2 ~]# vim &#x2F;etc&#x2F;my.cnf
+
+[mysqld]
+server_id&#x3D;13	#ID是唯一的
+log_bin&#x3D;master	#开启二进制日志
+gtid_mode&#x3D;on	#开启GTID
+enforce_gtid_consistency&#x3D;true
+仅演示添加地方，配置文件并不完整，请勿删改其他<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="B-创建Slave用户"><a href="#B-创建Slave用户" class="headerlink" title="B.创建Slave用户"></a>B.创建Slave用户</h4><h5 id="Master1-1"><a href="#Master1-1" class="headerlink" title="Master1"></a>Master1</h5><pre class="line-numbers language-none"><code class="language-none">mysql&gt; grant replication slave on *.* to &#39;repluser&#39;@&#39;10.10.10.129&#39; identified by &#39;WWW.1.com&#39;;
+Query OK, 0 rows affected, 1 warning (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p>IP地址为<code>Slave从节点</code></p>
+</blockquote>
+<h5 id="Master2-1"><a href="#Master2-1" class="headerlink" title="Master2"></a>Master2</h5><pre class="line-numbers language-none"><code class="language-none">mysql&gt; grant replication slave on *.* to &#39;repluser&#39;@&#39;10.10.10.129&#39; identified by &#39;WWW.1.com&#39;;
+Query OK, 0 rows affected, 1 warning (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p>IP地址为<code>Slave从节点</code></p>
+</blockquote>
+<h3 id="4-配置Slave从节点"><a href="#4-配置Slave从节点" class="headerlink" title="4.配置Slave从节点"></a>4.配置Slave从节点</h3><h4 id="A-修改Slave从节点配置文件"><a href="#A-修改Slave从节点配置文件" class="headerlink" title="A.修改Slave从节点配置文件"></a>A.修改<code>Slave从节点</code>配置文件</h4><pre class="line-numbers language-none"><code class="language-none">[root@slave ~]# vim &#x2F;etc&#x2F;my.cnf
+
+[mysqld]
+server_id&#x3D;11	#ID唯一
+log_bin&#x3D;master	#开启二进制日志(可选)
+gtid_mode&#x3D;on	#开启GTID
+enforce_gtid_consistency&#x3D;true
+master_info_repository&#x3D;TABLE	#必须开启(将连接记录存到表中)
+relay_log_info_repository&#x3D;TABLE	#必须开启(将连接记录存到表中)
+仅演示添加地方，配置文件并不完整，请勿删改其他<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="B-重启Slave从节点的服务"><a href="#B-重启Slave从节点的服务" class="headerlink" title="B.重启Slave从节点的服务"></a>B.重启<code>Slave从节点</code>的服务</h4><pre class="line-numbers language-none"><code class="language-none">[root@salve ~]# systemctl restart mysqld<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="C-在Slave从服务器上添加2个Master主服务器"><a href="#C-在Slave从服务器上添加2个Master主服务器" class="headerlink" title="C.在Slave从服务器上添加2个Master主服务器"></a>C.在<code>Slave从服务器</code>上添加2个<code>Master主服务器</code></h4><pre class="line-numbers language-none"><code class="language-none">mysql&gt; change master to
+    -&gt; master_host&#x3D;&quot;10.10.10.128&quot;,	#Master1的IP
+    -&gt; master_user&#x3D;&quot;repluser&quot;,
+    -&gt; master_password&#x3D;&quot;WWW.1.com&quot;,
+    -&gt; master_auto_position&#x3D;1 for channel &quot;to_master01&quot;;	#这里创建第一个隧道名为to_master01，这句话必须写在最后！
+Query OK, 0 rows affected, 2 warnings (0.00 sec)
+
+mysql&gt; change master to
+    -&gt; master_host&#x3D;&quot;10.10.10.130&quot;,	#Master2的IP
+    -&gt; master_user&#x3D;&quot;repluser&quot;,
+    -&gt; master_password&#x3D;&quot;WWW.1.com&quot;,
+    -&gt; master_auto_position&#x3D;1 for channel &quot;to_master02&quot;;	#这里创建第二个隧道名为to_master02，这句话必须写在最后！
+Query OK, 0 rows affected, 2 warnings (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="5-测试"><a href="#5-测试" class="headerlink" title="5.测试"></a>5.测试</h3><h4 id="A-启动所有隧道"><a href="#A-启动所有隧道" class="headerlink" title="A.启动所有隧道"></a>A.启动所有隧道</h4><pre class="line-numbers language-none"><code class="language-none">mysql&gt; start slave;
+Query OK, 0 rows affected (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="B-查看所有隧道状态"><a href="#B-查看所有隧道状态" class="headerlink" title="B.查看所有隧道状态"></a>B.查看所有隧道状态</h4><pre class="line-numbers language-none"><code class="language-none">mysql&gt; show slave status\G;
+
+*************************** 1. row ***************************
+               Slave_IO_State: Waiting for master to send event
+                  Master_Host: 10.10.10.128
+                  Master_User: repluser
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: master.000002
+          Read_Master_Log_Pos: 736
+               Relay_Log_File: node1-relay-bin-to_master01.000002
+                Relay_Log_Pos: 361
+        Relay_Master_Log_File: master.000001
+             Slave_IO_Running: Yes
+            Slave_SQL_Running: No	#发现SQL进程未启动
+              Replicate_Do_DB: 
+          Replicate_Ignore_DB: 
+           Replicate_Do_Table: 
+       Replicate_Ignore_Table: 
+      Replicate_Wild_Do_Table: 
+  Replicate_Wild_Ignore_Table: 
+                   Last_Errno: 1062
+                   Last_Error: Could not execute Write_rows event on table mysql.plugin; Duplicate entry &#39;validate_password&#39; for key &#39;PRIMARY&#39;, Error_code: 1062; handler error HA_ERR_FOUND_DUPP_KEY; the event&#39;s master log master.000001, end_log_pos 421
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 154
+              Relay_Log_Space: 1886
+              Until_Condition: None
+               Until_Log_File: 
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File: 
+           Master_SSL_CA_Path: 
+              Master_SSL_Cert: 
+            Master_SSL_Cipher: 
+               Master_SSL_Key: 
+        Seconds_Behind_Master: NULL
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error: 
+               Last_SQL_Errno: 1062
+               Last_SQL_Error: Could not execute Write_rows event on table mysql.plugin; Duplicate entry &#39;validate_password&#39; for key &#39;PRIMARY&#39;, Error_code: 1062; handler error HA_ERR_FOUND_DUPP_KEY; the event&#39;s master log master.000001, end_log_pos 421	#报错主键冲突
+  Replicate_Ignore_Server_Ids: 
+             Master_Server_Id: 10
+                  Master_UUID: 75cecbf1-d6b3-11ed-a170-000c298e07d7
+             Master_Info_File: mysql.slave_master_info
+                    SQL_Delay: 0
+          SQL_Remaining_Delay: NULL
+      Slave_SQL_Running_State: 
+           Master_Retry_Count: 86400
+                  Master_Bind: 
+      Last_IO_Error_Timestamp: 
+     Last_SQL_Error_Timestamp: 230409 16:55:12
+               Master_SSL_Crl: 
+           Master_SSL_Crlpath: 
+           Retrieved_Gtid_Set: 75cecbf1-d6b3-11ed-a170-000c298e07d7:1-3
+            Executed_Gtid_Set: 0b8ae544-d534-11ed-8391-000c290f55d2:1-2,
+6473a5bb-d6b3-11ed-862c-000c29d2b7fd:1-2
+                Auto_Position: 1
+         Replicate_Rewrite_DB: 
+                 Channel_Name: to_master01
+           Master_TLS_Version: 
+*************************** 2. row ***************************
+               Slave_IO_State: Waiting for master to send event
+                  Master_Host: 10.10.10.130
+                  Master_User: repluser
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: master.000002
+          Read_Master_Log_Pos: 696
+               Relay_Log_File: node1-relay-bin-to_master02.000002
+                Relay_Log_Pos: 903
+        Relay_Master_Log_File: master.000002
+             Slave_IO_Running: Yes
+            Slave_SQL_Running: Yes
+              Replicate_Do_DB: 
+          Replicate_Ignore_DB: 
+           Replicate_Do_Table: 
+       Replicate_Ignore_Table: 
+      Replicate_Wild_Do_Table: 
+  Replicate_Wild_Ignore_Table: 
+                   Last_Errno: 0
+                   Last_Error: 
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 696
+              Relay_Log_Space: 1122
+              Until_Condition: None
+               Until_Log_File: 
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File: 
+           Master_SSL_CA_Path: 
+              Master_SSL_Cert: 
+            Master_SSL_Cipher: 
+               Master_SSL_Key: 
+        Seconds_Behind_Master: 0
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error: 
+               Last_SQL_Errno: 0
+               Last_SQL_Error: 
+  Replicate_Ignore_Server_Ids: 
+             Master_Server_Id: 13
+                  Master_UUID: 6473a5bb-d6b3-11ed-862c-000c29d2b7fd
+             Master_Info_File: mysql.slave_master_info
+                    SQL_Delay: 0
+          SQL_Remaining_Delay: NULL
+      Slave_SQL_Running_State: Slave has read all relay log; waiting for more updates
+           Master_Retry_Count: 86400
+                  Master_Bind: 
+      Last_IO_Error_Timestamp: 
+     Last_SQL_Error_Timestamp: 
+               Master_SSL_Crl: 
+           Master_SSL_Crlpath: 
+           Retrieved_Gtid_Set: 6473a5bb-d6b3-11ed-862c-000c29d2b7fd:1-2
+            Executed_Gtid_Set: 0b8ae544-d534-11ed-8391-000c290f55d2:1-2,
+6473a5bb-d6b3-11ed-862c-000c29d2b7fd:1-2
+                Auto_Position: 1
+         Replicate_Rewrite_DB: 
+                 Channel_Name: to_master02
+           Master_TLS_Version: 
+2 rows in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="6-解决to-master01隧道报错"><a href="#6-解决to-master01隧道报错" class="headerlink" title="6.解决to_master01隧道报错"></a>6.解决<code>to_master01</code>隧道报错</h3><blockquote>
+<p>报错原因：<code>主键</code>冲突。<br>解决方法：找到冲突的<code>GTID</code>，然后跳过即可</p>
+</blockquote>
+<h4 id="A-先停止Salve"><a href="#A-先停止Salve" class="headerlink" title="A.先停止Salve"></a>A.先停止Salve</h4><pre class="line-numbers language-none"><code class="language-none">mysql&gt;stop slave;
+Query OK, 0 rows affected (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="B-查找GTID点"><a href="#B-查找GTID点" class="headerlink" title="B.查找GTID点"></a>B.查找GTID点</h4><pre class="line-numbers language-none"><code class="language-none">mysql&gt; select * from performance_schema.replication_applier_status_by_worker where LAST_ERROR_NUMBER&#x3D;1062\G;
+
+*************************** 1. row ***************************
+         CHANNEL_NAME: to_master01
+            WORKER_ID: 0
+            THREAD_ID: NULL
+        SERVICE_STATE: OFF
+LAST_SEEN_TRANSACTION: 75cecbf1-d6b3-11ed-a170-000c298e07d7:1	#得到我们GTID跳报错地址
+    LAST_ERROR_NUMBER: 1062
+   LAST_ERROR_MESSAGE: Could not execute Write_rows event on table mysql.plugin; Duplicate entry &#39;validate_password&#39; for key &#39;PRIMARY&#39;, Error_code: 1062; handler error HA_ERR_FOUND_DUPP_KEY; the event&#39;s master log master.000001, end_log_pos 421
+ LAST_ERROR_TIMESTAMP: 2023-04-09 17:30:43
+1 row in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p>LAST_ERROR_NUMBER&#x3D;1062，<code>1062</code>为上一句执行<code>show slave status\G;</code>中<code>Last_SQL_Errno: 1062</code>的值(每个人都不一样)</p>
+</blockquote>
+<h4 id="C-跳过报错GTID点"><a href="#C-跳过报错GTID点" class="headerlink" title="C.跳过报错GTID点"></a>C.跳过报错GTID点</h4><pre class="line-numbers language-none"><code class="language-none">mysql&gt; set @@session.gtid_next&#x3D;&#39;75cecbf1-d6b3-11ed-a170-000c298e07d7:1&#39;;
+Query OK, 0 rows affected (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">mysql&gt; begin;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">mysql&gt; commit;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">mysql&gt; set @@session.gtid_next&#x3D;automatic; <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="D-启动Slave"><a href="#D-启动Slave" class="headerlink" title="D.启动Slave"></a>D.启动<code>Slave</code></h4><pre class="line-numbers language-none"><code class="language-none">mysql&gt; start slave;
+Query OK, 0 rows affected (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="E-检查报错是否解决"><a href="#E-检查报错是否解决" class="headerlink" title="E.检查报错是否解决"></a>E.检查报错是否解决</h4><pre class="line-numbers language-none"><code class="language-none">mysql&gt; show slave status\G;
+
+*************************** 1. row ***************************
+               Slave_IO_State: Waiting for master to send event
+                  Master_Host: 10.10.10.128
+                  Master_User: repluser
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: master.000002
+          Read_Master_Log_Pos: 889
+               Relay_Log_File: node1-relay-bin-to_master01.000005
+                Relay_Log_Pos: 445
+        Relay_Master_Log_File: master.000002
+             Slave_IO_Running: Yes	#正常运行
+            Slave_SQL_Running: Yes	#正常运行
+              Replicate_Do_DB: 
+          Replicate_Ignore_DB: 
+           Replicate_Do_Table: 
+       Replicate_Ignore_Table: 
+      Replicate_Wild_Do_Table: 
+  Replicate_Wild_Ignore_Table: 
+                   Last_Errno: 0
+                   Last_Error: 
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 889
+              Relay_Log_Space: 955
+              Until_Condition: None
+               Until_Log_File: 
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File: 
+           Master_SSL_CA_Path: 
+              Master_SSL_Cert: 
+            Master_SSL_Cipher: 
+               Master_SSL_Key: 
+        Seconds_Behind_Master: 0
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error: 
+               Last_SQL_Errno: 0
+               Last_SQL_Error: 
+  Replicate_Ignore_Server_Ids: 
+             Master_Server_Id: 10
+                  Master_UUID: 75cecbf1-d6b3-11ed-a170-000c298e07d7
+             Master_Info_File: mysql.slave_master_info
+                    SQL_Delay: 0
+          SQL_Remaining_Delay: NULL
+      Slave_SQL_Running_State: Slave has read all relay log; waiting for more updates
+           Master_Retry_Count: 86400
+                  Master_Bind: 
+      Last_IO_Error_Timestamp: 
+     Last_SQL_Error_Timestamp: 
+               Master_SSL_Crl: 
+           Master_SSL_Crlpath: 
+           Retrieved_Gtid_Set: 75cecbf1-d6b3-11ed-a170-000c298e07d7:1-4
+            Executed_Gtid_Set: 6473a5bb-d6b3-11ed-862c-000c29d2b7fd:1-3,
+75cecbf1-d6b3-11ed-a170-000c298e07d7:1-4,
+e3eb4ef0-d6b7-11ed-b7ad-000c290f55d2:1-2
+                Auto_Position: 1
+         Replicate_Rewrite_DB: 
+                 Channel_Name: to_master01
+           Master_TLS_Version: 
+*************************** 2. row ***************************
+               Slave_IO_State: Waiting for master to send event
+                  Master_Host: 10.10.10.130
+                  Master_User: repluser
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: master.000002
+          Read_Master_Log_Pos: 846
+               Relay_Log_File: node1-relay-bin-to_master02.000004
+                Relay_Log_Pos: 445
+        Relay_Master_Log_File: master.000002
+             Slave_IO_Running: Yes	#正常运行
+            Slave_SQL_Running: Yes	#正常运行
+              Replicate_Do_DB: 
+          Replicate_Ignore_DB: 
+           Replicate_Do_Table: 
+       Replicate_Ignore_Table: 
+      Replicate_Wild_Do_Table: 
+  Replicate_Wild_Ignore_Table: 
+                   Last_Errno: 0
+                   Last_Error: 
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 846
+              Relay_Log_Space: 955
+              Until_Condition: None
+               Until_Log_File: 
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File: 
+           Master_SSL_CA_Path: 
+              Master_SSL_Cert: 
+            Master_SSL_Cipher: 
+               Master_SSL_Key: 
+        Seconds_Behind_Master: 0
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error: 
+               Last_SQL_Errno: 0
+               Last_SQL_Error: 
+  Replicate_Ignore_Server_Ids: 
+             Master_Server_Id: 13
+                  Master_UUID: 6473a5bb-d6b3-11ed-862c-000c29d2b7fd
+             Master_Info_File: mysql.slave_master_info
+                    SQL_Delay: 0
+          SQL_Remaining_Delay: NULL
+      Slave_SQL_Running_State: Slave has read all relay log; waiting for more updates
+           Master_Retry_Count: 86400
+                  Master_Bind: 
+      Last_IO_Error_Timestamp: 
+     Last_SQL_Error_Timestamp: 
+               Master_SSL_Crl: 
+           Master_SSL_Crlpath: 
+           Retrieved_Gtid_Set: 6473a5bb-d6b3-11ed-862c-000c29d2b7fd:1-3
+            Executed_Gtid_Set: 6473a5bb-d6b3-11ed-862c-000c29d2b7fd:1-3,
+75cecbf1-d6b3-11ed-a170-000c298e07d7:1-4,
+e3eb4ef0-d6b7-11ed-b7ad-000c290f55d2:1-2
+                Auto_Position: 1
+         Replicate_Rewrite_DB: 
+                 Channel_Name: to_master02
+           Master_TLS_Version: 
+2 rows in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work">网笙久久</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work/2023/04/09/76/">https://blog.wangshengjj.work/2023/04/09/76/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.wangshengjj.work" target="_blank">WangShengJJのblog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/mysql/">mysql</a><a class="post-meta__tags" href="/tags/linux/">linux</a><a class="post-meta__tags" href="/tags/linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1/">linux基础服务</a><a class="post-meta__tags" href="/tags/mysql%E5%9F%BA%E6%9C%AC%E5%91%BD%E4%BB%A4/">mysql基本命令</a></div><div class="post_share"><div class="social-share" data-image="https://api.ghser.com/random/api.php" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/04/09/yunzai/" title="TRSS-Yunzai搭建教程"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">TRSS-Yunzai搭建教程</div></div></a></div><div class="next-post pull-right"><a href="/2023/04/05/75/" title="【数据库系列教程】MySQL备份与恢复"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【数据库系列教程】MySQL备份与恢复</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/04/03/72/" title="【数据库系列教程】MySQL视图、事务、索引"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-04-03</div><div class="title">【数据库系列教程】MySQL视图、事务、索引</div></div></a></div><div><a href="/2023/04/05/74/" title="【数据库系列教程】MySQL日志管理"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-04-05</div><div class="title">【数据库系列教程】MySQL日志管理</div></div></a></div><div><a href="/2023/04/05/75/" title="【数据库系列教程】MySQL备份与恢复"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-04-05</div><div class="title">【数据库系列教程】MySQL备份与恢复</div></div></a></div><div><a href="/2023/04/01/67/" title="【数据库系列教程】MySQL数据管理操作"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-04-01</div><div class="title">【数据库系列教程】MySQL数据管理操作</div></div></a></div><div><a href="/2023/03/30/66/" title="【数据库系列教程】MySQL基本语句"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-03-30</div><div class="title">【数据库系列教程】MySQL基本语句</div></div></a></div><div><a href="/2023/04/03/73/" title="【数据库系列教程】MySQL用户管理和用户权限"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-04-03</div><div class="title">【数据库系列教程】MySQL用户管理和用户权限</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">网笙久久</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">126</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">168</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">230</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wangshengjj"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wangshengjj" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:wangshengjj@wangshengjj.work" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.wangshengjj.work" target="_blank" title="Blog"><i class="fa fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到网笙久久的博客</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E3%80%90%E6%95%B0%E6%8D%AE%E5%BA%93%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%E3%80%91MySQL%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6"><span class="toc-number">1.</span> <span class="toc-text">【数据库系列教程】MySQL主从复制</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6"><span class="toc-number">1.1.</span> <span class="toc-text">一、主从复制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.工作原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E5%85%B3%E6%B3%A8%E7%82%B9"><span class="toc-number">1.1.1.1.</span> <span class="toc-text">核心关注点:</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%E6%B5%81%E7%A8%8B%EF%BC%9A"><span class="toc-number">1.1.1.2.</span> <span class="toc-text">实现流程：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E4%BD%9C%E7%94%A8"><span class="toc-number">1.1.2.</span> <span class="toc-text">2.作用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%B8%B8%E8%A7%81%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E6%9E%B6%E6%9E%84"><span class="toc-number">1.1.3.</span> <span class="toc-text">3.常见主从复制架构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%B7%A5%E4%BD%9C%E6%96%B9%E5%BC%8F"><span class="toc-number">1.1.4.</span> <span class="toc-text">4.主从复制工作方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%A1%88%E5%88%97%EF%BC%9A%E4%B8%80%E4%B8%BB%E4%B8%80%E4%BB%8E%E5%A4%8D%E5%88%B6"><span class="toc-number">1.2.</span> <span class="toc-text">二、案列：一主一从复制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%87%86%E5%A4%872%E5%8F%B0%E8%99%9A%E6%8B%9F%E6%9C%BA"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.准备2台虚拟机</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%85%B3%E9%97%AD%E9%98%B2%E7%81%AB%E5%A2%99%E5%92%8CSElinux%E3%80%81%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.关闭防火墙和SElinux、时间同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%9C%A8Master%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%85%8D%E7%BD%AE"><span class="toc-number">1.2.3.</span> <span class="toc-text">3.在Master服务器配置</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E5%AE%89%E8%A3%85MySQL-5-7"><span class="toc-number">1.2.3.1.</span> <span class="toc-text">A.安装MySQL 5.7</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.3.2.</span> <span class="toc-text">B.修改配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#GTID%E7%9A%84%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.2.3.2.1.</span> <span class="toc-text">GTID的介绍</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8MySQL"><span class="toc-number">1.2.3.2.2.</span> <span class="toc-text">启动MySQL</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#C-%E4%BF%AE%E6%94%B9Master%E8%8A%82%E7%82%B9%E7%9A%84MySQL%E4%B8%ADroot%E7%94%A8%E6%88%B7%E7%9A%84%E5%AF%86%E7%A0%81"><span class="toc-number">1.2.3.3.</span> <span class="toc-text">C.修改Master节点的MySQL中root用户的密码</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E4%B8%B4%E6%97%B6%E5%AF%86%E7%A0%81"><span class="toc-number">1.2.3.3.1.</span> <span class="toc-text">查看临时密码</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E5%AF%86%E7%A0%81"><span class="toc-number">1.2.3.3.2.</span> <span class="toc-text">修改密码</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#D-%E5%9C%A8Master%E8%8A%82%E7%82%B9%E5%88%9B%E5%BB%BA%E7%94%A8%E4%BA%8E%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E7%9A%84%E7%94%A8%E6%88%B7"><span class="toc-number">1.2.3.4.</span> <span class="toc-text">D.在Master节点创建用于主从复制的用户</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%9C%A8Slave%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%85%8D%E7%BD%AE"><span class="toc-number">1.2.4.</span> <span class="toc-text">4.在Slave服务器配置</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E5%AE%89%E8%A3%85MySQL-5-7-1"><span class="toc-number">1.2.4.1.</span> <span class="toc-text">A.安装MySQL 5.7</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6-1"><span class="toc-number">1.2.4.2.</span> <span class="toc-text">B.修改配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8MySQL%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.2.4.2.1.</span> <span class="toc-text">启动MySQL服务</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#C-%E4%BF%AE%E6%94%B9Slave%E8%8A%82%E7%82%B9%E7%9A%84MySQL%E4%B8%ADroot%E7%94%A8%E6%88%B7%E7%9A%84%E5%AF%86%E7%A0%81"><span class="toc-number">1.2.4.3.</span> <span class="toc-text">C.修改Slave节点的MySQL中root用户的密码</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E4%B8%B4%E6%97%B6%E5%AF%86%E7%A0%81-1"><span class="toc-number">1.2.4.3.1.</span> <span class="toc-text">查看临时密码</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E5%AF%86%E7%A0%81-1"><span class="toc-number">1.2.4.3.2.</span> <span class="toc-text">修改密码</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#D-%E5%88%9B%E5%BB%BASlave"><span class="toc-number">1.2.4.4.</span> <span class="toc-text">D.创建Slave</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-%E5%89%8D%E5%BE%80-x3D-x3D-%E4%B8%BB%E8%8A%82%E7%82%B9-x3D-x3D-%E6%9F%A5%E7%9C%8BMaster%E7%AB%AF%E7%9A%84%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%97%A5%E5%BF%97-%E4%B8%8A%E9%9D%A2%E7%9A%84%E4%B8%8D%E6%8A%A5%E9%94%99%EF%BC%8C%E8%B7%B3%E8%BF%87%E6%AD%A4%E6%AD%A5%E9%AA%A4"><span class="toc-number">1.2.4.4.1.</span> <span class="toc-text">1.前往&#x3D;&#x3D;主节点&#x3D;&#x3D;查看Master端的二进制日志(上面的不报错，跳过此步骤)</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-%E5%9B%9E%E5%88%B0-x3D-x3D-%E4%BB%8E%E8%8A%82%E7%82%B9-x3D-x3D-%E5%88%9B%E5%BB%BASlave-%E4%B8%8A%E9%9D%A2%E7%9A%84%E4%B8%8D%E6%8A%A5%E9%94%99%EF%BC%8C%E8%B7%B3%E8%BF%87%E6%AD%A4%E6%AD%A5%E9%AA%A4"><span class="toc-number">1.2.4.4.2.</span> <span class="toc-text">2.回到&#x3D;&#x3D;从节点&#x3D;&#x3D;创建Slave(上面的不报错，跳过此步骤)</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#E-%E5%90%AF%E5%8A%A8Slave%E5%B9%B6%E6%9F%A5%E7%9C%8B%E7%8A%B6%E6%80%81"><span class="toc-number">1.2.4.5.</span> <span class="toc-text">E.启动Slave并查看状态</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#F-%E6%A3%80%E6%9F%A5Master%E6%9C%8D%E5%8A%A1%E5%99%A8GTID%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.2.4.6.</span> <span class="toc-text">F.检查Master服务器GTID服务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#G-%E5%9B%9E%E5%88%B0Slave%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%87%8D%E5%90%AFSlave%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.2.4.7.</span> <span class="toc-text">G.回到Slave服务器重启Slave服务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#H-%E6%9F%A5%E7%9C%8BSlave%E7%8A%B6%E6%80%81"><span class="toc-number">1.2.4.8.</span> <span class="toc-text">H.查看Slave状态</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E6%B5%8B%E8%AF%95%E4%B8%BB%E4%BB%8E"><span class="toc-number">1.2.5.</span> <span class="toc-text">5.测试主从</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E5%9C%A8Master%E4%B8%BB%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%9B%E5%BB%BA%E5%BA%93"><span class="toc-number">1.2.5.1.</span> <span class="toc-text">A.在Master主服务器创建库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E5%9C%A8Slave%E4%BB%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%9F%A5%E7%9C%8B%E6%98%AF%E5%90%A6%E5%90%8C%E6%AD%A5"><span class="toc-number">1.2.5.2.</span> <span class="toc-text">B.在Slave从服务器查看是否同步</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E9%85%8D%E7%BD%AE%E5%8F%AA%E8%AF%BB%E5%B1%9E%E6%80%A7"><span class="toc-number">1.2.6.</span> <span class="toc-text">6.配置只读属性</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E5%9C%A8Slave%E4%BB%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%85%8D%E7%BD%AE%E5%8F%AA%E8%AF%BB%E5%B1%9E%E6%80%A7"><span class="toc-number">1.2.6.1.</span> <span class="toc-text">A.在Slave从服务器配置只读属性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E9%87%8D%E5%90%AFMySQL%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.2.6.2.</span> <span class="toc-text">B.重启MySQL服务</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%B8%BB%E4%BB%8E%E5%88%87%E6%8D%A2"><span class="toc-number">1.3.</span> <span class="toc-text">三、主从切换</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">1.3.1.</span> <span class="toc-text">1.适用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%A8%A1%E6%8B%9F%E6%97%A7Master%E4%B8%BB%E8%8A%82%E7%82%B9%E6%8C%82%E6%8E%89"><span class="toc-number">1.3.2.</span> <span class="toc-text">2.模拟旧Master主节点挂掉</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%88%A0%E9%99%A4%E6%97%A7Slave%E4%BB%8E%E8%8A%82%E7%82%B9%E7%9A%84%E9%85%8D%E7%BD%AE"><span class="toc-number">1.3.3.</span> <span class="toc-text">3.删除旧Slave从节点的配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E4%BF%AE%E6%94%B9%E6%97%A7Slave%E4%BB%8E%E8%8A%82%E7%82%B9%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.3.4.</span> <span class="toc-text">4.修改旧Slave从节点改配置文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%9C%A8%E6%97%A7Slave%E4%BB%8E%E8%8A%82%E7%82%B9%E5%88%9B%E5%BB%BA%E7%94%A8%E6%88%B7"><span class="toc-number">1.3.5.</span> <span class="toc-text">5.在旧Slave从节点创建用户</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E6%81%A2%E5%A4%8D%E6%96%B0Slave%E4%BB%8E%E8%8A%82%E7%82%B9-%E6%97%A7Master%E4%B8%BB%E8%8A%82%E7%82%B9-%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.3.6.</span> <span class="toc-text">6.恢复新Slave从节点(旧Master主节点)服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E5%9C%A8%E6%96%B0Slave%E4%BB%8E%E8%8A%82%E7%82%B9-%E6%97%A7Master%E4%B8%BB%E8%8A%82%E7%82%B9-%E6%B7%BB%E5%8A%A0Slave%E5%85%B3%E7%B3%BB"><span class="toc-number">1.3.7.</span> <span class="toc-text">7.在新Slave从节点(旧Master主节点)添加Slave关系</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%8F%8C%E4%B8%BB%E5%A4%8D%E5%88%B6-%E9%87%8D%E8%A6%81"><span class="toc-number">1.4.</span> <span class="toc-text">四、双主复制(重要)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E9%85%8D%E7%BD%AE"><span class="toc-number">1.4.1.</span> <span class="toc-text">1.配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%88%9B%E5%BB%BA%E7%94%A8%E6%88%B7"><span class="toc-number">1.4.2.</span> <span class="toc-text">2.创建用户</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E4%BA%92%E7%9B%B8%E5%88%9B%E5%BB%BAslave%E6%9C%8D%E5%8A%A1%E5%8D%B3%E5%8F%AF"><span class="toc-number">1.4.3.</span> <span class="toc-text">3.互相创建slave服务即可</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9C%A8Master%E4%B8%BB%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%9B%E5%BB%BASlave"><span class="toc-number">1.4.3.1.</span> <span class="toc-text">在Master主服务器创建Slave</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%A4%9A%E4%B8%BB%E5%8D%95%E4%BB%8E-%E5%A4%9A%E6%BA%90%E5%A4%8D%E5%88%B6"><span class="toc-number">1.5.</span> <span class="toc-text">五、多主单从(多源复制)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%85%B3%E4%BA%8E%E5%A4%9A%E6%BA%90%E5%A4%8D%E5%88%B6%E7%9A%84%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.5.1.</span> <span class="toc-text">1.关于多源复制的介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="toc-number">1.5.2.</span> <span class="toc-text">2.环境准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E9%85%8D%E7%BD%AE2%E5%8F%B0%E4%B8%BBMaster%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">1.5.3.</span> <span class="toc-text">3.配置2台主Master服务器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.5.3.1.</span> <span class="toc-text">A.修改配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Master1"><span class="toc-number">1.5.3.1.1.</span> <span class="toc-text">Master1</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Master2"><span class="toc-number">1.5.3.1.2.</span> <span class="toc-text">Master2</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E5%88%9B%E5%BB%BASlave%E7%94%A8%E6%88%B7"><span class="toc-number">1.5.3.2.</span> <span class="toc-text">B.创建Slave用户</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Master1-1"><span class="toc-number">1.5.3.2.1.</span> <span class="toc-text">Master1</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Master2-1"><span class="toc-number">1.5.3.2.2.</span> <span class="toc-text">Master2</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E9%85%8D%E7%BD%AESlave%E4%BB%8E%E8%8A%82%E7%82%B9"><span class="toc-number">1.5.4.</span> <span class="toc-text">4.配置Slave从节点</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E4%BF%AE%E6%94%B9Slave%E4%BB%8E%E8%8A%82%E7%82%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.5.4.1.</span> <span class="toc-text">A.修改Slave从节点配置文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E9%87%8D%E5%90%AFSlave%E4%BB%8E%E8%8A%82%E7%82%B9%E7%9A%84%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.5.4.2.</span> <span class="toc-text">B.重启Slave从节点的服务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#C-%E5%9C%A8Slave%E4%BB%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E6%B7%BB%E5%8A%A02%E4%B8%AAMaster%E4%B8%BB%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">1.5.4.3.</span> <span class="toc-text">C.在Slave从服务器上添加2个Master主服务器</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E6%B5%8B%E8%AF%95"><span class="toc-number">1.5.5.</span> <span class="toc-text">5.测试</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E5%90%AF%E5%8A%A8%E6%89%80%E6%9C%89%E9%9A%A7%E9%81%93"><span class="toc-number">1.5.5.1.</span> <span class="toc-text">A.启动所有隧道</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E6%9F%A5%E7%9C%8B%E6%89%80%E6%9C%89%E9%9A%A7%E9%81%93%E7%8A%B6%E6%80%81"><span class="toc-number">1.5.5.2.</span> <span class="toc-text">B.查看所有隧道状态</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E8%A7%A3%E5%86%B3to-master01%E9%9A%A7%E9%81%93%E6%8A%A5%E9%94%99"><span class="toc-number">1.5.6.</span> <span class="toc-text">6.解决to_master01隧道报错</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E5%85%88%E5%81%9C%E6%AD%A2Salve"><span class="toc-number">1.5.6.1.</span> <span class="toc-text">A.先停止Salve</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E6%9F%A5%E6%89%BEGTID%E7%82%B9"><span class="toc-number">1.5.6.2.</span> <span class="toc-text">B.查找GTID点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#C-%E8%B7%B3%E8%BF%87%E6%8A%A5%E9%94%99GTID%E7%82%B9"><span class="toc-number">1.5.6.3.</span> <span class="toc-text">C.跳过报错GTID点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#D-%E5%90%AF%E5%8A%A8Slave"><span class="toc-number">1.5.6.4.</span> <span class="toc-text">D.启动Slave</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#E-%E6%A3%80%E6%9F%A5%E6%8A%A5%E9%94%99%E6%98%AF%E5%90%A6%E8%A7%A3%E5%86%B3"><span class="toc-number">1.5.6.5.</span> <span class="toc-text">E.检查报错是否解决</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/05/19/120/" title="【Linux应用系列教程】基于Jenkins发布maven项目"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】基于Jenkins发布maven项目"/></a><div class="content"><a class="title" href="/2023/05/19/120/" title="【Linux应用系列教程】基于Jenkins发布maven项目">【Linux应用系列教程】基于Jenkins发布maven项目</a><time datetime="2023-05-19T03:49:39.490Z" title="发表于 2023-05-19 11:49:39">2023-05-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/19/119/" title="【Linux应用系列教程】Jenkins持续集成工具安装教程"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】Jenkins持续集成工具安装教程"/></a><div class="content"><a class="title" href="/2023/05/19/119/" title="【Linux应用系列教程】Jenkins持续集成工具安装教程">【Linux应用系列教程】Jenkins持续集成工具安装教程</a><time datetime="2023-05-19T02:49:24.709Z" title="发表于 2023-05-19 10:49:24">2023-05-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/18/118/" title="【Linux应用系列教程】Git分布式版本控制器"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】Git分布式版本控制器"/></a><div class="content"><a class="title" href="/2023/05/18/118/" title="【Linux应用系列教程】Git分布式版本控制器">【Linux应用系列教程】Git分布式版本控制器</a><time datetime="2023-05-18T12:19:54.279Z" title="发表于 2023-05-18 20:19:54">2023-05-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/16/117/" title="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客"/></a><div class="content"><a class="title" href="/2023/05/16/117/" title="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客">【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客</a><time datetime="2023-05-16T11:30:05.268Z" title="发表于 2023-05-16 19:30:05">2023-05-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【自动化运维系列教程】Ansible Playbook剧本"/></a><div class="content"><a class="title" href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本">【自动化运维系列教程】Ansible Playbook剧本</a><time datetime="2023-05-15T12:27:43.911Z" title="发表于 2023-05-15 20:27:43">2023-05-15</time></div></div></div></div></div></div></main><footer id="footer" style="background: flase"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By 网笙久久</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><div class="js-pjax"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js"></script><script>(() => {
+  document.querySelectorAll('#article-container span.katex-display').forEach(item => {
+    btf.wrap(item, 'div', { class: 'katex-wrap'})
+  })
+})()</script></div><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div><script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(n){n.imageLazyLoadSetting.processImages=i;var e=n.imageLazyLoadSetting.isSPA,r=(n.imageLazyLoadSetting.preloadRatio,Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));function i(){e&&(r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));for(var t,a=0;a<r.length;a++)0<=(t=(t=r[a]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(n.innerHeight+240||document.documentElement.clientHeight+240)&&function(){var t,e,n,i,o=r[a];t=o,e=function(){r=r.filter(function(t){return o!==t})},n=new Image,i=t.getAttribute("data-original"),n.onload=function(){t.src=i,e&&e()},t.src!==i&&(n.src=i)}()}i(),n.addEventListener("scroll",function(){var t,e;t=i,e=n,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(e)},500)})}(this);</script></body></html>

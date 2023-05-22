@@ -1,0 +1,723 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>【Linux集群系列教程】HAProxy负载均衡集群 | WangShengJJのblog</title><meta name="author" content="网笙久久"><meta name="copyright" content="网笙久久"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="【Linux集群系列教程】HAProxy负载均衡集群一、关于HAProxy HAProxy是一个开源的、高性能的、基于TCP和HTTP应用的负载均衡软件，借助HAProxy可快速、可靠地提供基于TCP和HTTP应用的负载均衡解决方案  1.调度器类型 四层调度 仅能根据IP地址、端口号进行调度  LVS, nginx   七层调度 根据应用数据HTTP协议进行调度 nginx    2.HAPro">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Linux集群系列教程】HAProxy负载均衡集群">
+<meta property="og:url" content="https://blog.wangshengjj.work/2023/04/26/99/index.html">
+<meta property="og:site_name" content="WangShengJJのblog">
+<meta property="og:description" content="【Linux集群系列教程】HAProxy负载均衡集群一、关于HAProxy HAProxy是一个开源的、高性能的、基于TCP和HTTP应用的负载均衡软件，借助HAProxy可快速、可靠地提供基于TCP和HTTP应用的负载均衡解决方案  1.调度器类型 四层调度 仅能根据IP地址、端口号进行调度  LVS, nginx   七层调度 根据应用数据HTTP协议进行调度 nginx    2.HAPro">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.dmoe.cc/random.php">
+<meta property="article:published_time" content="2023-04-26T06:08:19.305Z">
+<meta property="article:modified_time" content="2023-04-26T12:39:55.752Z">
+<meta property="article:author" content="网笙久久">
+<meta property="article:tag" content="集群">
+<meta property="article:tag" content="负载均衡集群">
+<meta property="article:tag" content="keepalived">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="linux基础服务">
+<meta property="article:tag" content="lvs">
+<meta property="article:tag" content="haproxy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.dmoe.cc/random.php"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://blog.wangshengjj.work/2023/04/26/99/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"prismjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【Linux集群系列教程】HAProxy负载均衡集群',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-04-26 20:39:55'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><meting-js server="netease" type="playlist" id="7386208265" lrc-type="0" volume="0.5" fixed="true" mini="true" order="random" loop="all" autoplay="true" preload="auto" list-folded="true"></meting-js><script src="https://fastly.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/autoload.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script><meta name="generator" content="Hexo 6.1.0"></head><body><link rel="stylesheet" href="/css/barber-shop.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">126</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">168</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">230</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://www.dmoe.cc/random.php')"><nav id="nav"><span id="blog-info"><a href="/" title="WangShengJJのblog"><span class="site-name">WangShengJJのblog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【Linux集群系列教程】HAProxy负载均衡集群</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-04-26T06:08:19.305Z" title="发表于 2023-04-26 14:08:19">2023-04-26</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-04-26T12:39:55.752Z" title="更新于 2023-04-26 20:39:55">2023-04-26</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/">服务器搭建</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/%E7%AC%94%E8%AE%B0/">笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/%E7%AC%94%E8%AE%B0/linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1/">linux基础服务</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/%E7%AC%94%E8%AE%B0/linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1/%E9%9B%86%E7%BE%A4/">集群</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/%E7%AC%94%E8%AE%B0/linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1/%E9%9B%86%E7%BE%A4/LVS/">LVS</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/%E7%AC%94%E8%AE%B0/linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1/%E9%9B%86%E7%BE%A4/LVS/keepalived/">keepalived</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/%E7%AC%94%E8%AE%B0/linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1/%E9%9B%86%E7%BE%A4/LVS/keepalived/haproxy/">haproxy</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">3.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>15分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="【Linux集群系列教程】HAProxy负载均衡集群"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="【Linux集群系列教程】HAProxy负载均衡集群"><a href="#【Linux集群系列教程】HAProxy负载均衡集群" class="headerlink" title="【Linux集群系列教程】HAProxy负载均衡集群"></a>【Linux集群系列教程】HAProxy负载均衡集群</h1><h2 id="一、关于HAProxy"><a href="#一、关于HAProxy" class="headerlink" title="一、关于HAProxy"></a>一、关于HAProxy</h2><ul>
+<li><code>HAProxy</code>是一个开源的、高性能的、基于<code>TCP</code>和<code>HTTP</code>应用的负载均衡软件，借助<code>HAProxy</code>可快速、可靠地提供基于<code>TCP</code>和<code>HTTP</code>应用的负载均衡解决方案</li>
+</ul>
+<h3 id="1-调度器类型"><a href="#1-调度器类型" class="headerlink" title="1.调度器类型"></a>1.调度器类型</h3><ul>
+<li>四层调度<ul>
+<li>仅能根据<code>IP地址</code>、<code>端口号</code>进行调度 </li>
+<li>LVS, nginx</li>
+</ul>
+</li>
+<li>七层调度<ul>
+<li>根据应用数据<code>HTTP协议</code>进行调度</li>
+<li>nginx</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-HAProxy特性"><a href="#2-HAProxy特性" class="headerlink" title="2.HAProxy特性"></a>2.HAProxy特性</h3><ul>
+<li>可靠性和<code>稳定</code>性非常好</li>
+<li>最高可以同时维护<code>40000</code>–<code>50000</code>个并发连接，单位时间内处理的最大请求数为<code>20000</code>个，最大数据处理能力可达<code>10Gbps</code></li>
+<li>支持多于<code>8种</code>负载均衡算法 ，同时也支持<code>session</code>保持</li>
+<li>支持<code>虚拟主机</code>功能</li>
+<li>从<code>HAProxy 1.3</code>版本后开始支持连接拒绝、全透明代理等功能</li>
+<li><code>HAProxy</code>拥有一个功能强大的服务器状态监控页面</li>
+<li><code>HAProxy</code>拥有功能强大的<code>ACL</code>支持</li>
+</ul>
+<h3 id="3-HAProxy配置文件结构"><a href="#3-HAProxy配置文件结构" class="headerlink" title="3.HAProxy配置文件结构"></a>3.HAProxy配置文件结构</h3><ul>
+<li>global<ul>
+<li>全局配置、进程数、日志等</li>
+</ul>
+</li>
+<li>defaults<ul>
+<li>默认参数</li>
+</ul>
+</li>
+<li>frontend<ul>
+<li>定义虚拟服务、调度算法</li>
+</ul>
+</li>
+<li>backend<ul>
+<li>定义后端real server</li>
+</ul>
+</li>
+<li>listen<ul>
+<li>配置监听、用于展示监控页面、用于配置虚拟服务</li>
+</ul>
+</li>
+</ul>
+<h2 id="二、HAProxy配置文件解析"><a href="#二、HAProxy配置文件解析" class="headerlink" title="二、HAProxy配置文件解析"></a>二、HAProxy配置文件解析</h2><blockquote>
+<p><strong>配置文件默认路径：<code>/etc/haproxy/haproxy.cfg</code></strong></p>
+</blockquote>
+<h3 id="1-global全局配置"><a href="#1-global全局配置" class="headerlink" title="1.global全局配置"></a>1.<code>global</code>全局配置</h3><pre class="line-numbers language-none"><code class="language-none">global 
+	nbproc 1	# 指定haproxy启动的进程数		
+	maxconn 4096	# 最大连接数
+	user nobody	# 指定haproxy进程启动的用户
+	group nobody	
+	daemon		# 后台启动
+	pidfile &#x2F;usr&#x2F;local&#x2F;haproxy&#x2F;logs&#x2F;haproxy.pid 
+	
+日志级别: 
+	debug, info, notice, warn, error, alert, emercy<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="2-defaults默认配置"><a href="#2-defaults默认配置" class="headerlink" title="2.defaults默认配置"></a>2.<code>defaults</code>默认配置</h3><pre class="line-numbers language-none"><code class="language-none">defaults 
+    timeout connect 10	# 连接real server的超时时间，单位毫秒
+    timeout client 20s	# 连接客户端的超时时间
+    timeout server 30s	# real server连接客户端的超时时间<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-frontend定义虚拟服务"><a href="#3-frontend定义虚拟服务" class="headerlink" title="3.frontend定义虚拟服务"></a>3.<code>frontend</code>定义虚拟服务</h3><pre class="line-numbers language-none"><code class="language-none">frontend xxxxx	# 定义虚拟服务的名称
+	bind IP:port	# 定义虚拟服务监听的IP及端口
+	mode &#123;tcp|http&#125;	# 工作模式; http: 七层调度    tcp：四层调度
+	option forwardfor	# 后端服务器记录日志时，记录真实客户端地址 
+	option httpclose	# 优化参数, 高并发场景下，haproxy会自动断开连接时间过长的客户端请求
+	use_backend XXX		# 定义后端服务器
+	default_backend XXX	# 定义默认后端服务器<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-backend定义后端real-server"><a href="#4-backend定义后端real-server" class="headerlink" title="4.backend定义后端real server"></a>4.<code>backend</code>定义后端<code>real server</code></h3><pre class="line-numbers language-none"><code class="language-none">backend xxxxxxx		# 定义后端服务器的名称 
+	mode &#123;tcp|http&#125;
+	option abortonclose	# 优化参数, 高并发场景下让后端服务器自动结束处理时间较长的请求
+	option redispatch	# 前端访问的时候，会检测后端服务器是否挂掉，如果挂掉会强制转向另一个没有挂掉的服务器上
+	cookie SERVERID		# 植入cookie的时候，新增主机ID，让客户端访问的时候能找到刚刚访问的服务器
+	balance roundrobin	# 调度算法
+	server web1 10.1.1.1:80 cookie s1 weight 6 check inter 2000 rise 2 fall 3
+	server web2 10.1.1.2:80 cookie s2 weight 6 check inter 2000 rise 2 fall 3
+#cookie s1代表我们定义了一个名叫S1的主机ID，将来这个ID会加入到cookie里
+#weight权重
+#inter 2000 rise 2 fall 3 每2000毫秒，检测一次，如果超过3次无响应，则判定服务器已经挂掉，当服务器上线以后，超过2次回应，再上线服务器<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="A-支持的调度算法"><a href="#A-支持的调度算法" class="headerlink" title="A.支持的调度算法"></a>A.支持的调度算法</h4><blockquote>
+<p><code>roundrobin</code>基于权重进行轮询调度的算法 	<br><code>static-rr</code>基于权重进行轮询调度的算法，不过此算法为静态算法，在运行时调整其服务器权重不会生效<br><code>source</code>源<code>hash</code>, 将同一个客户端的请求转发到同一个后端服务器<br><code>leastconn</code>最少连接<br><code>uri</code>此算法会对部分或整个<code>URI</code>进行<code>HASH</code>运算，再经过与服务器的总权重相除，最后转发到某台匹配的后端服务器上<br><code>uri_param</code>此算法会根据<code>URL</code>路径中的参数进行转发，这样可保证在后端真实服务器数据不变时，同一个用户的请求始终分发到同一台机器上</p>
+</blockquote>
+<h4 id="B-健康状态检测"><a href="#B-健康状态检测" class="headerlink" title="B.健康状态检测"></a>B.健康状态检测</h4><pre class="line-numbers language-none"><code class="language-none">server web1 10.1.1.1:80 cookie server1 weight 6 check inter 2000 rise 2 fall 3
+	web1	#后端服务器名称
+	weight 6	#权重
+	check inter 2000 rise 2 fall 3	#定义健康状态检查参数<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="C-会话保持配置"><a href="#C-会话保持配置" class="headerlink" title="C.会话保持配置"></a>C.会话保持配置</h4><pre class="line-numbers language-none"><code class="language-none">cookie SERVERID
+server ..... cookie server1 .......
+服务器在给客户端响应时，要在响应数据中插入事先指定的serverid, 用于实现会话保持
+option redispatch
+此参数用于cookie保持的环境中。在默认情况下，HAProxy会将其请求的后端服务器的serverID插入cookie中，以保证会话的session持久性。而如果后端服务器出现故障，客户端的cookie是不会刷新的，这就会造成无法访问。此时，如果设置了此参数，就会将客户的请求强制定向到另外一台健康的后端服务器上，以保证服务正常<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="5-listen配置监听"><a href="#5-listen配置监听" class="headerlink" title="5.listen配置监听"></a>5.<code>listen</code>配置监听</h3><pre class="line-numbers language-none"><code class="language-none">listen admin_status		# 定义服务名称		
+	bind 0.0.0.0:9188	# 服务监听的地址及端口
+	stats refresh 30s	# 数据刷新的时间
+	stats uri &#x2F;haproxy-status	# 访问监控页面的uri地址	
+	stats realm Welcome login	# 用户名对话框提示信息
+	stats auth admin:admin		# 认证的用户名、密码
+	stats hide-version	# 监控页面不显示软件版本信息<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="三、HAProxy的ACL功能"><a href="#三、HAProxy的ACL功能" class="headerlink" title="三、HAProxy的ACL功能"></a>三、HAProxy的<code>ACL</code>功能</h2><h3 id="1-ACL介绍"><a href="#1-ACL介绍" class="headerlink" title="1.ACL介绍"></a>1.<code>ACL</code>介绍</h3><ul>
+<li><code>ACL</code>访问控制列表  </li>
+<li>用于匹配<code>客户端</code>访问请求</li>
+<li>只能应用在<code>frontend</code>、<code>listen</code>中</li>
+<li>作用:<ul>
+<li>访问控制 </li>
+<li>七层调度</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-ACL语法"><a href="#2-ACL语法" class="headerlink" title="2.ACL语法"></a>2.<code>ACL</code>语法</h3><pre class="line-numbers language-none"><code class="language-none">acl  &lt;acl名称&gt;  &lt;匹配请求的方法&gt; -i &lt;具体条件&gt;
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<blockquote>
+<p><code>-i</code>忽略大小写</p>
+</blockquote>
+<h3 id="3-常用ACL方法"><a href="#3-常用ACL方法" class="headerlink" title="3.常用ACL方法"></a>3.常用<code>ACL</code>方法</h3><ul>
+<li>hdr_reg(host)		<ul>
+<li>以正则表达式的方式匹配主机名</li>
+<li><code>acl test1 hdr_reg(host) -i www</code></li>
+</ul>
+</li>
+<li>hdr_dom(host)		<ul>
+<li>精确匹配主机名</li>
+<li><code>acl test2 hdr_dom(host) -i music.linux.com</code></li>
+</ul>
+</li>
+<li>hdr_beg(host)		<ul>
+<li>匹配主机名以xxx开头</li>
+<li><code>acl test3 hdr_beg(host) -i download.</code></li>
+</ul>
+</li>
+<li>path_end<ul>
+<li>url以xxxx结尾</li>
+<li><code>acl test4 path_end -i .jpg  .jpeg  .gif  .png</code></li>
+</ul>
+</li>
+<li>path_beg			<ul>
+<li>url以xxxx开头</li>
+<li><code>acl test5 path_beg -i https://</code></li>
+</ul>
+</li>
+<li>url_ip<ul>
+<li>匹配数据目的IP	</li>
+<li><code>acl test5 url_ip 10.1.1.1</code></li>
+</ul>
+</li>
+<li>src <ul>
+<li>匹配数据源IP</li>
+</ul>
+</li>
+<li>method <ul>
+<li>匹配HTTP请求的方法；GET, POST</li>
+<li><code>acl test7 method POST</code></li>
+</ul>
+</li>
+</ul>
+<h4 id="示例1：实现七层调度"><a href="#示例1：实现七层调度" class="headerlink" title="示例1：实现七层调度"></a>示例1：实现七层调度</h4><pre class="line-numbers language-none"><code class="language-none">acl www_policy	hdr_reg(host)  -i 	^(www.z.cn|z.cn)
+       acl bbs_policy		hdr_dom(host)  -i   bbs.z.cn 
+       acl url_policy      url_sub		   -i       buy_sid&#x3D;
+
+       use_backend   server_www  if   www_policy
+       use_backend   server_app   if  bbs_policy
+       use_backend   server_bbs   if url_policy<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="示例2：实现七层调度"><a href="#示例2：实现七层调度" class="headerlink" title="示例2：实现七层调度"></a>示例2：实现七层调度</h4><pre class="line-numbers language-none"><code class="language-none">acl  host_www   hdr_beg(host)   -i www 
+        acl  host_static   hdr_beg(host)   -i img. vedio. download. ftp.
+
+        use_backend  static   if host_static || host_www <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="示例3：实现数据过滤"><a href="#示例3：实现数据过滤" class="headerlink" title="示例3：实现数据过滤"></a>示例3：实现数据过滤</h4><pre class="line-numbers language-none"><code class="language-none">acl forbidden_dst   url_ip  192.168.0.0&#x2F;16
+       acl forbidden_dst   url_ip  172.16.0.0&#x2F;12
+       acl forbidden_dst   url_ip  10.0.0.0&#x2F;8
+
+       http-request deny if forbidden_dst<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="示例4：实现数据过滤"><a href="#示例4：实现数据过滤" class="headerlink" title="示例4：实现数据过滤"></a>示例4：实现数据过滤</h4><pre class="line-numbers language-none"><code class="language-none">acl  allow_host  src  192.168.200.150&#x2F;32
+       http-request  deny  if  !  allow_host<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h2 id="四、案例1：基于HAProxy实现web服务器调度"><a href="#四、案例1：基于HAProxy实现web服务器调度" class="headerlink" title="四、案例1：基于HAProxy实现web服务器调度"></a>四、案例1：基于<code>HAProxy</code>实现<code>web</code>服务器调度</h2><blockquote>
+<p><strong>上一期教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/98">LB集群(keepalived结合LVS)+LAMP环境+WordPress博客</a></strong></p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top//upload/2023/04/hap01.png" alt="hap01"></p>
+<blockquote>
+<p><strong>如图所示，需要准备<code>6</code>台虚拟机</strong><br><strong><code>192.168.140.10</code>主调度器</strong><br><strong><code>192.168.140.11</code>备用调度器</strong><br><strong><code>192.168.140.12</code> ，<code>web1</code>服务器，跑着<code>vedio</code>业务</strong><br><strong><code>192.168.140.13</code> ，<code>web2</code>服务器，跑着<code>vedio</code>业务</strong><br><strong><code>192.168.140.14</code> ，<code>web3</code>服务器，跑着<code>music</code>业务</strong><br><strong><code>192.168.140.15</code> ，<code>web4</code>服务器，跑着<code>music</code>业务</strong></p>
+</blockquote>
+<h3 id="1-关闭防火墙和SElinux、设置时间同步！"><a href="#1-关闭防火墙和SElinux、设置时间同步！" class="headerlink" title="1.关闭防火墙和SElinux、设置时间同步！"></a>1.关闭防火墙和SElinux、设置时间同步！</h3><blockquote>
+<p><strong>请务必设置时间同步！防止出现<code>脑裂</code>现象！</strong></p>
+</blockquote>
+<h3 id="2-配置虚拟网卡和静态IP"><a href="#2-配置虚拟网卡和静态IP" class="headerlink" title="2.配置虚拟网卡和静态IP"></a>2.配置虚拟网卡和静态IP</h3><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top//upload/2023/04/LB02.png" alt="LB02"></p>
+<blockquote>
+<p><strong><code>六台</code>虚拟机都要修改网卡模式为<code>NAT</code>，默认<code>NAT</code>模式下使用<code>VMnet8</code>网卡</strong></p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top//upload/2023/04/LB03.png" alt="LB03"></p>
+<h4 id="A-配置静态IP"><a href="#A-配置静态IP" class="headerlink" title="A.配置静态IP"></a>A.配置静态IP</h4><blockquote>
+<p><strong>过程省略</strong><br><strong>配置网卡教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/50">https://www.wsjj.top/archives/50</a></strong></p>
+</blockquote>
+<h3 id="3-配置4台web服务器"><a href="#3-配置4台web服务器" class="headerlink" title="3.配置4台web服务器"></a>3.配置<code>4</code>台<code>web</code>服务器</h3><blockquote>
+<p><strong><code>192.168.140.12</code> ，<code>web1</code>服务器，跑着<code>vedio</code>业务</strong><br><strong><code>192.168.140.13</code> ，<code>web2</code>服务器，跑着<code>vedio</code>业务</strong><br><strong><code>192.168.140.14</code> ，<code>web3</code>服务器，跑着<code>music</code>业务</strong><br><strong><code>192.168.140.15</code> ，<code>web4</code>服务器，跑着<code>music</code>业务</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# yum install -y httpd
+[root@node2 ~]# yum install -y httpd
+[root@node3 ~]# yum install -y httpd
+[root@node4 ~]# yum install -y httpd<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="A-创建index页面"><a href="#A-创建index页面" class="headerlink" title="A.创建index页面"></a>A.创建<code>index</code>页面</h4><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# vim &#x2F;var&#x2F;www&#x2F;html&#x2F;index.html
+&lt;h1&gt;192.168.140.12 vedio&lt;&#x2F;h1&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@node2 ~]# vim &#x2F;var&#x2F;www&#x2F;html&#x2F;index.html
+&lt;h1&gt;192.168.140.13 vedio&lt;&#x2F;h1&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@node3 ~]# vim &#x2F;var&#x2F;www&#x2F;html&#x2F;index.html
+&lt;h1&gt;192.168.140.14 music&lt;&#x2F;h1&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@node4 ~]# vim &#x2F;var&#x2F;www&#x2F;html&#x2F;index.html
+&lt;h1&gt;192.168.140.15 music&lt;&#x2F;h1&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="B-启动httpd服务"><a href="#B-启动httpd服务" class="headerlink" title="B.启动httpd服务"></a>B.启动httpd服务</h4><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# systemctl enable --now httpd
+[root@node2 ~]# systemctl enable --now httpd
+[root@node3 ~]# systemctl enable --now httpd
+[root@node4 ~]# systemctl enable --now httpd<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="C-浏览器测试访问"><a href="#C-浏览器测试访问" class="headerlink" title="C.浏览器测试访问"></a>C.浏览器测试访问</h4><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top//upload/2023/04/hap02.png" alt="hap02"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top//upload/2023/04/hap03.png" alt="hap03"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top//upload/2023/04/hap04.png" alt="hap04"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top//upload/2023/04/hap05.png" alt="hap05"></p>
+<h3 id="4-配置调度器"><a href="#4-配置调度器" class="headerlink" title="4.配置调度器"></a>4.配置调度器</h3><h4 id="A-安装haproxy"><a href="#A-安装haproxy" class="headerlink" title="A.安装haproxy"></a>A.安装<code>haproxy</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@master01 ~]# yum install -y haproxy
+[root@master02 ~]# yum install -y haproxy<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="B-在主调度器修改配置文件"><a href="#B-在主调度器修改配置文件" class="headerlink" title="B.在主调度器修改配置文件"></a>B.在<code>主</code>调度器修改配置文件</h4><pre class="line-numbers language-none"><code class="language-none">[root@master01 ~]# vim &#x2F;etc&#x2F;haproxy&#x2F;haproxy.cfg
+
+global
+    log         127.0.0.1 local2
+
+    chroot      &#x2F;var&#x2F;lib&#x2F;haproxy
+    pidfile     &#x2F;var&#x2F;run&#x2F;haproxy.pid
+    maxconn     4000
+    user        haproxy
+    group       haproxy
+    daemon
+
+    # turn on stats unix socket
+    stats socket &#x2F;var&#x2F;lib&#x2F;haproxy&#x2F;stats
+
+defaults
+    mode                    http
+    log                     global
+    option                  httplog
+    option                  dontlognull
+    option http-server-close
+    option forwardfor       except 127.0.0.0&#x2F;8
+    option                  redispatch
+    retries                 3
+    timeout http-request    10s
+    timeout queue           1m
+    timeout connect         10s
+    timeout client          1m
+    timeout server          1m
+    timeout http-keep-alive 10s
+    timeout check           10s
+    maxconn                 3000
+
+frontend web_service
+    bind 0.0.0.0:80		#监听地址为所有地址
+    mode http		#使用7层调度
+    option forwardfor	#优化参数
+
+    acl vedio_policy hdr_reg(host) -i vedio		#配置页面规则，当用户输入的域名包含vedio
+    acl music_policy hdr_reg(host) -i music
+
+    use_backend vedio_server if vedio_policy	#匹配到上面的vedio规则，访问vedio服务器
+    use_backend music_server if music_policy
+
+    default_backend vedio_server
+
+backend vedio_server	#配置组名vedio
+    mode http	#7层调度
+    balance roundrobin
+    server vedio1 192.168.140.12:80 check inter 2000 fall 3 rise 2
+    server vedio2 192.168.140.13:80 check inter 2000 fall 3 rise 2
+
+backend music_server
+    mode http
+    balance roundrobin
+    server music1 192.168.140.14:80 check inter 2000 fall 3 rise 2
+    server music2 192.168.140.15:80 check inter 2000 fall 3 rise 2
+
+listen admin_status	#配置状态页面
+    bind 0.0.0.0:8888	#配置监听IP和端口
+    mode http	#使用7层调度
+    stats refresh 30s
+    stats uri &#x2F;status	#访问路径
+    stats realm please login	#提示语句
+    stats auth admin:redhat		#配置登录的账号和密码
+    stats hide-version	#隐藏版本信息<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h5 id="启动主调度器上的HAProxy"><a href="#启动主调度器上的HAProxy" class="headerlink" title="启动主调度器上的HAProxy"></a>启动主调度器上的<code>HAProxy</code></h5><pre class="line-numbers language-none"><code class="language-none">[root@master01 ~]# systemctl start haproxy
+[root@master01 ~]# systemctl enable haproxy<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="C-复制配置文件到备用调度器上"><a href="#C-复制配置文件到备用调度器上" class="headerlink" title="C.复制配置文件到备用调度器上"></a>C.复制配置文件到备用调度器上</h4><pre class="line-numbers language-none"><code class="language-none">[root@master01 ~]# scp &#x2F;etc&#x2F;haproxy&#x2F;haproxy.cfg root@192.168.140.11:&#x2F;etc&#x2F;haproxy&#x2F;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="D-启动备用调度器上的HAProxy"><a href="#D-启动备用调度器上的HAProxy" class="headerlink" title="D.启动备用调度器上的HAProxy"></a>D.启动备用调度器上的<code>HAProxy</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@master02 ~]# systemctl start haproxy
+[root@master02 ~]# systemctl enable haproxy<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h3 id="5-两台调度器安装keepalived"><a href="#5-两台调度器安装keepalived" class="headerlink" title="5.两台调度器安装keepalived"></a>5.两台调度器安装<code>keepalived</code></h3><blockquote>
+<p><strong>用于实现<code>主备</code>的效果</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@master01 ~]# yum install -y keepalived
+[root@master02 ~]# yum install -y keepalived<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="A-配置主调度器上的keepalived配置文件"><a href="#A-配置主调度器上的keepalived配置文件" class="headerlink" title="A.配置主调度器上的keepalived配置文件"></a>A.配置主调度器上的<code>keepalived</code>配置文件</h4><pre class="line-numbers language-none"><code class="language-none">[root@master01 ~]# vim &#x2F;etc&#x2F;keepalived&#x2F;keepalived.conf
+
+! Configuration File for keepalived
+
+global_defs &#123;
+   router_id haproxy_master
+&#125;
+
+vrrp_instance VI_1 &#123;
+    state MASTER	#主调度
+    interface ens33
+    virtual_router_id 51
+    priority 100	#默认权重(0-255)
+    advert_int 1
+    authentication &#123;
+        auth_type PASS
+        auth_pass redhat
+    &#125;
+    virtual_ipaddress &#123;
+        192.168.140.100
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h5 id="启动主调度器keepalived服务"><a href="#启动主调度器keepalived服务" class="headerlink" title="启动主调度器keepalived服务"></a>启动主调度器keepalived服务</h5><pre class="line-numbers language-none"><code class="language-none">[root@master01 ~]# systemctl start keepalived
+[root@master01 ~]# systemctl enable keepalived<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="B-修改备用调度器上的keepalived配置文件"><a href="#B-修改备用调度器上的keepalived配置文件" class="headerlink" title="B.修改备用调度器上的keepalived配置文件"></a>B.修改备用调度器上的<code>keepalived</code>配置文件</h4><pre class="line-numbers language-none"><code class="language-none">[root@master02 ~]# vim &#x2F;etc&#x2F;keepalived&#x2F;keepalived.conf
+
+! Configuration File for keepalived
+
+global_defs &#123;
+   router_id haproxy_salve
+&#125;
+
+vrrp_instance VI_1 &#123;
+    state BACKUP	#备用调度
+    interface ens33
+    virtual_router_id 51
+    priority 50		#修改权重
+    advert_int 1
+    authentication &#123;
+        auth_type PASS
+        auth_pass redhat
+    &#125;
+    virtual_ipaddress &#123;
+        192.168.140.100
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h5 id="启动备用调度器keepalived服务"><a href="#启动备用调度器keepalived服务" class="headerlink" title="启动备用调度器keepalived服务"></a>启动备用调度器<code>keepalived</code>服务</h5><pre class="line-numbers language-none"><code class="language-none">[root@master02 ~]# systemctl start keepalived
+[root@master02 ~]# systemctl enable keepalived<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h3 id="6-浏览器测试访问"><a href="#6-浏览器测试访问" class="headerlink" title="6.浏览器测试访问"></a>6.浏览器测试访问</h3><h4 id="A-修改Windows上的hosts文件"><a href="#A-修改Windows上的hosts文件" class="headerlink" title="A.修改Windows上的hosts文件"></a>A.修改<code>Windows</code>上的<code>hosts</code>文件</h4><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top//upload/2023/04/hap06.png" alt="hap06"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top//upload/2023/04/hap07.png" alt="hap07"></p>
+<h4 id="B-测试访问"><a href="#B-测试访问" class="headerlink" title="B.测试访问"></a>B.测试访问</h4><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top//upload/2023/04/hap08.png" alt="hap08"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top//upload/2023/04/hap09.png" alt="hap09"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top//upload/2023/04/hap10.png" alt="hap10"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top//upload/2023/04/hap11.png" alt="hap11"></p>
+<h4 id="C-测试status页面"><a href="#C-测试status页面" class="headerlink" title="C.测试status页面"></a>C.测试status页面</h4><blockquote>
+<p><strong>随便一个<code>域名</code>都可以访问，这里的<code>账号</code>和<code>密码</code>，填写我们提前<code>设置</code>好的</strong></p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top//upload/2023/04/hap12.png" alt="hap12"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top//upload/2023/04/hap13.png" alt="hap13"></p>
+<h2 id="五、案例2：基于HAProxy实现MySQL调度"><a href="#五、案例2：基于HAProxy实现MySQL调度" class="headerlink" title="五、案例2：基于HAProxy实现MySQL调度"></a>五、案例2：基于<code>HAProxy</code>实现<code>MySQL</code>调度</h2><blockquote>
+<p><strong>首先准备<code>2</code>台<code>MySQL</code>服务器</strong><br><strong><code>192.168.140.12</code>和<code>192.168.140.13</code></strong><br><strong>并且配置数据库<code>互主互从</code>策略</strong></p>
+</blockquote>
+<h3 id="1-安装MySQL5-7"><a href="#1-安装MySQL5-7" class="headerlink" title="1.安装MySQL5.7"></a>1.安装<code>MySQL5.7</code></h3><blockquote>
+<p><strong>过程省略</strong><br><strong>MySQL安装教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/65">https://www.wsjj.top/archives/65</a></strong></p>
+</blockquote>
+<h3 id="2-配置互主互从环境"><a href="#2-配置互主互从环境" class="headerlink" title="2.配置互主互从环境"></a>2.配置<code>互主互从</code>环境</h3><blockquote>
+<p><strong>过程省略</strong><br><strong>MySQL主从配置教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/76">https://www.wsjj.top/archives/76</a></strong></p>
+</blockquote>
+<h4 id="A-查看两台MySQL数据库双主状态"><a href="#A-查看两台MySQL数据库双主状态" class="headerlink" title="A.查看两台MySQL数据库双主状态"></a>A.查看两台<code>MySQL</code>数据库<code>双主</code>状态</h4><pre class="line-numbers language-none"><code class="language-none">mysql&gt; show slave status \G;
+*************************** 1. row ***************************
+               Slave_IO_State: Waiting for master to send event
+                  Master_Host: 192.168.140.13
+                  Master_User: repluser
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: master.000001
+          Read_Master_Log_Pos: 154
+               Relay_Log_File: node1-relay-bin.000002
+                Relay_Log_Pos: 361
+        Relay_Master_Log_File: master.000001
+             Slave_IO_Running: Yes	#IO线程OK
+            Slave_SQL_Running: Yes	#SQL线程OK
+              Replicate_Do_DB: 
+          Replicate_Ignore_DB: 
+           Replicate_Do_Table: 
+       Replicate_Ignore_Table: 
+      Replicate_Wild_Do_Table: 
+  Replicate_Wild_Ignore_Table: 
+                   Last_Errno: 0
+                   Last_Error: 
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 154
+              Relay_Log_Space: 568
+              Until_Condition: None
+               Until_Log_File: 
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File: 
+           Master_SSL_CA_Path: 
+              Master_SSL_Cert: 
+            Master_SSL_Cipher: 
+               Master_SSL_Key: 
+        Seconds_Behind_Master: 0
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error: 
+               Last_SQL_Errno: 0
+               Last_SQL_Error: 
+  Replicate_Ignore_Server_Ids: 
+             Master_Server_Id: 13
+                  Master_UUID: fd95c20c-e40d-11ed-ab10-000c29d2b7fd
+             Master_Info_File: &#x2F;var&#x2F;lib&#x2F;mysql&#x2F;master.info
+                    SQL_Delay: 0
+          SQL_Remaining_Delay: NULL
+      Slave_SQL_Running_State: Slave has read all relay log; waiting for more updates
+           Master_Retry_Count: 86400
+                  Master_Bind: 
+      Last_IO_Error_Timestamp: 
+     Last_SQL_Error_Timestamp: 
+               Master_SSL_Crl: 
+           Master_SSL_Crlpath: 
+           Retrieved_Gtid_Set: 
+            Executed_Gtid_Set: ee0e03c2-e40d-11ed-b369-000c290f55d2:1-2
+                Auto_Position: 1
+         Replicate_Rewrite_DB: 
+                 Channel_Name: 
+           Master_TLS_Version: 
+1 row in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">mysql&gt; show slave status\G;
+*************************** 1. row ***************************
+               Slave_IO_State: Waiting for master to send event
+                  Master_Host: 192.168.140.12
+                  Master_User: repluser
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: master.000001
+          Read_Master_Log_Pos: 454
+               Relay_Log_File: node2-relay-bin.000002
+                Relay_Log_Pos: 661
+        Relay_Master_Log_File: master.000001
+             Slave_IO_Running: Yes
+            Slave_SQL_Running: Yes
+              Replicate_Do_DB: 
+          Replicate_Ignore_DB: 
+           Replicate_Do_Table: 
+       Replicate_Ignore_Table: 
+      Replicate_Wild_Do_Table: 
+  Replicate_Wild_Ignore_Table: 
+                   Last_Errno: 0
+                   Last_Error: 
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 454
+              Relay_Log_Space: 868
+              Until_Condition: None
+               Until_Log_File: 
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File: 
+           Master_SSL_CA_Path: 
+              Master_SSL_Cert: 
+            Master_SSL_Cipher: 
+               Master_SSL_Key: 
+        Seconds_Behind_Master: 0
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error: 
+               Last_SQL_Errno: 0
+               Last_SQL_Error: 
+  Replicate_Ignore_Server_Ids: 
+             Master_Server_Id: 12
+                  Master_UUID: ee0e03c2-e40d-11ed-b369-000c290f55d2
+             Master_Info_File: &#x2F;var&#x2F;lib&#x2F;mysql&#x2F;master.info
+                    SQL_Delay: 0
+          SQL_Remaining_Delay: NULL
+      Slave_SQL_Running_State: Slave has read all relay log; waiting for more updates
+           Master_Retry_Count: 86400
+                  Master_Bind: 
+      Last_IO_Error_Timestamp: 
+     Last_SQL_Error_Timestamp: 
+               Master_SSL_Crl: 
+           Master_SSL_Crlpath: 
+           Retrieved_Gtid_Set: ee0e03c2-e40d-11ed-b369-000c290f55d2:1
+            Executed_Gtid_Set: ee0e03c2-e40d-11ed-b369-000c290f55d2:1
+                Auto_Position: 1
+         Replicate_Rewrite_DB: 
+                 Channel_Name: 
+           Master_TLS_Version: 
+1 row in set (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-回到主调度器修改HAProxy配置文件"><a href="#3-回到主调度器修改HAProxy配置文件" class="headerlink" title="3.回到主调度器修改HAProxy配置文件"></a>3.回到<code>主调度器</code>修改<code>HAProxy</code>配置文件</h3><pre class="line-numbers language-none"><code class="language-none">[root@master01 ~]# vim &#x2F;etc&#x2F;haproxy&#x2F;haproxy.cfg		#在配置文件底部新增内容
+
+listen MySQL_service
+    bind 0.0.0.0:3306	#监听所有IP和3306端口
+    mode tcp	#基于4层调度
+    balance source
+    server vedio1 192.168.140.12:3306 check inter 2000 fall 3 rise 2
+    server vedio2 192.168.140.13:3306 check inter 2000 fall 3 rise 2<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-重启主调度器HAProxy服务"><a href="#4-重启主调度器HAProxy服务" class="headerlink" title="4.重启主调度器HAProxy服务"></a>4.重启<code>主</code>调度器<code>HAProxy</code>服务</h3><pre class="line-numbers language-none"><code class="language-none">[root@master01 ~]# systemctl restart haproxy.service<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<blockquote>
+<p><strong>可以使用<code>netstat</code>查看是否启动，如果没有这条命令请安装<code>yum install -y net-tools</code></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@master01 ~]# netstat -tunlp | grep 3306
+tcp        0      0 0.0.0.0:3306            0.0.0.0:*               LISTEN      3974&#x2F;haproxy<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h3 id="5-复制主调度配置文件到备用调度"><a href="#5-复制主调度配置文件到备用调度" class="headerlink" title="5.复制主调度配置文件到备用调度"></a>5.复制<code>主</code>调度配置文件到<code>备用</code>调度</h3><pre class="line-numbers language-none"><code class="language-none">[root@master01 ~]# scp &#x2F;etc&#x2F;haproxy&#x2F;haproxy.cfg root@192.168.140.11:&#x2F;etc&#x2F;haproxy<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="重启备用调度"><a href="#重启备用调度" class="headerlink" title="重启备用调度"></a>重启备用调度</h4><pre class="line-numbers language-none"><code class="language-none">[root@master02 ~]# systemctl restart haproxy<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="6-访问测试"><a href="#6-访问测试" class="headerlink" title="6.访问测试"></a>6.访问测试</h3><h4 id="A-后台MySQL创建授权用户"><a href="#A-后台MySQL创建授权用户" class="headerlink" title="A.后台MySQL创建授权用户"></a>A.后台MySQL创建授权用户</h4><blockquote>
+<p><strong>因为配置了<code>双主</code>复制环境，所以<code>任意</code>一台数据库都可以！</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">mysql&gt; grant all on *.* to &#39;admin&#39;@&#39;192.168.140.%&#39; identified by &#39;WWW.1.com&#39;;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="B-Windows测试连接"><a href="#B-Windows测试连接" class="headerlink" title="B.Windows测试连接"></a>B.<code>Windows</code>测试连接</h4><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top//upload/2023/04/hap14.png" alt="hap14"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top//upload/2023/04/hap15.png" alt="hap15"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work">网笙久久</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work/2023/04/26/99/">https://blog.wangshengjj.work/2023/04/26/99/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.wangshengjj.work" target="_blank">WangShengJJのblog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E9%9B%86%E7%BE%A4/">集群</a><a class="post-meta__tags" href="/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E9%9B%86%E7%BE%A4/">负载均衡集群</a><a class="post-meta__tags" href="/tags/keepalived/">keepalived</a><a class="post-meta__tags" href="/tags/linux/">linux</a><a class="post-meta__tags" href="/tags/linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1/">linux基础服务</a><a class="post-meta__tags" href="/tags/lvs/">lvs</a><a class="post-meta__tags" href="/tags/haproxy/">haproxy</a></div><div class="post_share"><div class="social-share" data-image="https://www.dmoe.cc/random.php" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/04/27/100/" title="【Linux集群系列教程】keepalived高可用集群"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【Linux集群系列教程】keepalived高可用集群</div></div></a></div><div class="next-post pull-right"><a href="/2023/04/25/98/" title="【Linux集群系列教程】LB集群(keepalived结合LVS)+LAMP环境+WordPress博客"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【Linux集群系列教程】LB集群(keepalived结合LVS)+LAMP环境+WordPress博客</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/04/24/96/" title="【Linux集群系列教程】LVS负载均衡集群"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-04-24</div><div class="title">【Linux集群系列教程】LVS负载均衡集群</div></div></a></div><div><a href="/2023/04/25/98/" title="【Linux集群系列教程】LB集群(keepalived结合LVS)+LAMP环境+WordPress博客"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-04-25</div><div class="title">【Linux集群系列教程】LB集群(keepalived结合LVS)+LAMP环境+WordPress博客</div></div></a></div><div><a href="/2023/04/27/100/" title="【Linux集群系列教程】keepalived高可用集群"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-04-27</div><div class="title">【Linux集群系列教程】keepalived高可用集群</div></div></a></div><div><a href="/2023/04/23/94/" title="【Linux基础服务教程】Redis分片集群"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-04-23</div><div class="title">【Linux基础服务教程】Redis分片集群</div></div></a></div><div><a href="/2023/05/06/104/" title="【Linux存储系列教程】ceph的架构和原理"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-06</div><div class="title">【Linux存储系列教程】ceph的架构和原理</div></div></a></div><div><a href="/2023/05/06/105/" title="【Linux存储系列教程】ceph-mimic集群部署"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-06</div><div class="title">【Linux存储系列教程】ceph-mimic集群部署</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">网笙久久</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">126</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">168</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">230</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wangshengjj"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wangshengjj" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:wangshengjj@wangshengjj.work" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.wangshengjj.work" target="_blank" title="Blog"><i class="fa fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到网笙久久的博客</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E3%80%90Linux%E9%9B%86%E7%BE%A4%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%E3%80%91HAProxy%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E9%9B%86%E7%BE%A4"><span class="toc-number">1.</span> <span class="toc-text">【Linux集群系列教程】HAProxy负载均衡集群</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%85%B3%E4%BA%8EHAProxy"><span class="toc-number">1.1.</span> <span class="toc-text">一、关于HAProxy</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E8%B0%83%E5%BA%A6%E5%99%A8%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.调度器类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-HAProxy%E7%89%B9%E6%80%A7"><span class="toc-number">1.1.2.</span> <span class="toc-text">2.HAProxy特性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-HAProxy%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84"><span class="toc-number">1.1.3.</span> <span class="toc-text">3.HAProxy配置文件结构</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81HAProxy%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90"><span class="toc-number">1.2.</span> <span class="toc-text">二、HAProxy配置文件解析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-global%E5%85%A8%E5%B1%80%E9%85%8D%E7%BD%AE"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.global全局配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-defaults%E9%BB%98%E8%AE%A4%E9%85%8D%E7%BD%AE"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.defaults默认配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-frontend%E5%AE%9A%E4%B9%89%E8%99%9A%E6%8B%9F%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.2.3.</span> <span class="toc-text">3.frontend定义虚拟服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-backend%E5%AE%9A%E4%B9%89%E5%90%8E%E7%AB%AFreal-server"><span class="toc-number">1.2.4.</span> <span class="toc-text">4.backend定义后端real server</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E6%94%AF%E6%8C%81%E7%9A%84%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95"><span class="toc-number">1.2.4.1.</span> <span class="toc-text">A.支持的调度算法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E5%81%A5%E5%BA%B7%E7%8A%B6%E6%80%81%E6%A3%80%E6%B5%8B"><span class="toc-number">1.2.4.2.</span> <span class="toc-text">B.健康状态检测</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#C-%E4%BC%9A%E8%AF%9D%E4%BF%9D%E6%8C%81%E9%85%8D%E7%BD%AE"><span class="toc-number">1.2.4.3.</span> <span class="toc-text">C.会话保持配置</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-listen%E9%85%8D%E7%BD%AE%E7%9B%91%E5%90%AC"><span class="toc-number">1.2.5.</span> <span class="toc-text">5.listen配置监听</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81HAProxy%E7%9A%84ACL%E5%8A%9F%E8%83%BD"><span class="toc-number">1.3.</span> <span class="toc-text">三、HAProxy的ACL功能</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-ACL%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.3.1.</span> <span class="toc-text">1.ACL介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-ACL%E8%AF%AD%E6%B3%95"><span class="toc-number">1.3.2.</span> <span class="toc-text">2.ACL语法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%B8%B8%E7%94%A8ACL%E6%96%B9%E6%B3%95"><span class="toc-number">1.3.3.</span> <span class="toc-text">3.常用ACL方法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B1%EF%BC%9A%E5%AE%9E%E7%8E%B0%E4%B8%83%E5%B1%82%E8%B0%83%E5%BA%A6"><span class="toc-number">1.3.3.1.</span> <span class="toc-text">示例1：实现七层调度</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B2%EF%BC%9A%E5%AE%9E%E7%8E%B0%E4%B8%83%E5%B1%82%E8%B0%83%E5%BA%A6"><span class="toc-number">1.3.3.2.</span> <span class="toc-text">示例2：实现七层调度</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B3%EF%BC%9A%E5%AE%9E%E7%8E%B0%E6%95%B0%E6%8D%AE%E8%BF%87%E6%BB%A4"><span class="toc-number">1.3.3.3.</span> <span class="toc-text">示例3：实现数据过滤</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B4%EF%BC%9A%E5%AE%9E%E7%8E%B0%E6%95%B0%E6%8D%AE%E8%BF%87%E6%BB%A4"><span class="toc-number">1.3.3.4.</span> <span class="toc-text">示例4：实现数据过滤</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%A1%88%E4%BE%8B1%EF%BC%9A%E5%9F%BA%E4%BA%8EHAProxy%E5%AE%9E%E7%8E%B0web%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%B0%83%E5%BA%A6"><span class="toc-number">1.4.</span> <span class="toc-text">四、案例1：基于HAProxy实现web服务器调度</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%85%B3%E9%97%AD%E9%98%B2%E7%81%AB%E5%A2%99%E5%92%8CSElinux%E3%80%81%E8%AE%BE%E7%BD%AE%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5%EF%BC%81"><span class="toc-number">1.4.1.</span> <span class="toc-text">1.关闭防火墙和SElinux、设置时间同步！</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%85%8D%E7%BD%AE%E8%99%9A%E6%8B%9F%E7%BD%91%E5%8D%A1%E5%92%8C%E9%9D%99%E6%80%81IP"><span class="toc-number">1.4.2.</span> <span class="toc-text">2.配置虚拟网卡和静态IP</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E9%85%8D%E7%BD%AE%E9%9D%99%E6%80%81IP"><span class="toc-number">1.4.2.1.</span> <span class="toc-text">A.配置静态IP</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E9%85%8D%E7%BD%AE4%E5%8F%B0web%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">1.4.3.</span> <span class="toc-text">3.配置4台web服务器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E5%88%9B%E5%BB%BAindex%E9%A1%B5%E9%9D%A2"><span class="toc-number">1.4.3.1.</span> <span class="toc-text">A.创建index页面</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E5%90%AF%E5%8A%A8httpd%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.4.3.2.</span> <span class="toc-text">B.启动httpd服务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#C-%E6%B5%8F%E8%A7%88%E5%99%A8%E6%B5%8B%E8%AF%95%E8%AE%BF%E9%97%AE"><span class="toc-number">1.4.3.3.</span> <span class="toc-text">C.浏览器测试访问</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E9%85%8D%E7%BD%AE%E8%B0%83%E5%BA%A6%E5%99%A8"><span class="toc-number">1.4.4.</span> <span class="toc-text">4.配置调度器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E5%AE%89%E8%A3%85haproxy"><span class="toc-number">1.4.4.1.</span> <span class="toc-text">A.安装haproxy</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E5%9C%A8%E4%B8%BB%E8%B0%83%E5%BA%A6%E5%99%A8%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.4.4.2.</span> <span class="toc-text">B.在主调度器修改配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8%E4%B8%BB%E8%B0%83%E5%BA%A6%E5%99%A8%E4%B8%8A%E7%9A%84HAProxy"><span class="toc-number">1.4.4.2.1.</span> <span class="toc-text">启动主调度器上的HAProxy</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#C-%E5%A4%8D%E5%88%B6%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%88%B0%E5%A4%87%E7%94%A8%E8%B0%83%E5%BA%A6%E5%99%A8%E4%B8%8A"><span class="toc-number">1.4.4.3.</span> <span class="toc-text">C.复制配置文件到备用调度器上</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#D-%E5%90%AF%E5%8A%A8%E5%A4%87%E7%94%A8%E8%B0%83%E5%BA%A6%E5%99%A8%E4%B8%8A%E7%9A%84HAProxy"><span class="toc-number">1.4.4.4.</span> <span class="toc-text">D.启动备用调度器上的HAProxy</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E4%B8%A4%E5%8F%B0%E8%B0%83%E5%BA%A6%E5%99%A8%E5%AE%89%E8%A3%85keepalived"><span class="toc-number">1.4.5.</span> <span class="toc-text">5.两台调度器安装keepalived</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E9%85%8D%E7%BD%AE%E4%B8%BB%E8%B0%83%E5%BA%A6%E5%99%A8%E4%B8%8A%E7%9A%84keepalived%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.4.5.1.</span> <span class="toc-text">A.配置主调度器上的keepalived配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8%E4%B8%BB%E8%B0%83%E5%BA%A6%E5%99%A8keepalived%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.4.5.1.1.</span> <span class="toc-text">启动主调度器keepalived服务</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E4%BF%AE%E6%94%B9%E5%A4%87%E7%94%A8%E8%B0%83%E5%BA%A6%E5%99%A8%E4%B8%8A%E7%9A%84keepalived%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.4.5.2.</span> <span class="toc-text">B.修改备用调度器上的keepalived配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8%E5%A4%87%E7%94%A8%E8%B0%83%E5%BA%A6%E5%99%A8keepalived%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.4.5.2.1.</span> <span class="toc-text">启动备用调度器keepalived服务</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E6%B5%8F%E8%A7%88%E5%99%A8%E6%B5%8B%E8%AF%95%E8%AE%BF%E9%97%AE"><span class="toc-number">1.4.6.</span> <span class="toc-text">6.浏览器测试访问</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E4%BF%AE%E6%94%B9Windows%E4%B8%8A%E7%9A%84hosts%E6%96%87%E4%BB%B6"><span class="toc-number">1.4.6.1.</span> <span class="toc-text">A.修改Windows上的hosts文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E6%B5%8B%E8%AF%95%E8%AE%BF%E9%97%AE"><span class="toc-number">1.4.6.2.</span> <span class="toc-text">B.测试访问</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#C-%E6%B5%8B%E8%AF%95status%E9%A1%B5%E9%9D%A2"><span class="toc-number">1.4.6.3.</span> <span class="toc-text">C.测试status页面</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%A1%88%E4%BE%8B2%EF%BC%9A%E5%9F%BA%E4%BA%8EHAProxy%E5%AE%9E%E7%8E%B0MySQL%E8%B0%83%E5%BA%A6"><span class="toc-number">1.5.</span> <span class="toc-text">五、案例2：基于HAProxy实现MySQL调度</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%AE%89%E8%A3%85MySQL5-7"><span class="toc-number">1.5.1.</span> <span class="toc-text">1.安装MySQL5.7</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%85%8D%E7%BD%AE%E4%BA%92%E4%B8%BB%E4%BA%92%E4%BB%8E%E7%8E%AF%E5%A2%83"><span class="toc-number">1.5.2.</span> <span class="toc-text">2.配置互主互从环境</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E6%9F%A5%E7%9C%8B%E4%B8%A4%E5%8F%B0MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8F%8C%E4%B8%BB%E7%8A%B6%E6%80%81"><span class="toc-number">1.5.2.1.</span> <span class="toc-text">A.查看两台MySQL数据库双主状态</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%9B%9E%E5%88%B0%E4%B8%BB%E8%B0%83%E5%BA%A6%E5%99%A8%E4%BF%AE%E6%94%B9HAProxy%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.5.3.</span> <span class="toc-text">3.回到主调度器修改HAProxy配置文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E9%87%8D%E5%90%AF%E4%B8%BB%E8%B0%83%E5%BA%A6%E5%99%A8HAProxy%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.5.4.</span> <span class="toc-text">4.重启主调度器HAProxy服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%A4%8D%E5%88%B6%E4%B8%BB%E8%B0%83%E5%BA%A6%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%88%B0%E5%A4%87%E7%94%A8%E8%B0%83%E5%BA%A6"><span class="toc-number">1.5.5.</span> <span class="toc-text">5.复制主调度配置文件到备用调度</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%87%8D%E5%90%AF%E5%A4%87%E7%94%A8%E8%B0%83%E5%BA%A6"><span class="toc-number">1.5.5.1.</span> <span class="toc-text">重启备用调度</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E8%AE%BF%E9%97%AE%E6%B5%8B%E8%AF%95"><span class="toc-number">1.5.6.</span> <span class="toc-text">6.访问测试</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E5%90%8E%E5%8F%B0MySQL%E5%88%9B%E5%BB%BA%E6%8E%88%E6%9D%83%E7%94%A8%E6%88%B7"><span class="toc-number">1.5.6.1.</span> <span class="toc-text">A.后台MySQL创建授权用户</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-Windows%E6%B5%8B%E8%AF%95%E8%BF%9E%E6%8E%A5"><span class="toc-number">1.5.6.2.</span> <span class="toc-text">B.Windows测试连接</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/05/19/120/" title="【Linux应用系列教程】基于Jenkins发布maven项目"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】基于Jenkins发布maven项目"/></a><div class="content"><a class="title" href="/2023/05/19/120/" title="【Linux应用系列教程】基于Jenkins发布maven项目">【Linux应用系列教程】基于Jenkins发布maven项目</a><time datetime="2023-05-19T03:49:39.490Z" title="发表于 2023-05-19 11:49:39">2023-05-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/19/119/" title="【Linux应用系列教程】Jenkins持续集成工具安装教程"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】Jenkins持续集成工具安装教程"/></a><div class="content"><a class="title" href="/2023/05/19/119/" title="【Linux应用系列教程】Jenkins持续集成工具安装教程">【Linux应用系列教程】Jenkins持续集成工具安装教程</a><time datetime="2023-05-19T02:49:24.709Z" title="发表于 2023-05-19 10:49:24">2023-05-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/18/118/" title="【Linux应用系列教程】Git分布式版本控制器"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】Git分布式版本控制器"/></a><div class="content"><a class="title" href="/2023/05/18/118/" title="【Linux应用系列教程】Git分布式版本控制器">【Linux应用系列教程】Git分布式版本控制器</a><time datetime="2023-05-18T12:19:54.279Z" title="发表于 2023-05-18 20:19:54">2023-05-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/16/117/" title="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客"/></a><div class="content"><a class="title" href="/2023/05/16/117/" title="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客">【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客</a><time datetime="2023-05-16T11:30:05.268Z" title="发表于 2023-05-16 19:30:05">2023-05-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【自动化运维系列教程】Ansible Playbook剧本"/></a><div class="content"><a class="title" href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本">【自动化运维系列教程】Ansible Playbook剧本</a><time datetime="2023-05-15T12:27:43.911Z" title="发表于 2023-05-15 20:27:43">2023-05-15</time></div></div></div></div></div></div></main><footer id="footer" style="background: flase"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By 网笙久久</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><div class="js-pjax"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js"></script><script>(() => {
+  document.querySelectorAll('#article-container span.katex-display').forEach(item => {
+    btf.wrap(item, 'div', { class: 'katex-wrap'})
+  })
+})()</script></div><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div><script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(n){n.imageLazyLoadSetting.processImages=i;var e=n.imageLazyLoadSetting.isSPA,r=(n.imageLazyLoadSetting.preloadRatio,Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));function i(){e&&(r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));for(var t,a=0;a<r.length;a++)0<=(t=(t=r[a]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(n.innerHeight+240||document.documentElement.clientHeight+240)&&function(){var t,e,n,i,o=r[a];t=o,e=function(){r=r.filter(function(t){return o!==t})},n=new Image,i=t.getAttribute("data-original"),n.onload=function(){t.src=i,e&&e()},t.src!==i&&(n.src=i)}()}i(),n.addEventListener("scroll",function(){var t,e;t=i,e=n,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(e)},500)})}(this);</script></body></html>

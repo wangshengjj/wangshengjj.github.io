@@ -1,0 +1,683 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>【Zabbix系列教程】监控MySQL、Nginx、Redis常用键值 | WangShengJJのblog</title><meta name="author" content="网笙久久"><meta name="copyright" content="网笙久久"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="【Zabbix系列教程】监控MySQL、Nginx、Redis常用键值 关于自定义键值教程：https:&#x2F;&#x2F;www.wsjj.top&#x2F;archives&#x2F;110  一、MySQL1.设置授权用户和密码(用于Zabbix-Server登录数据库收集数据)A.进入数据库授权用户权限 如果配置了&#x3D;&#x3D;主从复制&#x3D;&#x3D;环境，请在&#x3D;&#x3D;主库&#x3D;&amp;#x">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Zabbix系列教程】监控MySQL、Nginx、Redis常用键值">
+<meta property="og:url" content="https://blog.wangshengjj.work/2023/05/11/112/index.html">
+<meta property="og:site_name" content="WangShengJJのblog">
+<meta property="og:description" content="【Zabbix系列教程】监控MySQL、Nginx、Redis常用键值 关于自定义键值教程：https:&#x2F;&#x2F;www.wsjj.top&#x2F;archives&#x2F;110  一、MySQL1.设置授权用户和密码(用于Zabbix-Server登录数据库收集数据)A.进入数据库授权用户权限 如果配置了&#x3D;&#x3D;主从复制&#x3D;&#x3D;环境，请在&#x3D;&#x3D;主库&#x3D;&amp;#x">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://api.ghser.com/random/api.php">
+<meta property="article:published_time" content="2023-05-11T02:37:38.148Z">
+<meta property="article:modified_time" content="2023-05-11T12:06:29.351Z">
+<meta property="article:author" content="网笙久久">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="centos">
+<meta property="article:tag" content="zabbix">
+<meta property="article:tag" content="zabbix server">
+<meta property="article:tag" content="linux监控">
+<meta property="article:tag" content="键值">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://api.ghser.com/random/api.php"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://blog.wangshengjj.work/2023/05/11/112/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"prismjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【Zabbix系列教程】监控MySQL、Nginx、Redis常用键值',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-05-11 20:06:29'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><meting-js server="netease" type="playlist" id="7386208265" lrc-type="0" volume="0.5" fixed="true" mini="true" order="random" loop="all" autoplay="true" preload="auto" list-folded="true"></meting-js><script src="https://fastly.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/autoload.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script><meta name="generator" content="Hexo 6.1.0"></head><body><link rel="stylesheet" href="/css/barber-shop.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">126</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">168</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">230</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://api.ghser.com/random/api.php')"><nav id="nav"><span id="blog-info"><a href="/" title="WangShengJJのblog"><span class="site-name">WangShengJJのblog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【Zabbix系列教程】监控MySQL、Nginx、Redis常用键值</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-05-11T02:37:38.148Z" title="发表于 2023-05-11 10:37:38">2023-05-11</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-05-11T12:06:29.351Z" title="更新于 2023-05-11 20:06:29">2023-05-11</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/zabbix/">zabbix</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/zabbix/%E7%AC%94%E8%AE%B0/">笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/zabbix/%E7%AC%94%E8%AE%B0/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/zabbix/%E7%AC%94%E8%AE%B0/%E6%95%B0%E6%8D%AE%E5%BA%93/nginx/">nginx</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/zabbix/%E7%AC%94%E8%AE%B0/%E6%95%B0%E6%8D%AE%E5%BA%93/nginx/redis/">redis</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/zabbix/%E7%AC%94%E8%AE%B0/%E6%95%B0%E6%8D%AE%E5%BA%93/nginx/redis/mysql/">mysql</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/zabbix/%E7%AC%94%E8%AE%B0/%E6%95%B0%E6%8D%AE%E5%BA%93/nginx/redis/mysql/linux%E7%9B%91%E6%8E%A7/">linux监控</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/zabbix/%E7%AC%94%E8%AE%B0/%E6%95%B0%E6%8D%AE%E5%BA%93/nginx/redis/mysql/linux%E7%9B%91%E6%8E%A7/%E5%BA%94%E7%94%A8/">应用</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">3.4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>17分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="【Zabbix系列教程】监控MySQL、Nginx、Redis常用键值"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="【Zabbix系列教程】监控MySQL、Nginx、Redis常用键值"><a href="#【Zabbix系列教程】监控MySQL、Nginx、Redis常用键值" class="headerlink" title="【Zabbix系列教程】监控MySQL、Nginx、Redis常用键值"></a>【Zabbix系列教程】监控MySQL、Nginx、Redis常用键值</h1><blockquote>
+<p><strong>关于自定义键值教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/110">https://www.wsjj.top/archives/110</a></strong></p>
+</blockquote>
+<h2 id="一、MySQL"><a href="#一、MySQL" class="headerlink" title="一、MySQL"></a>一、MySQL</h2><h3 id="1-设置授权用户和密码-用于Zabbix-Server登录数据库收集数据"><a href="#1-设置授权用户和密码-用于Zabbix-Server登录数据库收集数据" class="headerlink" title="1.设置授权用户和密码(用于Zabbix-Server登录数据库收集数据)"></a>1.设置授权用户和密码(用于Zabbix-Server登录数据库收集数据)</h3><h4 id="A-进入数据库授权用户权限"><a href="#A-进入数据库授权用户权限" class="headerlink" title="A.进入数据库授权用户权限"></a>A.进入数据库授权用户权限</h4><blockquote>
+<p><strong>如果配置了&#x3D;&#x3D;主从复制&#x3D;&#x3D;环境，请在&#x3D;&#x3D;主库&#x3D;&#x3D;操作！</strong><br><strong>关于MySQL主从复制教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/76">https://www.wsjj.top/archives/76</a></strong><br><strong>关于MySQL用户权限教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/73">https://www.wsjj.top/archives/73</a></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@zabbix-server ~]# mysql -uroot
+
+MariaDB [(none)]&gt; grant all privileges on *.* to &#39;zabbix&#39;@&#39;localhost&#39; identified by &#39;redhat&#39;;
+Query OK, 0 rows affected (0.00 sec)
+
+MariaDB [(none)]&gt; flush privileges;
+Query OK, 0 rows affected (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="B-修改配置文件"><a href="#B-修改配置文件" class="headerlink" title="B.修改配置文件"></a>B.修改配置文件</h4><blockquote>
+<p><strong>修改<code>Agent</code>端上的数据库配置文件</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# vim &#x2F;etc&#x2F;my.cnf
+#在配置文件末尾添加以下内容
+[client]
+default-character-set&#x3D;utf8
+host&#x3D;localhost
+user&#x3D;&#39;zabbix&#39;
+password&#x3D;&#39;redhat&#39;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h5 id="重启数据库服务"><a href="#重启数据库服务" class="headerlink" title="重启数据库服务"></a>重启数据库服务</h5><blockquote>
+<p><strong>如果您使用的<code>MySQL</code>，请把<code>mariadb</code>替换成<code>mysqld</code></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# systemctl restart mariadb<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h5 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h5><blockquote>
+<p><strong>直接输入命令会自动登录，但是自动登录的用户是<code>zabbix</code>哦！</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# mysql
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 289
+Server version: 5.5.68-MariaDB MariaDB Server
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type &#39;help;&#39; or &#39;\h&#39; for help. Type &#39;\c&#39; to clear the current input statement.
+
+MariaDB [(none)]&gt; <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="2-修改Zabbix-Agent配置文件"><a href="#2-修改Zabbix-Agent配置文件" class="headerlink" title="2.修改Zabbix Agent配置文件"></a>2.修改<code>Zabbix Agent</code>配置文件</h3><h4 id="A-在配置文件中定义-x3D-x3D-自定义键值-x3D-x3D"><a href="#A-在配置文件中定义-x3D-x3D-自定义键值-x3D-x3D" class="headerlink" title="A.在配置文件中定义&#x3D;&#x3D;自定义键值&#x3D;&#x3D;"></a>A.在配置文件中定义&#x3D;&#x3D;自定义键值&#x3D;&#x3D;</h4><blockquote>
+<p><strong>如果您使用的是<code>Agent2</code>版本，请修改<code>/etc/zabbix/zabbix_agent2.conf</code></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# vim &#x2F;etc&#x2F;zabbix&#x2F;zabbix_agentd.conf
+#配置文件并不完整，请勿删改其他
+UserParameter&#x3D;mysql.ping,&#x2F;usr&#x2F;bin&#x2F;mysqladmin ping|grep alive|wc -l	#检查mysql服务是否活动
+UserParameter&#x3D;mysql.user.number,mysql -e &quot;select count(*) from mysql.user&quot; | sed &#39;1d&#39;	#检查mysql用户数量<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="B-重启服务，让配置文件生效"><a href="#B-重启服务，让配置文件生效" class="headerlink" title="B.重启服务，让配置文件生效"></a>B.重启服务，让配置文件生效</h4><blockquote>
+<p><strong>如果您使用的是<code>Agent2</code>版本，请使用<code>zabbix-agent2</code></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# systemctl restart zabbix-agent<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="C-服务器Server端测试"><a href="#C-服务器Server端测试" class="headerlink" title="C.服务器Server端测试"></a>C.服务器<code>Server</code>端测试</h4><blockquote>
+<p><strong>如果提示找不到<code>zabbix_get</code>命令，请安装<code>yum install -y zabbix-get</code></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@zabbix-server ~]# zabbix_get -s 192.168.140.12 -k mysql.ping
+1<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p><strong>如果您出现以下报错，请检查<code>zabbix</code>用户是否对数据库的数据目录拥有权限！</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@zabbix-server ~]# zabbix_get -s 192.168.140.12 -k mysql.ping
+&#x2F;usr&#x2F;bin&#x2F;mysqladmin: connect to server at &#39;localhost&#39; failed
+error: &#39;Can&#39;t connect to local MySQL server through socket &#39;&#x2F;var&#x2F;lib&#x2F;mysql&#x2F;mysql.sock&#39; (13)&#39;
+Check that mysqld is running and that the socket: &#39;&#x2F;var&#x2F;lib&#x2F;mysql&#x2F;mysql.sock&#39; exists!
+0<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-更多关于MySQL的自定义键值"><a href="#3-更多关于MySQL的自定义键值" class="headerlink" title="3.更多关于MySQL的自定义键值"></a>3.更多关于<code>MySQL</code>的自定义键值</h3><pre class="line-numbers language-none"><code class="language-none">#监控MySQL版本
+UserParameter&#x3D;mysql.version,mysql -V | cut -f6 -d&quot; &quot; | sed &#39;s&#x2F;,&#x2F;&#x2F;&#39;
+#监控MySQL进程数
+UserParameter&#x3D;mysql.process,ps -ef|grep &quot;mysql&quot;|grep -v &quot;grep&quot;|wc -l
+#监控MySQL运行状态
+UserParameter&#x3D;mysql.ping,&#x2F;usr&#x2F;bin&#x2F;mysqladmin ping|grep alive|wc -l
+#监控MySQL运行时间
+UserParameter&#x3D;mysql.uptime,&#x2F;usr&#x2F;bin&#x2F;mysqladmin extended-status|grep Uptime|head -1|cut -f3 -d&quot;|&quot;
+#监控MySQL的连接数
+UserParameter&#x3D;mysql.Threads.connected,&#x2F;usr&#x2F;bin&#x2F;mysqladmin extended-status|grep Threads_connected|head -1|cut -f3 -d&quot;|&quot;
+#监控MySQL活动状态的连接数
+UserParameter&#x3D;mysql.Threads.running,&#x2F;usr&#x2F;bin&#x2F;mysqladmin extended-status|grep Threads_running|head -1|cut -f3 -d&quot;|&quot;
+#监控MySQL客户端异常中断的数值
+UserParameter&#x3D;mysql.aborted.clients,&#x2F;usr&#x2F;bin&#x2F;mysqladmin extended-status|grep Aborted_clients|head -1|cut -f3 -d&quot;|&quot;
+#监控MySQL主从状态
+UserParameter&#x3D;mysql.Slave.status,&#x2F;usr&#x2F;bin&#x2F;mysqladmin extended-status|grep Slave_runnin | grep -o ON |wc -l
+#监控MySQL每秒钟获得的查询量
+UserParameter&#x3D;mysql.questions,&#x2F;usr&#x2F;bin&#x2F;mysqladmin extended-status | grep Questions | head -1 | cut -f3 -d&quot;|&quot; 
+#监控MySQL从数据文件里取数据的次数
+UserParameter&#x3D;mysql.read.rnd,&#x2F;usr&#x2F;bin&#x2F;mysqladmin extended-status|grep Handler_read_rnd_next|head -1 | cut -f3 -d&quot;|&quot;  
+#监控MySQL往数据文件里写数据的次数
+UserParameter&#x3D;mysql.write.rnd,&#x2F;usr&#x2F;bin&#x2F;mysqladmin extended-status|grep Handler_write|head -1|cut -f3 -d&quot;|&quot; 
+#监控MySQL内部COMMIT命令的个数
+UserParameter&#x3D;mysql.commit,&#x2F;usr&#x2F;bin&#x2F;mysqladmin extended-status|grep Handler_commit| head -1 | cut -f3 -d&quot;|&quot; 
+#监控MySQL请求从一张表中删除行的次数。
+UserParameter&#x3D;mysql.delete,&#x2F;usr&#x2F;bin&#x2F;mysqladmin extended-status|grep Handler_delete| head -1 | cut -f3 -d&quot;|&quot; 
+#监控MySQL表缓存没有命中的数量
+UserParameter&#x3D;mysql.Opened.tables,&#x2F;usr&#x2F;bin&#x2F;mysqladmin extended-status|grep Opened_tables| head -1 | cut -f3 -d&quot;|&quot; 
+#监控MySQL没有使用索引查询数量
+UserParameter&#x3D;mysql.slowqueries,&#x2F;usr&#x2F;bin&#x2F;mysqladmin extended-status|grep Slow_queries|cut -f3 -d&quot;|&quot;
+#监控MySQL执行全表搜索查询的数量
+UserParameter&#x3D;mysql.select.scan,&#x2F;usr&#x2F;bin&#x2F;mysqladmin extended-status|grep Select_scan|cut -f3 -d&quot;|&quot;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="关于MySQL主从复制环境监测"><a href="#关于MySQL主从复制环境监测" class="headerlink" title="关于MySQL主从复制环境监测"></a>关于MySQL主从复制环境监测</h4><h5 id="监控IO线程和SQL线程"><a href="#监控IO线程和SQL线程" class="headerlink" title="监控IO线程和SQL线程"></a>监控<code>IO</code>线程和<code>SQL</code>线程</h5><blockquote>
+<p><strong>只有<code>2</code>个线程状态都为<code>yes</code>的时候返回<code>1</code>，否则都不是<code>yes</code>或者其中一个是<code>yes</code>，都返回<code>0</code></strong><br><strong>脚本中的<code>mysql</code>命令并没有指定登录用户，是因为我已经更改了配置文件，默认会登录<code>zabbix</code>用户！</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# vim &#x2F;opt&#x2F;slave.sh
+#! &#x2F;bin&#x2F;bash
+
+io&#x3D;$(mysql  -e &quot;show slave status\G&quot; | awk &#39;&#x2F;Slave_IO_Running&#x2F;&#123;print $2&#125;&#39;)
+sql&#x3D;$(mysql  -e &quot;show slave status\G&quot; | awk &#39;&#x2F;Slave_SQL_Running&#x2F;&#123;print $2&#125;&#39;)
+
+if [ $io &#x3D;&#x3D; Yes ] &amp;&amp; [ $sql &#x3D;&#x3D; Yes ] ; then
+    echo 1
+else
+    echo 0
+fi<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# chmod a+x &#x2F;opt&#x2F;slave.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# vim &#x2F;etc&#x2F;zabbix&#x2F;zabbix_agentd.conf
+UserParameter&#x3D;mysql.slave,bash &#x2F;opt&#x2F;slave.sh<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# systemctl restart zabbix-agent<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h6 id="测试-1"><a href="#测试-1" class="headerlink" title="测试"></a>测试</h6><pre class="line-numbers language-none"><code class="language-none">[root@zabbix-server ~]# zabbix_get -s 192.168.140.12 -k mysql.slave
+1<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h5 id="监控主从复制同步状态"><a href="#监控主从复制同步状态" class="headerlink" title="监控主从复制同步状态"></a>监控主从复制同步状态</h5><blockquote>
+<p><strong>脚本中的<code>mysql</code>命令并没有指定登录用户，是因为我已经更改了配置文件，默认会登录<code>zabbix</code>用户！</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# vim &#x2F;opt&#x2F;pos.sh
+#! &#x2F;bin&#x2F;bash
+
+read_pos&#x3D;$(mysql -e &quot;show slave status\G&quot; | awk &#39;&#x2F;Read_Master_Log_Pos&#x2F;&#123;print $2&#125;&#39;)
+exec_pos&#x3D;$(mysql -e &quot;show slave status\G&quot; | awk &#39;&#x2F;Exec_Master_Log_Pos&#x2F;&#123;print $2&#125;&#39;)
+
+if [ $read_pos -eq $exec_pos ]; then
+    echo 1
+else
+    echo 0
+fi<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# chmod a+x &#x2F;opt&#x2F;pos.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# vim &#x2F;etc&#x2F;zabbix&#x2F;zabbix_agentd.conf
+UserParameter&#x3D;mysql.pos,bash &#x2F;opt&#x2F;pos.sh<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# systemctl restart zabbix-agent<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h6 id="测试-2"><a href="#测试-2" class="headerlink" title="测试"></a>测试</h6><pre class="line-numbers language-none"><code class="language-none">[root@zabbix-server ~]# zabbix_get -s 192.168.140.12 -k mysql.pos
+1<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h3 id="4-拿到以上的自定义键值，就可以去添加监控项和触发器了"><a href="#4-拿到以上的自定义键值，就可以去添加监控项和触发器了" class="headerlink" title="4.拿到以上的自定义键值，就可以去添加监控项和触发器了"></a>4.拿到以上的自定义键值，就可以去添加监控项和触发器了</h3><blockquote>
+<p><strong>关于<code>Zabbix</code>监控项教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/110">https://www.wsjj.top/archives/110</a></strong><br><strong>关于<code>Zabbix</code>触发器和报警器的教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/111">https://www.wsjj.top/archives/111</a></strong></p>
+</blockquote>
+<h2 id="二、Nginx"><a href="#二、Nginx" class="headerlink" title="二、Nginx"></a>二、Nginx</h2><h3 id="1-安装Nginx"><a href="#1-安装Nginx" class="headerlink" title="1.安装Nginx"></a>1.安装Nginx</h3><blockquote>
+<p><strong>过程省略</strong><br><strong><code>Nginx</code>部署教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/83">https://www.wsjj.top/archives/83</a></strong></p>
+</blockquote>
+<h3 id="2-配置Nginx的状态页面"><a href="#2-配置Nginx的状态页面" class="headerlink" title="2.配置Nginx的状态页面"></a>2.配置<code>Nginx</code>的状态页面</h3><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# vim &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;status.conf
+server &#123;
+        listen 80;
+        server_name localhost;
+        location &#x2F;status &#123;
+                stub_status     on;
+                access_log      on;
+                &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="监测配置文件"><a href="#监测配置文件" class="headerlink" title="监测配置文件"></a>监测配置文件</h4><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# nginx -t
+nginx: the configuration file &#x2F;etc&#x2F;nginx&#x2F;nginx.conf syntax is ok
+nginx: configuration file &#x2F;etc&#x2F;nginx&#x2F;nginx.conf test is successful<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="重新加载配置文件"><a href="#重新加载配置文件" class="headerlink" title="重新加载配置文件"></a>重新加载配置文件</h4><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# nginx -s reload<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="浏览器访问测试"><a href="#浏览器访问测试" class="headerlink" title="浏览器访问测试"></a>浏览器访问测试</h4><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-51.png" alt="zabbix4-51"></p>
+<h3 id="3-修改Agent配置文件"><a href="#3-修改Agent配置文件" class="headerlink" title="3.修改Agent配置文件"></a>3.修改<code>Agent</code>配置文件</h3><blockquote>
+<p><strong><code>Nginx</code>的活跃连接数</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# vim &#x2F;etc&#x2F;zabbix&#x2F;zabbix_agentd.conf
+UserParameter&#x3D;nginx.active.connect,curl -s http:&#x2F;&#x2F;192.168.140.12&#x2F;status 2&gt;&#x2F;dev&#x2F;null | awk &#39;&#x2F;^Active connections&#x2F;&#123;print $NF&#125;&#39;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="重启服务，让配置文件生效"><a href="#重启服务，让配置文件生效" class="headerlink" title="重启服务，让配置文件生效"></a>重启服务，让配置文件生效</h4><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# systemctl restart zabbix-agent<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="Server端测试"><a href="#Server端测试" class="headerlink" title="Server端测试"></a>Server端测试</h4><pre class="line-numbers language-none"><code class="language-none">[root@zabbix-server ~]# zabbix_get -s 192.168.140.12 -k nginx.active.connect
+3<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h3 id="4-更多自定义键值"><a href="#4-更多自定义键值" class="headerlink" title="4.更多自定义键值"></a>4.更多自定义键值</h3><pre class="line-numbers language-none"><code class="language-none">#监控Nginx活动连接数
+UserParameter&#x3D;Nginx.Active.Connections,&#x2F;usr&#x2F;bin&#x2F;curl -s http:&#x2F;&#x2F;127.0.0.1&#x2F;status 2&gt;&#x2F;dev&#x2F;null |grep &#39;Active connections:&#39;|awk &#39;&#123;print $NF&#125;&#39;
+#监控Nginx处理连接总数
+UserParameter&#x3D;Nginx.Accepts.Connections,&#x2F;usr&#x2F;bin&#x2F;curl -s http:&#x2F;&#x2F;127.0.0.1&#x2F;status 2&gt;&#x2F;dev&#x2F;null|sed -n &#39;3p&#39;|awk &#39;&#123;print $1&#125;&#39;
+#监控Nginx处理连接失败数
+UserParameter&#x3D;Nginx.Handled.Connections,&#x2F;usr&#x2F;bin&#x2F;curl -s http:&#x2F;&#x2F;127.0.0.1&#x2F;status 2&gt;&#x2F;dev&#x2F;null|sed -n &#39;3p&#39;|awk &#39;&#123;print $2&#125;&#39;
+#监控Nginx处理请求总数
+UserParameter&#x3D;Nginx.requests.Connections,&#x2F;usr&#x2F;bin&#x2F;curl -s http:&#x2F;&#x2F;127.0.0.1&#x2F;status 2&gt;&#x2F;dev&#x2F;null|sed -n &#39;3p&#39;|awk &#39;&#123;print $3&#125;&#39;
+#Nginx读取到客户端的Header信息数
+UserParameter&#x3D;Nginx.Reading,&#x2F;usr&#x2F;bin&#x2F;curl -s http:&#x2F;&#x2F;127.0.0.1&#x2F;status 2&gt;&#x2F;dev&#x2F;null|sed -n &#39;4p&#39;|awk &#39;&#123;print $2&#125;&#39;
+#Nginx返回给客户端的Header信息数
+UserParameter&#x3D;Nginx.Writing,&#x2F;usr&#x2F;bin&#x2F;curl -s http:&#x2F;&#x2F;127.0.0.1&#x2F;status 2&gt;&#x2F;dev&#x2F;null|sed -n &#39;4p&#39;|awk &#39;&#123;print $4&#125;&#39;
+#Nginx处理完并等候状态的驻留连接
+UserParameter&#x3D;Nginx.Waiting,&#x2F;usr&#x2F;bin&#x2F;curl -s http:&#x2F;&#x2F;127.0.0.1&#x2F;status 2&gt;&#x2F;dev&#x2F;null|sed -n &#39;4p&#39;|awk &#39;&#123;print $6&#125;&#39;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="5-Zabbix监控Nginx日志"><a href="#5-Zabbix监控Nginx日志" class="headerlink" title="5.Zabbix监控Nginx日志"></a>5.Zabbix监控Nginx日志</h3><blockquote>
+<p><strong>我们都知道web服务，都会有个访问日志，这个日志文件主要记录着客户端访问时候的设备，以及访问路径，设备信息，和各种服务器响应的状态码</strong></p>
+</blockquote>
+<h4 id="A-查看Nginx日志"><a href="#A-查看Nginx日志" class="headerlink" title="A.查看Nginx日志"></a>A.查看<code>Nginx</code>日志</h4><blockquote>
+<p><strong>如果是<code>yum</code>安装的<code>Nginx</code>，默认日志存放目录<code>/var/log/nginx/*.log</code></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# cat &#x2F;var&#x2F;log&#x2F;nginx&#x2F;access.log 
+192.168.140.1 - - [11&#x2F;May&#x2F;2023:10:55:47 +0800] &quot;GET &#x2F;favicon.ico HTTP&#x2F;1.1&quot; 404 555 &quot;http:&#x2F;&#x2F;192.168.140.12&#x2F;status&quot; &quot;Mozilla&#x2F;5.0 (Windows NT 10.0; Win64; x64) AppleWebKit&#x2F;537.36 (KHTML, like Gecko) Chrome&#x2F;113.0.0.0 Safari&#x2F;537.36 Edg&#x2F;113.0.1774.35&quot; &quot;-&quot;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="B-查看Nginx配置文件中的日志记录格式"><a href="#B-查看Nginx配置文件中的日志记录格式" class="headerlink" title="B.查看Nginx配置文件中的日志记录格式"></a>B.查看<code>Nginx</code>配置文件中的日志记录格式</h4><blockquote>
+<p><strong>这里是<code>yum</code>安装<code>Nginx</code>的日志记录格式</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# vim &#x2F;etc&#x2F;nginx&#x2F;nginx.conf
+log_format  main  &#39;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &#39;
+                      &#39;$status $body_bytes_sent &quot;$http_referer&quot; &#39;
+                      &#39;&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;&#39;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="C-编写脚本"><a href="#C-编写脚本" class="headerlink" title="C.编写脚本"></a>C.编写脚本</h4><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# vim &#x2F;opt&#x2F;nginx_logs.sh
+
+#!&#x2F;bin&#x2F;bash
+
+status_code&#x3D;$1
+count&#x3D;$(awk -v status&#x3D;&quot;$status_code&quot; &#39;$9 &#x3D;&#x3D; status &#123;print $0&#125;&#39; &#x2F;var&#x2F;log&#x2F;nginx&#x2F;access.log | wc -l)
+
+echo &quot;$count&quot;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="D-给予执行权限"><a href="#D-给予执行权限" class="headerlink" title="D.给予执行权限"></a>D.给予执行权限</h4><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# chmod a+x &#x2F;opt&#x2F;nginx_logs.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="E-测试脚本"><a href="#E-测试脚本" class="headerlink" title="E.测试脚本"></a>E.测试脚本</h4><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# bash &#x2F;opt&#x2F;nginx_logs.sh 304
+13
+[root@node1 ~]# bash &#x2F;opt&#x2F;nginx_logs.sh 200
+4
+[root@node1 ~]# bash &#x2F;opt&#x2F;nginx_logs.sh 404
+3<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="F-修改Agent配置文件"><a href="#F-修改Agent配置文件" class="headerlink" title="F.修改Agent配置文件"></a>F.修改<code>Agent</code>配置文件</h4><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# vim &#x2F;etc&#x2F;zabbix&#x2F;zabbix_agentd.conf
+UserParameter&#x3D;nginx.status.code[*],bash &#x2F;opt&#x2F;nginx_logs.sh $1<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h5 id="重启服务"><a href="#重启服务" class="headerlink" title="重启服务"></a>重启服务</h5><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# systemctl restart zabbix-agent<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="G-Server端测试"><a href="#G-Server端测试" class="headerlink" title="G.Server端测试"></a>G.<code>Server</code>端测试</h4><pre class="line-numbers language-none"><code class="language-none">[root@zabbix-server ~]# zabbix_get -s 192.168.140.12 -k nginx.status.code[200]
+4
+[root@zabbix-server ~]# zabbix_get -s 192.168.140.12 -k nginx.status.code[404]
+3
+[root@zabbix-server ~]# zabbix_get -s 192.168.140.12 -k nginx.status.code[304]
+13<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="三、Redis"><a href="#三、Redis" class="headerlink" title="三、Redis"></a>三、Redis</h2><h3 id="1-安装Redis"><a href="#1-安装Redis" class="headerlink" title="1.安装Redis"></a>1.安装Redis</h3><blockquote>
+<p><strong>如果使用<code>yum</code>安装，请配置<code>epel</code>源</strong><br><strong>更多关于<code>Redis</code>安装的教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/91">https://www.wsjj.top/archives/91</a></strong><br><strong>更多关于<code>Redis</code>配置文件教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/92">https://www.wsjj.top/archives/92</a></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# yum install -y redis<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="启动服务"><a href="#启动服务" class="headerlink" title="启动服务"></a>启动服务</h4><pre class="line-numbers language-none"><code class="language-none">#开启后台启动
+[root@node1 ~]# vim &#x2F;etc&#x2F;redis.conf
+daemonize yes<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# redis-server &#x2F;etc&#x2F;redis.conf<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="2-查看redis详细信息"><a href="#2-查看redis详细信息" class="headerlink" title="2.查看redis详细信息"></a>2.查看<code>redis</code>详细信息</h3><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# redis-cli info
+# Server
+redis_version:3.2.12
+redis_git_sha1:00000000
+redis_git_dirty:0
+redis_build_id:7897e7d0e13773f
+redis_mode:standalone
+os:Linux 3.10.0-1160.el7.x86_64 x86_64
+arch_bits:64
+multiplexing_api:epoll
+gcc_version:4.8.5
+process_id:39324
+run_id:d6b9d2066c503d9d6f5acab61e429da46af11c34
+tcp_port:6379
+uptime_in_seconds:24
+uptime_in_days:0
+hz:10
+lru_clock:6053975
+executable:&#x2F;root&#x2F;redis-server
+config_file:&#x2F;etc&#x2F;redis.conf
+
+# Clients
+connected_clients:1
+client_longest_output_list:0
+client_biggest_input_buf:0
+blocked_clients:0
+
+# Memory
+used_memory:813408
+used_memory_human:794.34K
+used_memory_rss:5308416
+used_memory_rss_human:5.06M
+used_memory_peak:813408
+used_memory_peak_human:794.34K
+total_system_memory:1907712000
+total_system_memory_human:1.78G
+used_memory_lua:37888
+used_memory_lua_human:37.00K
+maxmemory:0
+maxmemory_human:0B
+maxmemory_policy:noeviction
+mem_fragmentation_ratio:6.53
+mem_allocator:jemalloc-3.6.0
+
+# Persistence
+loading:0
+rdb_changes_since_last_save:0
+rdb_bgsave_in_progress:0
+rdb_last_save_time:1683775551
+rdb_last_bgsave_status:ok
+rdb_last_bgsave_time_sec:-1
+rdb_current_bgsave_time_sec:-1
+aof_enabled:0
+aof_rewrite_in_progress:0
+aof_rewrite_scheduled:0
+aof_last_rewrite_time_sec:-1
+aof_current_rewrite_time_sec:-1
+aof_last_bgrewrite_status:ok
+aof_last_write_status:ok
+
+# Stats
+total_connections_received:1
+total_commands_processed:0
+instantaneous_ops_per_sec:0
+total_net_input_bytes:14
+total_net_output_bytes:0
+instantaneous_input_kbps:0.00
+instantaneous_output_kbps:0.00
+rejected_connections:0
+sync_full:0
+sync_partial_ok:0
+sync_partial_err:0
+expired_keys:0
+evicted_keys:0
+keyspace_hits:0
+keyspace_misses:0
+pubsub_channels:0
+pubsub_patterns:0
+latest_fork_usec:0
+migrate_cached_sockets:0
+
+# Replication
+role:master
+connected_slaves:0
+master_repl_offset:0
+repl_backlog_active:0
+repl_backlog_size:1048576
+repl_backlog_first_byte_offset:0
+repl_backlog_histlen:0
+
+# CPU
+used_cpu_sys:0.00
+used_cpu_user:0.02
+used_cpu_sys_children:0.00
+used_cpu_user_children:0.00
+
+# Cluster
+cluster_enabled:0
+
+# Keyspace<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-编写脚本"><a href="#3-编写脚本" class="headerlink" title="3.编写脚本"></a>3.编写脚本</h3><blockquote>
+<p><strong><code>shell</code>脚本中<code>$1</code>是一个特殊变量，会传递执行脚本的第一个参数，我们把这个参数交给<code>awk</code>命令执行，为了防止出现多条数据，我们只取第一行，也就是说，今后我们携带的参数不能是模糊类型的</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# vim &#x2F;opt&#x2F;redis.sh
+#!&#x2F;bin&#x2F;bash
+
+option&#x3D;$(redis-cli info | awk -v pattern&#x3D;&quot;$1&quot; -F: &#39;$0 ~ pattern&#123;print $NF&#125;&#39; | head -n1)
+
+echo $option<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="给予权限"><a href="#给予权限" class="headerlink" title="给予权限"></a>给予权限</h4><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# chmod a+x &#x2F;opt&#x2F;redis.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="测试脚本"><a href="#测试脚本" class="headerlink" title="测试脚本"></a>测试脚本</h4><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# bash &#x2F;opt&#x2F;redis.sh used_cpu_sys
+3.61
+[root@node1 ~]# bash &#x2F;opt&#x2F;redis.sh used_memory
+812384<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-修改Agent端配置文件"><a href="#4-修改Agent端配置文件" class="headerlink" title="4.修改Agent端配置文件"></a>4.修改<code>Agent</code>端配置文件</h3><blockquote>
+<p><strong>这里的$1不要和脚本中的特殊变量搞混，这里的$1是zabbix中的特殊变量，主要传递前面[*]中的第一个参数，详细示例请看下面的&#x3D;&#x3D;测试&#x3D;&#x3D;</strong><br><strong>今后我们定义的这个键值，&#x3D;&#x3D;必须&#x3D;&#x3D;携带参数，否则无法使用哦！</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# vim &#x2F;etc&#x2F;zabbix&#x2F;zabbix_agentd.conf
+UserParameter&#x3D;redis.info[*],bash &#x2F;opt&#x2F;redis.sh $1<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="重启服务-1"><a href="#重启服务-1" class="headerlink" title="重启服务"></a>重启服务</h4><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# systemctl restart zabbix-agent<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="Server端测试-1"><a href="#Server端测试-1" class="headerlink" title="Server端测试"></a><code>Server</code>端测试</h4><blockquote>
+<p><strong>需要安装<code>zabbix-get</code></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@zabbix-server ~]# zabbix_get -s 192.168.140.12 -k redis.info[redis_version]
+3.2.12
+[root@zabbix-server ~]# zabbix_get -s 192.168.140.12 -k redis.info[used_cpu_sys]
+3.84
+[root@zabbix-server ~]# zabbix_get -s 192.168.140.12 -k redis.info[used_memory]
+812384
+[root@zabbix-server ~]# zabbix_get -s 192.168.140.12 -k redis.info[tcp_port]
+6379<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="更多参数，请参考redis-cli-info中的信息"><a href="#更多参数，请参考redis-cli-info中的信息" class="headerlink" title="更多参数，请参考redis-cli info中的信息"></a>更多参数，请参考<code>redis-cli info</code>中的信息</h4><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# redis-cli info
+# Server
+redis_version:3.2.12
+redis_git_sha1:00000000
+redis_git_dirty:0
+redis_build_id:7897e7d0e13773f
+redis_mode:standalone
+os:Linux 3.10.0-1160.el7.x86_64 x86_64
+arch_bits:64
+multiplexing_api:epoll
+gcc_version:4.8.5
+process_id:39324
+run_id:d6b9d2066c503d9d6f5acab61e429da46af11c34
+tcp_port:6379
+uptime_in_seconds:8851
+uptime_in_days:0
+hz:10
+lru_clock:6062802
+executable:&#x2F;root&#x2F;redis-server
+config_file:&#x2F;etc&#x2F;redis.conf
+
+# Clients
+connected_clients:1
+client_longest_output_list:0
+client_biggest_input_buf:0
+blocked_clients:0
+
+# Memory
+used_memory:812384
+used_memory_human:793.34K
+used_memory_rss:5308416
+used_memory_rss_human:5.06M
+used_memory_peak:813408
+used_memory_peak_human:794.34K
+total_system_memory:1907712000
+total_system_memory_human:1.78G
+used_memory_lua:37888
+used_memory_lua_human:37.00K
+maxmemory:0
+maxmemory_human:0B
+maxmemory_policy:noeviction
+mem_fragmentation_ratio:6.53
+mem_allocator:jemalloc-3.6.0
+
+# Persistence
+loading:0
+rdb_changes_since_last_save:0
+rdb_bgsave_in_progress:0
+rdb_last_save_time:1683775551
+rdb_last_bgsave_status:ok
+rdb_last_bgsave_time_sec:-1
+rdb_current_bgsave_time_sec:-1
+aof_enabled:0
+aof_rewrite_in_progress:0
+aof_rewrite_scheduled:0
+aof_last_rewrite_time_sec:-1
+aof_current_rewrite_time_sec:-1
+aof_last_bgrewrite_status:ok
+aof_last_write_status:ok
+
+# Stats
+total_connections_received:37
+total_commands_processed:36
+instantaneous_ops_per_sec:0
+total_net_input_bytes:518
+total_net_output_bytes:76887
+instantaneous_input_kbps:0.00
+instantaneous_output_kbps:0.00
+rejected_connections:0
+sync_full:0
+sync_partial_ok:0
+sync_partial_err:0
+expired_keys:0
+evicted_keys:0
+keyspace_hits:0
+keyspace_misses:0
+pubsub_channels:0
+pubsub_patterns:0
+latest_fork_usec:0
+migrate_cached_sockets:0
+
+# Replication
+role:master
+connected_slaves:0
+master_repl_offset:0
+repl_backlog_active:0
+repl_backlog_size:1048576
+repl_backlog_first_byte_offset:0
+repl_backlog_histlen:0
+
+# CPU
+used_cpu_sys:3.91
+used_cpu_user:2.00
+used_cpu_sys_children:0.00
+used_cpu_user_children:0.00
+
+# Cluster
+cluster_enabled:0
+
+# Keyspace<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work">网笙久久</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work/2023/05/11/112/">https://blog.wangshengjj.work/2023/05/11/112/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.wangshengjj.work" target="_blank">WangShengJJのblog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/linux/">linux</a><a class="post-meta__tags" href="/tags/centos/">centos</a><a class="post-meta__tags" href="/tags/zabbix/">zabbix</a><a class="post-meta__tags" href="/tags/zabbix-server/">zabbix server</a><a class="post-meta__tags" href="/tags/linux%E7%9B%91%E6%8E%A7/">linux监控</a><a class="post-meta__tags" href="/tags/%E9%94%AE%E5%80%BC/">键值</a></div><div class="post_share"><div class="social-share" data-image="https://api.ghser.com/random/api.php" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/05/12/113/" title="【Zabbix系列教程】自动发现和自动注册"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【Zabbix系列教程】自动发现和自动注册</div></div></a></div><div class="next-post pull-right"><a href="/2023/05/10/111/" title="【Zabbix系列教程】触发器和报警器"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【Zabbix系列教程】触发器和报警器</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/05/12/113/" title="【Zabbix系列教程】自动发现和自动注册"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-12</div><div class="title">【Zabbix系列教程】自动发现和自动注册</div></div></a></div><div><a href="/2023/05/09/110/" title="【Zabbix系列教程】Agent端部署教程"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-09</div><div class="title">【Zabbix系列教程】Agent端部署教程</div></div></a></div><div><a href="/2023/05/12/114/" title="【Zabbix系列教程】Proxy端部署教程+分布式监控"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-12</div><div class="title">【Zabbix系列教程】Proxy端部署教程+分布式监控</div></div></a></div><div><a href="/2023/05/09/109/" title="【Zabbix系列教程】Server端部署教程"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-09</div><div class="title">【Zabbix系列教程】Server端部署教程</div></div></a></div><div><a href="/2023/05/10/111/" title="【Zabbix系列教程】触发器和报警器"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-10</div><div class="title">【Zabbix系列教程】触发器和报警器</div></div></a></div><div><a href="/2023/05/15/115/" title="【自动化运维系列教程】Ansible自动化运维工具"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-15</div><div class="title">【自动化运维系列教程】Ansible自动化运维工具</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">网笙久久</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">126</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">168</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">230</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wangshengjj"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wangshengjj" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:wangshengjj@wangshengjj.work" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.wangshengjj.work" target="_blank" title="Blog"><i class="fa fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到网笙久久的博客</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E3%80%90Zabbix%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%E3%80%91%E7%9B%91%E6%8E%A7MySQL%E3%80%81Nginx%E3%80%81Redis%E5%B8%B8%E7%94%A8%E9%94%AE%E5%80%BC"><span class="toc-number">1.</span> <span class="toc-text">【Zabbix系列教程】监控MySQL、Nginx、Redis常用键值</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81MySQL"><span class="toc-number">1.1.</span> <span class="toc-text">一、MySQL</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E8%AE%BE%E7%BD%AE%E6%8E%88%E6%9D%83%E7%94%A8%E6%88%B7%E5%92%8C%E5%AF%86%E7%A0%81-%E7%94%A8%E4%BA%8EZabbix-Server%E7%99%BB%E5%BD%95%E6%95%B0%E6%8D%AE%E5%BA%93%E6%94%B6%E9%9B%86%E6%95%B0%E6%8D%AE"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.设置授权用户和密码(用于Zabbix-Server登录数据库收集数据)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E8%BF%9B%E5%85%A5%E6%95%B0%E6%8D%AE%E5%BA%93%E6%8E%88%E6%9D%83%E7%94%A8%E6%88%B7%E6%9D%83%E9%99%90"><span class="toc-number">1.1.1.1.</span> <span class="toc-text">A.进入数据库授权用户权限</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.1.1.2.</span> <span class="toc-text">B.修改配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%87%8D%E5%90%AF%E6%95%B0%E6%8D%AE%E5%BA%93%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.1.1.2.1.</span> <span class="toc-text">重启数据库服务</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-number">1.1.1.2.2.</span> <span class="toc-text">测试</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E4%BF%AE%E6%94%B9Zabbix-Agent%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.1.2.</span> <span class="toc-text">2.修改Zabbix Agent配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E5%9C%A8%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E4%B8%AD%E5%AE%9A%E4%B9%89-x3D-x3D-%E8%87%AA%E5%AE%9A%E4%B9%89%E9%94%AE%E5%80%BC-x3D-x3D"><span class="toc-number">1.1.2.1.</span> <span class="toc-text">A.在配置文件中定义&#x3D;&#x3D;自定义键值&#x3D;&#x3D;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E9%87%8D%E5%90%AF%E6%9C%8D%E5%8A%A1%EF%BC%8C%E8%AE%A9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E7%94%9F%E6%95%88"><span class="toc-number">1.1.2.2.</span> <span class="toc-text">B.重启服务，让配置文件生效</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#C-%E6%9C%8D%E5%8A%A1%E5%99%A8Server%E7%AB%AF%E6%B5%8B%E8%AF%95"><span class="toc-number">1.1.2.3.</span> <span class="toc-text">C.服务器Server端测试</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%9B%B4%E5%A4%9A%E5%85%B3%E4%BA%8EMySQL%E7%9A%84%E8%87%AA%E5%AE%9A%E4%B9%89%E9%94%AE%E5%80%BC"><span class="toc-number">1.1.3.</span> <span class="toc-text">3.更多关于MySQL的自定义键值</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B3%E4%BA%8EMySQL%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E7%8E%AF%E5%A2%83%E7%9B%91%E6%B5%8B"><span class="toc-number">1.1.3.1.</span> <span class="toc-text">关于MySQL主从复制环境监测</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%9B%91%E6%8E%A7IO%E7%BA%BF%E7%A8%8B%E5%92%8CSQL%E7%BA%BF%E7%A8%8B"><span class="toc-number">1.1.3.1.1.</span> <span class="toc-text">监控IO线程和SQL线程</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95-1"><span class="toc-number">1.1.3.1.1.1.</span> <span class="toc-text">测试</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%9B%91%E6%8E%A7%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%90%8C%E6%AD%A5%E7%8A%B6%E6%80%81"><span class="toc-number">1.1.3.1.2.</span> <span class="toc-text">监控主从复制同步状态</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95-2"><span class="toc-number">1.1.3.1.2.1.</span> <span class="toc-text">测试</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%8B%BF%E5%88%B0%E4%BB%A5%E4%B8%8A%E7%9A%84%E8%87%AA%E5%AE%9A%E4%B9%89%E9%94%AE%E5%80%BC%EF%BC%8C%E5%B0%B1%E5%8F%AF%E4%BB%A5%E5%8E%BB%E6%B7%BB%E5%8A%A0%E7%9B%91%E6%8E%A7%E9%A1%B9%E5%92%8C%E8%A7%A6%E5%8F%91%E5%99%A8%E4%BA%86"><span class="toc-number">1.1.4.</span> <span class="toc-text">4.拿到以上的自定义键值，就可以去添加监控项和触发器了</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81Nginx"><span class="toc-number">1.2.</span> <span class="toc-text">二、Nginx</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%AE%89%E8%A3%85Nginx"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.安装Nginx</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%85%8D%E7%BD%AENginx%E7%9A%84%E7%8A%B6%E6%80%81%E9%A1%B5%E9%9D%A2"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.配置Nginx的状态页面</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9B%91%E6%B5%8B%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.2.1.</span> <span class="toc-text">监测配置文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%87%8D%E6%96%B0%E5%8A%A0%E8%BD%BD%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.2.2.</span> <span class="toc-text">重新加载配置文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B5%8F%E8%A7%88%E5%99%A8%E8%AE%BF%E9%97%AE%E6%B5%8B%E8%AF%95"><span class="toc-number">1.2.2.3.</span> <span class="toc-text">浏览器访问测试</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E4%BF%AE%E6%94%B9Agent%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.3.</span> <span class="toc-text">3.修改Agent配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%87%8D%E5%90%AF%E6%9C%8D%E5%8A%A1%EF%BC%8C%E8%AE%A9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E7%94%9F%E6%95%88"><span class="toc-number">1.2.3.1.</span> <span class="toc-text">重启服务，让配置文件生效</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Server%E7%AB%AF%E6%B5%8B%E8%AF%95"><span class="toc-number">1.2.3.2.</span> <span class="toc-text">Server端测试</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%9B%B4%E5%A4%9A%E8%87%AA%E5%AE%9A%E4%B9%89%E9%94%AE%E5%80%BC"><span class="toc-number">1.2.4.</span> <span class="toc-text">4.更多自定义键值</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-Zabbix%E7%9B%91%E6%8E%A7Nginx%E6%97%A5%E5%BF%97"><span class="toc-number">1.2.5.</span> <span class="toc-text">5.Zabbix监控Nginx日志</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E6%9F%A5%E7%9C%8BNginx%E6%97%A5%E5%BF%97"><span class="toc-number">1.2.5.1.</span> <span class="toc-text">A.查看Nginx日志</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E6%9F%A5%E7%9C%8BNginx%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E4%B8%AD%E7%9A%84%E6%97%A5%E5%BF%97%E8%AE%B0%E5%BD%95%E6%A0%BC%E5%BC%8F"><span class="toc-number">1.2.5.2.</span> <span class="toc-text">B.查看Nginx配置文件中的日志记录格式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#C-%E7%BC%96%E5%86%99%E8%84%9A%E6%9C%AC"><span class="toc-number">1.2.5.3.</span> <span class="toc-text">C.编写脚本</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#D-%E7%BB%99%E4%BA%88%E6%89%A7%E8%A1%8C%E6%9D%83%E9%99%90"><span class="toc-number">1.2.5.4.</span> <span class="toc-text">D.给予执行权限</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#E-%E6%B5%8B%E8%AF%95%E8%84%9A%E6%9C%AC"><span class="toc-number">1.2.5.5.</span> <span class="toc-text">E.测试脚本</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#F-%E4%BF%AE%E6%94%B9Agent%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.5.6.</span> <span class="toc-text">F.修改Agent配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%87%8D%E5%90%AF%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.2.5.6.1.</span> <span class="toc-text">重启服务</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#G-Server%E7%AB%AF%E6%B5%8B%E8%AF%95"><span class="toc-number">1.2.5.7.</span> <span class="toc-text">G.Server端测试</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81Redis"><span class="toc-number">1.3.</span> <span class="toc-text">三、Redis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%AE%89%E8%A3%85Redis"><span class="toc-number">1.3.1.</span> <span class="toc-text">1.安装Redis</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.3.1.1.</span> <span class="toc-text">启动服务</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%9F%A5%E7%9C%8Bredis%E8%AF%A6%E7%BB%86%E4%BF%A1%E6%81%AF"><span class="toc-number">1.3.2.</span> <span class="toc-text">2.查看redis详细信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E7%BC%96%E5%86%99%E8%84%9A%E6%9C%AC"><span class="toc-number">1.3.3.</span> <span class="toc-text">3.编写脚本</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%99%E4%BA%88%E6%9D%83%E9%99%90"><span class="toc-number">1.3.3.1.</span> <span class="toc-text">给予权限</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95%E8%84%9A%E6%9C%AC"><span class="toc-number">1.3.3.2.</span> <span class="toc-text">测试脚本</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E4%BF%AE%E6%94%B9Agent%E7%AB%AF%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.3.4.</span> <span class="toc-text">4.修改Agent端配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%87%8D%E5%90%AF%E6%9C%8D%E5%8A%A1-1"><span class="toc-number">1.3.4.1.</span> <span class="toc-text">重启服务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Server%E7%AB%AF%E6%B5%8B%E8%AF%95-1"><span class="toc-number">1.3.4.2.</span> <span class="toc-text">Server端测试</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9B%B4%E5%A4%9A%E5%8F%82%E6%95%B0%EF%BC%8C%E8%AF%B7%E5%8F%82%E8%80%83redis-cli-info%E4%B8%AD%E7%9A%84%E4%BF%A1%E6%81%AF"><span class="toc-number">1.3.4.3.</span> <span class="toc-text">更多参数，请参考redis-cli info中的信息</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/05/19/120/" title="【Linux应用系列教程】基于Jenkins发布maven项目"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】基于Jenkins发布maven项目"/></a><div class="content"><a class="title" href="/2023/05/19/120/" title="【Linux应用系列教程】基于Jenkins发布maven项目">【Linux应用系列教程】基于Jenkins发布maven项目</a><time datetime="2023-05-19T03:49:39.490Z" title="发表于 2023-05-19 11:49:39">2023-05-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/19/119/" title="【Linux应用系列教程】Jenkins持续集成工具安装教程"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】Jenkins持续集成工具安装教程"/></a><div class="content"><a class="title" href="/2023/05/19/119/" title="【Linux应用系列教程】Jenkins持续集成工具安装教程">【Linux应用系列教程】Jenkins持续集成工具安装教程</a><time datetime="2023-05-19T02:49:24.709Z" title="发表于 2023-05-19 10:49:24">2023-05-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/18/118/" title="【Linux应用系列教程】Git分布式版本控制器"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】Git分布式版本控制器"/></a><div class="content"><a class="title" href="/2023/05/18/118/" title="【Linux应用系列教程】Git分布式版本控制器">【Linux应用系列教程】Git分布式版本控制器</a><time datetime="2023-05-18T12:19:54.279Z" title="发表于 2023-05-18 20:19:54">2023-05-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/16/117/" title="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客"/></a><div class="content"><a class="title" href="/2023/05/16/117/" title="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客">【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客</a><time datetime="2023-05-16T11:30:05.268Z" title="发表于 2023-05-16 19:30:05">2023-05-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【自动化运维系列教程】Ansible Playbook剧本"/></a><div class="content"><a class="title" href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本">【自动化运维系列教程】Ansible Playbook剧本</a><time datetime="2023-05-15T12:27:43.911Z" title="发表于 2023-05-15 20:27:43">2023-05-15</time></div></div></div></div></div></div></main><footer id="footer" style="background: flase"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By 网笙久久</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><div class="js-pjax"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js"></script><script>(() => {
+  document.querySelectorAll('#article-container span.katex-display').forEach(item => {
+    btf.wrap(item, 'div', { class: 'katex-wrap'})
+  })
+})()</script></div><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div><script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(n){n.imageLazyLoadSetting.processImages=i;var e=n.imageLazyLoadSetting.isSPA,r=(n.imageLazyLoadSetting.preloadRatio,Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));function i(){e&&(r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));for(var t,a=0;a<r.length;a++)0<=(t=(t=r[a]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(n.innerHeight+240||document.documentElement.clientHeight+240)&&function(){var t,e,n,i,o=r[a];t=o,e=function(){r=r.filter(function(t){return o!==t})},n=new Image,i=t.getAttribute("data-original"),n.onload=function(){t.src=i,e&&e()},t.src!==i&&(n.src=i)}()}i(),n.addEventListener("scroll",function(){var t,e;t=i,e=n,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(e)},500)})}(this);</script></body></html>

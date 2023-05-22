@@ -1,0 +1,462 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客 | WangShengJJのblog</title><meta name="author" content="网笙久久"><meta name="copyright" content="网笙久久"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客 关于Ansible Playbook教程：https:&#x2F;&#x2F;www.wsjj.top&#x2F;archives&#x2F;116关于Ansible基本模块的使用教程：https:&#x2F;&#x2F;www.wsjj.top&#x2F;archives&#x2F;115关于LNMP环境部署教程：https:&#x2F;&#x2F;www.wsjj.top&#x2F;archives&#x2F;8">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客">
+<meta property="og:url" content="https://blog.wangshengjj.work/2023/05/16/117/index.html">
+<meta property="og:site_name" content="WangShengJJのblog">
+<meta property="og:description" content="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客 关于Ansible Playbook教程：https:&#x2F;&#x2F;www.wsjj.top&#x2F;archives&#x2F;116关于Ansible基本模块的使用教程：https:&#x2F;&#x2F;www.wsjj.top&#x2F;archives&#x2F;115关于LNMP环境部署教程：https:&#x2F;&#x2F;www.wsjj.top&#x2F;archives&#x2F;8">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.dmoe.cc/random.php">
+<meta property="article:published_time" content="2023-05-16T11:30:05.268Z">
+<meta property="article:modified_time" content="2023-05-18T06:05:33.370Z">
+<meta property="article:author" content="网笙久久">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="服务器搭建">
+<meta property="article:tag" content="centos">
+<meta property="article:tag" content="ansible">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="lnmp环境">
+<meta property="article:tag" content="博客搭建教程">
+<meta property="article:tag" content="ansible playbook">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.dmoe.cc/random.php"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://blog.wangshengjj.work/2023/05/16/117/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"prismjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-05-18 14:05:33'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><meting-js server="netease" type="playlist" id="7386208265" lrc-type="0" volume="0.5" fixed="true" mini="true" order="random" loop="all" autoplay="true" preload="auto" list-folded="true"></meting-js><script src="https://fastly.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/autoload.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script><meta name="generator" content="Hexo 6.1.0"></head><body><link rel="stylesheet" href="/css/barber-shop.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">126</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">168</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">230</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://www.dmoe.cc/random.php')"><nav id="nav"><span id="blog-info"><a href="/" title="WangShengJJのblog"><span class="site-name">WangShengJJのblog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-05-16T11:30:05.268Z" title="发表于 2023-05-16 19:30:05">2023-05-16</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-05-18T06:05:33.370Z" title="更新于 2023-05-18 14:05:33">2023-05-18</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/">服务器搭建</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/Ansible/">Ansible</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/Ansible/%E7%AC%94%E8%AE%B0/">笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/Ansible/%E7%AC%94%E8%AE%B0/linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1/">linux基础服务</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/Ansible/%E7%AC%94%E8%AE%B0/linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/Ansible/%E7%AC%94%E8%AE%B0/linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1/%E6%95%B0%E6%8D%AE%E5%BA%93/nginx/">nginx</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/Ansible/%E7%AC%94%E8%AE%B0/linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1/%E6%95%B0%E6%8D%AE%E5%BA%93/nginx/wordpress/">wordpress</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/Ansible/%E7%AC%94%E8%AE%B0/linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1/%E6%95%B0%E6%8D%AE%E5%BA%93/nginx/wordpress/mysql/">mysql</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/Ansible/%E7%AC%94%E8%AE%B0/linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1/%E6%95%B0%E6%8D%AE%E5%BA%93/nginx/wordpress/mysql/%E5%BA%94%E7%94%A8/">应用</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/Ansible/%E7%AC%94%E8%AE%B0/linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1/%E6%95%B0%E6%8D%AE%E5%BA%93/nginx/wordpress/mysql/%E5%BA%94%E7%94%A8/%E8%87%AA%E5%8A%A8%E5%8C%96%E8%BF%90%E7%BB%B4%E5%B7%A5%E5%85%B7/">自动化运维工具</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>8分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="【自动化运维系列教程】Ansible-Playbook剧本部署LNMP环境-WordPress博客"><a href="#【自动化运维系列教程】Ansible-Playbook剧本部署LNMP环境-WordPress博客" class="headerlink" title="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客"></a>【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客</h1><blockquote>
+<p><strong>关于<code>Ansible Playbook</code>教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/116">https://www.wsjj.top/archives/116</a></strong><br><strong>关于<code>Ansible</code>基本模块的使用教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/115">https://www.wsjj.top/archives/115</a></strong><br><strong>关于<code>LNMP</code>环境部署教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/88">https://www.wsjj.top/archives/88</a></strong></p>
+</blockquote>
+<h2 id="一、编写Playbook"><a href="#一、编写Playbook" class="headerlink" title="一、编写Playbook"></a>一、编写Playbook</h2><pre class="line-numbers language-none"><code class="language-none">[root@zabbix_server ansible]# vim &#x2F;root&#x2F;ansible&#x2F;work&#x2F;LNMP.yaml
+
+- hosts: dbserver #指定安装主机组
+  user: root  #指定用户
+  gather_facts: false #不调用setup模块中的数据
+  tasks:
+    - name: install wget  #安装必要的组件
+      yum: name&#x3D;&#123;&#123; item &#125;&#125; state&#x3D;present
+      loop: 
+        - wget
+        - net-tools
+
+    - name: install yum #配置国内yum源和epel源
+      shell: |
+          wget -O &#x2F;etc&#x2F;yum.repos.d&#x2F;CentOS-Base.repo http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;repo&#x2F;Centos-7.repo
+          wget -O &#x2F;etc&#x2F;yum.repos.d&#x2F;epel.repo https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;repo&#x2F;epel-7.repo
+          yum clean all &amp;&amp; yum makecache fast
+
+    - name: Download Nginx #下载Nginx
+      shell: chdir&#x3D;&#x2F;root wget http:&#x2F;&#x2F;nginx.org&#x2F;download&#x2F;nginx-1.20.2.tar.gz
+
+    - name: tar Nginx #解压Nginx
+      shell: chdir&#x3D;&#x2F;root tar xf nginx-1.20.2.tar.gz
+
+    - name: install Nginx Software Dependency #安装Nginx需要的依赖
+      yum: name&#x3D;&#123;&#123; item &#125;&#125; state&#x3D;present
+      loop:
+        - gcc
+        - openssl-devel
+        - pcre-devel
+        - zlib-devel
+
+    - name: mkdir Nginx dir #创建Nginx需要的临时数据目录
+      shell: mkdir -p &#x2F;var&#x2F;tmp&#x2F;nginx&#x2F;&#123;client,proxy,fastcgi,uwsgi,scgi&#125;
+
+    - name: useradd Nginx #创建Nginx用户
+      user: name&#x3D;nginx shell&#x3D;&#x2F;sbin&#x2F;nologin
+
+    - name: Make Nginx  #编译
+      shell: chdir&#x3D;&#x2F;root&#x2F;nginx-1.20.2 .&#x2F;configure --prefix&#x3D;&#x2F;usr&#x2F;local&#x2F;nginx --user&#x3D;nginx --group&#x3D;nginx --with-http_ssl_module --with-stream --with-http_flv_module --with-http_stub_status_module --with-http_gzip_static_module --with-pcre --with-file-aio --with-http_secure_link_module --with-threads --http-client-body-temp-path&#x3D;&#x2F;var&#x2F;tmp&#x2F;nginx&#x2F;client&#x2F; --http-proxy-temp-path&#x3D;&#x2F;var&#x2F;tmp&#x2F;nginx&#x2F;proxy&#x2F; --http-fastcgi-temp-path&#x3D;&#x2F;var&#x2F;tmp&#x2F;nginx&#x2F;fastcgi&#x2F; --http-uwsgi-temp-path&#x3D;&#x2F;var&#x2F;tmp&#x2F;nginx&#x2F;uwsgi&#x2F; --http-scgi-temp-path&#x3D;&#x2F;var&#x2F;tmp&#x2F;nginx&#x2F;scgi&#x2F;
+
+    - name: Install Nginx #编译安装
+      shell: |
+        chdir&#x3D;&#x2F;root&#x2F;nginx-1.20.2
+        make
+        make install
+
+    - name: Start Nginx #启动Nginx
+      shell: 
+          &#x2F;usr&#x2F;local&#x2F;nginx&#x2F;sbin&#x2F;nginx;
+    
+    - name: Enable Nginx  #设置Nginx开机自启动
+      lineinfile: 
+        path: &quot;&#x2F;etc&#x2F;rc.d&#x2F;rc.local&quot;
+        line: &quot;&#x2F;usr&#x2F;local&#x2F;nginx&#x2F;sbin&#x2F;nginx&quot;
+        mode: &#39;0777&#39;
+    
+    - name: Download PHP7.4  #下载PHP网络源
+      shell: yum -y install https:&#x2F;&#x2F;rpms.remirepo.net&#x2F;enterprise&#x2F;remi-release-7.rpm
+
+    - name: Install yum-utils #安装依赖
+      yum: name&#x3D;yum-utils state&#x3D;present
+
+    - name: Enable remi-php74 #启用源
+      shell: yum-config-manager --enable remi-php74
+
+    - name: Install PHP Software Dependency #安装PHP
+      yum: name&#x3D;&#123;&#123; item &#125;&#125; state&#x3D;present
+      loop:
+        - php  
+        - php-cli 
+        - php-fpm 
+        - php-mysqlnd 
+        - php-zip 
+        - php-devel 
+        - php-gd 
+        - php-mcrypt 
+        - php-mbstring 
+        - php-curl 
+        - php-xml 
+        - php-pear 
+        - php-bcmath 
+        - php-json 
+        - php-redis
+
+    - name: PHP User  #修改PHP运行用户为Nginx
+      shell: |
+        sed -ri &#39;s|user &#x3D; apache|user &#x3D; nginx|&#39; &#x2F;etc&#x2F;php-fpm.d&#x2F;www.conf
+        sed -ri &#39;s|group &#x3D; apache|group &#x3D; nginx|&#39; &#x2F;etc&#x2F;php-fpm.d&#x2F;www.conf
+
+    - name: Start PHP7.4  #启动PHP服务
+      service: name&#x3D;php-fpm state&#x3D;started enabled&#x3D;yes
+    
+    - name: Install MariaDB #安装MriaDB数据库
+      yum: name&#x3D;mariadb-server state&#x3D;present
+
+    - name: Start MariaDB #设置MariaDB服务开机自启动
+      service: name&#x3D;mariadb state&#x3D;started enabled&#x3D;yes
+
+    - name: MKdir Nginx and www and log #创建用到的目录
+      file: path&#x3D;&#123;&#123; item[&quot;path&quot;] &#125;&#125; state&#x3D;directory
+      loop:
+        - &#123;&quot;path&quot;:&quot;&#x2F;usr&#x2F;local&#x2F;nginx&#x2F;conf.d&quot;&#125;
+        - &#123;&quot;path&quot;:&quot;&#x2F;www&#x2F;wwwroot&#x2F;blog.wsjj.com&quot;&#125;
+        - &#123;&quot;path&quot;:&quot;&#x2F;var&#x2F;log&#x2F;nginx&quot;&#125;
+
+    - name: Download WordPress  #下载Wordpress
+      shell: chdir&#x3D;&#x2F;root wget https:&#x2F;&#x2F;cn.wordpress.org&#x2F;latest-zh_CN.tar.gz
+
+    - name: tar WordPress #解压Wordpress
+      shell: chdir&#x3D;&#x2F;root tar xf latest-zh_CN.tar.gz
+
+    - name: copy WordPress  #复制Wordpress文件到网页目录
+      shell: cp -r &#x2F;root&#x2F;wordpress&#x2F;* &#x2F;www&#x2F;wwwroot&#x2F;blog.wsjj.com&#x2F;
+
+    - name: Permissions #设置网页目录权限
+      shell: |
+        chmod -R 0775 &#x2F;www&#x2F;wwwroot&#x2F;blog.wsjj.com
+        chown -R nginx.nginx &#x2F;www&#x2F;wwwroot&#x2F;blog.wsjj.com
+
+    - name: copy Nginx.conf #复制Nginx需要的配置文件
+      copy: src&#x3D;&#123;&#123; item[&quot;src&quot;] &#125;&#125; dest&#x3D;&#123;&#123; item[&quot;dest&quot;] &#125;&#125; owner&#x3D;nginx group&#x3D;nginx mode&#x3D;0775
+      loop: 
+        - &#123;&quot;src&quot;:&quot;&#x2F;root&#x2F;ansible&#x2F;work&#x2F;nginx.conf&quot;,&quot;dest&quot;:&quot;&#x2F;usr&#x2F;local&#x2F;nginx&#x2F;conf&#x2F;&quot;&#125;
+        - &#123;&quot;src&quot;:&quot;&#x2F;root&#x2F;ansible&#x2F;work&#x2F;blog.conf&quot;,&quot;dest&quot;:&quot;&#x2F;usr&#x2F;local&#x2F;nginx&#x2F;conf.d&#x2F;&quot;&#125;
+    
+    - name: Restart Nginx #重新加载Nginx配置文件
+      shell: &#x2F;usr&#x2F;local&#x2F;nginx&#x2F;sbin&#x2F;nginx -s reload
+    
+    - name: Create WordPress database and users;  #创建Wordpress用到的数据库和用户
+      shell: |
+        mysql -uroot -e &quot;create database wordpress charset utf8mb4&quot;
+        mysql -uroot -e &quot;grant all on wordpress.* to &#39;wordpress&#39;@&#39;localhost&#39; identified by &#39;WWW.1.com&#39;&quot;
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="二、用到的Nginx配置文件"><a href="#二、用到的Nginx配置文件" class="headerlink" title="二、用到的Nginx配置文件"></a>二、用到的Nginx配置文件</h2><h3 id="1-主配置文件"><a href="#1-主配置文件" class="headerlink" title="1.主配置文件"></a>1.主配置文件</h3><pre class="line-numbers language-none"><code class="language-none">[root@zabbix_server ansible]# vim &#x2F;root&#x2F;ansible&#x2F;work&#x2F;nginx.conf
+
+#user  nobody;
+worker_processes  1;
+
+#error_log  logs&#x2F;error.log;
+#error_log  logs&#x2F;error.log  notice;
+#error_log  logs&#x2F;error.log  info;
+
+#pid        logs&#x2F;nginx.pid;
+
+
+events &#123;
+    worker_connections  1024;
+&#125;
+
+
+http &#123;
+    include       mime.types;
+    default_type  application&#x2F;octet-stream;
+
+    log_format  main  &#39;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &#39;
+                      &#39;$status $body_bytes_sent &quot;$http_referer&quot; &#39;
+                      &#39;&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;&#39;;
+
+    access_log  logs&#x2F;access.log  main;
+    include &#x2F;usr&#x2F;local&#x2F;nginx&#x2F;conf.d&#x2F;*.conf;
+    sendfile        on;
+    #tcp_nopush     on;
+
+    #keepalive_timeout  0;
+    keepalive_timeout  65;
+
+    #gzip  on;
+
+    server &#123;
+        listen       80;
+        server_name  localhost;
+
+        #charset koi8-r;
+
+        #access_log  logs&#x2F;host.access.log  main;
+
+        location &#x2F; &#123;
+            root   html;
+            index  index.html index.htm;
+        &#125;
+
+        #error_page  404              &#x2F;404.html;
+
+        # redirect server error pages to the static page &#x2F;50x.html
+        #
+        error_page   500 502 503 504  &#x2F;50x.html;
+        location &#x3D; &#x2F;50x.html &#123;
+            root   html;
+        &#125;
+
+        # proxy the PHP scripts to Apache listening on 127.0.0.1:80
+        #
+        #location ~ \.php$ &#123;
+        #    proxy_pass   http:&#x2F;&#x2F;127.0.0.1;
+        #&#125;
+
+        # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+        #
+        #location ~ \.php$ &#123;
+        #    root           html;
+        #    fastcgi_pass   127.0.0.1:9000;
+        #    fastcgi_index  index.php;
+        #    fastcgi_param  SCRIPT_FILENAME  &#x2F;scripts$fastcgi_script_name;
+        #    include        fastcgi_params;
+        #&#125;
+
+        # deny access to .htaccess files, if Apache&#39;s document root
+        # concurs with nginx&#39;s one
+        #
+        #location ~ &#x2F;\.ht &#123;
+        #    deny  all;
+        #&#125;
+    &#125;
+
+
+    # another virtual host using mix of IP-, name-, and port-based configuration
+    #
+    #server &#123;
+    #    listen       8000;
+    #    listen       somename:8080;
+    #    server_name  somename  alias  another.alias;
+
+    #    location &#x2F; &#123;
+    #        root   html;
+    #        index  index.html index.htm;
+    #    &#125;
+    #&#125;
+
+
+    # HTTPS server
+    #
+    #server &#123;
+    #    listen       443 ssl;
+    #    server_name  localhost;
+
+    #    ssl_certificate      cert.pem;
+    #    ssl_certificate_key  cert.key;
+
+    #    ssl_session_cache    shared:SSL:1m;
+    #    ssl_session_timeout  5m;
+
+    #    ssl_ciphers  HIGH:!aNULL:!MD5;
+    #    ssl_prefer_server_ciphers  on;
+
+    #    location &#x2F; &#123;
+    #        root   html;
+    #        index  index.html index.htm;
+    #    &#125;
+    #&#125;
+
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="2-子配置文件"><a href="#2-子配置文件" class="headerlink" title="2.子配置文件"></a>2.子配置文件</h3><pre class="line-numbers language-none"><code class="language-none">[root@zabbix_server ansible]# vim &#x2F;root&#x2F;ansible&#x2F;work&#x2F;blog.conf 
+
+server &#123;
+   listen 80;
+   server_name blog.wsjj.com;
+   access_log &#x2F;var&#x2F;log&#x2F;nginx&#x2F;blog_access.log main;
+   error_log &#x2F;var&#x2F;log&#x2F;nginx&#x2F;blog_error.log error;
+
+   location &#x2F; &#123;	
+       root &#x2F;www&#x2F;wwwroot&#x2F;blog.wsjj.com;		
+       index index.html index.php;	
+   &#125;
+   location ~ \.php$ &#123;
+       root           &#x2F;www&#x2F;wwwroot&#x2F;blog.wsjj.com;
+       fastcgi_pass   127.0.0.1:9000;
+       fastcgi_index  index.php;
+       fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+       include        fastcgi_params;
+   &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work">网笙久久</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work/2023/05/16/117/">https://blog.wangshengjj.work/2023/05/16/117/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.wangshengjj.work" target="_blank">WangShengJJのblog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/linux/">linux</a><a class="post-meta__tags" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/">服务器搭建</a><a class="post-meta__tags" href="/tags/centos/">centos</a><a class="post-meta__tags" href="/tags/ansible/">ansible</a><a class="post-meta__tags" href="/tags/wordpress/">wordpress</a><a class="post-meta__tags" href="/tags/lnmp%E7%8E%AF%E5%A2%83/">lnmp环境</a><a class="post-meta__tags" href="/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/">博客搭建教程</a><a class="post-meta__tags" href="/tags/ansible-playbook/">ansible playbook</a></div><div class="post_share"><div class="social-share" data-image="https://www.dmoe.cc/random.php" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/05/18/118/" title="【Linux应用系列教程】Git分布式版本控制器"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【Linux应用系列教程】Git分布式版本控制器</div></div></a></div><div class="next-post pull-right"><a href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【自动化运维系列教程】Ansible Playbook剧本</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/05/12/114/" title="【Zabbix系列教程】Proxy端部署教程+分布式监控"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-12</div><div class="title">【Zabbix系列教程】Proxy端部署教程+分布式监控</div></div></a></div><div><a href="/2023/05/15/115/" title="【自动化运维系列教程】Ansible自动化运维工具"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-15</div><div class="title">【自动化运维系列教程】Ansible自动化运维工具</div></div></a></div><div><a href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-15</div><div class="title">【自动化运维系列教程】Ansible Playbook剧本</div></div></a></div><div><a href="/2022/11/25/23/" title="Kubernetes(K8s)部署WordPress博客"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-11-25</div><div class="title">Kubernetes(K8s)部署WordPress博客</div></div></a></div><div><a href="/2023/05/06/105/" title="【Linux存储系列教程】ceph-mimic集群部署"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-06</div><div class="title">【Linux存储系列教程】ceph-mimic集群部署</div></div></a></div><div><a href="/2023/05/11/112/" title="【Zabbix系列教程】监控MySQL、Nginx、Redis常用键值"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-11</div><div class="title">【Zabbix系列教程】监控MySQL、Nginx、Redis常用键值</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">网笙久久</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">126</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">168</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">230</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wangshengjj"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wangshengjj" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:wangshengjj@wangshengjj.work" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.wangshengjj.work" target="_blank" title="Blog"><i class="fa fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到网笙久久的博客</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E3%80%90%E8%87%AA%E5%8A%A8%E5%8C%96%E8%BF%90%E7%BB%B4%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%E3%80%91Ansible-Playbook%E5%89%A7%E6%9C%AC%E9%83%A8%E7%BD%B2LNMP%E7%8E%AF%E5%A2%83-WordPress%E5%8D%9A%E5%AE%A2"><span class="toc-number">1.</span> <span class="toc-text">【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E7%BC%96%E5%86%99Playbook"><span class="toc-number">1.1.</span> <span class="toc-text">一、编写Playbook</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%94%A8%E5%88%B0%E7%9A%84Nginx%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.</span> <span class="toc-text">二、用到的Nginx配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%B8%BB%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.主配置文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%AD%90%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.子配置文件</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/05/19/120/" title="【Linux应用系列教程】基于Jenkins发布maven项目"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】基于Jenkins发布maven项目"/></a><div class="content"><a class="title" href="/2023/05/19/120/" title="【Linux应用系列教程】基于Jenkins发布maven项目">【Linux应用系列教程】基于Jenkins发布maven项目</a><time datetime="2023-05-19T03:49:39.490Z" title="发表于 2023-05-19 11:49:39">2023-05-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/19/119/" title="【Linux应用系列教程】Jenkins持续集成工具安装教程"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】Jenkins持续集成工具安装教程"/></a><div class="content"><a class="title" href="/2023/05/19/119/" title="【Linux应用系列教程】Jenkins持续集成工具安装教程">【Linux应用系列教程】Jenkins持续集成工具安装教程</a><time datetime="2023-05-19T02:49:24.709Z" title="发表于 2023-05-19 10:49:24">2023-05-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/18/118/" title="【Linux应用系列教程】Git分布式版本控制器"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】Git分布式版本控制器"/></a><div class="content"><a class="title" href="/2023/05/18/118/" title="【Linux应用系列教程】Git分布式版本控制器">【Linux应用系列教程】Git分布式版本控制器</a><time datetime="2023-05-18T12:19:54.279Z" title="发表于 2023-05-18 20:19:54">2023-05-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/16/117/" title="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客"/></a><div class="content"><a class="title" href="/2023/05/16/117/" title="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客">【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客</a><time datetime="2023-05-16T11:30:05.268Z" title="发表于 2023-05-16 19:30:05">2023-05-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【自动化运维系列教程】Ansible Playbook剧本"/></a><div class="content"><a class="title" href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本">【自动化运维系列教程】Ansible Playbook剧本</a><time datetime="2023-05-15T12:27:43.911Z" title="发表于 2023-05-15 20:27:43">2023-05-15</time></div></div></div></div></div></div></main><footer id="footer" style="background: flase"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By 网笙久久</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><div class="js-pjax"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js"></script><script>(() => {
+  document.querySelectorAll('#article-container span.katex-display').forEach(item => {
+    btf.wrap(item, 'div', { class: 'katex-wrap'})
+  })
+})()</script></div><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div><script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(n){n.imageLazyLoadSetting.processImages=i;var e=n.imageLazyLoadSetting.isSPA,r=(n.imageLazyLoadSetting.preloadRatio,Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));function i(){e&&(r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));for(var t,a=0;a<r.length;a++)0<=(t=(t=r[a]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(n.innerHeight+240||document.documentElement.clientHeight+240)&&function(){var t,e,n,i,o=r[a];t=o,e=function(){r=r.filter(function(t){return o!==t})},n=new Image,i=t.getAttribute("data-original"),n.onload=function(){t.src=i,e&&e()},t.src!==i&&(n.src=i)}()}i(),n.addEventListener("scroll",function(){var t,e;t=i,e=n,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(e)},500)})}(this);</script></body></html>

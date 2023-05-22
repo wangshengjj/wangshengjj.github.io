@@ -1,0 +1,609 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>【Linux基础服务教程】DNS域名解析服务 | WangShengJJのblog</title><meta name="author" content="网笙久久"><meta name="copyright" content="网笙久久"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="【Linux基础服务教程】DNS域名解析服务一、DNS服务介绍 DNS		应用层协议   全称：Domain Name System 	域名系统 作用 正向解析 根据主机名查询对应 的IP   反向解析 根据IP查询对应的主机名      1.zone区域 正向区域  一般就是二级域名 jd.com baidu.com wangshengjj.com 等等     反向区域  x.x.x.in-a">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Linux基础服务教程】DNS域名解析服务">
+<meta property="og:url" content="https://blog.wangshengjj.work/2023/03/23/64/index.html">
+<meta property="og:site_name" content="WangShengJJのblog">
+<meta property="og:description" content="【Linux基础服务教程】DNS域名解析服务一、DNS服务介绍 DNS		应用层协议   全称：Domain Name System 	域名系统 作用 正向解析 根据主机名查询对应 的IP   反向解析 根据IP查询对应的主机名      1.zone区域 正向区域  一般就是二级域名 jd.com baidu.com wangshengjj.com 等等     反向区域  x.x.x.in-a">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.dmoe.cc/random.php">
+<meta property="article:published_time" content="2023-03-23T13:21:42.514Z">
+<meta property="article:modified_time" content="2023-03-23T13:21:42.514Z">
+<meta property="article:author" content="网笙久久">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="linux基础服务">
+<meta property="article:tag" content="linux基础">
+<meta property="article:tag" content="DNS">
+<meta property="article:tag" content="域名解析">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.dmoe.cc/random.php"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://blog.wangshengjj.work/2023/03/23/64/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"prismjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【Linux基础服务教程】DNS域名解析服务',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-03-23 21:21:42'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><meting-js server="netease" type="playlist" id="7386208265" lrc-type="0" volume="0.5" fixed="true" mini="true" order="random" loop="all" autoplay="true" preload="auto" list-folded="true"></meting-js><script src="https://fastly.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/autoload.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script><meta name="generator" content="Hexo 6.1.0"></head><body><link rel="stylesheet" href="/css/barber-shop.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">126</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">168</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">230</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://www.dmoe.cc/random.php')"><nav id="nav"><span id="blog-info"><a href="/" title="WangShengJJのblog"><span class="site-name">WangShengJJのblog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【Linux基础服务教程】DNS域名解析服务</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-03-23T13:21:42.514Z" title="发表于 2023-03-23 21:21:42">2023-03-23</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-03-23T13:21:42.514Z" title="更新于 2023-03-23 21:21:42">2023-03-23</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%99%9A%E6%8B%9F%E6%9C%BA/">虚拟机</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%99%9A%E6%8B%9F%E6%9C%BA/%E7%BD%91%E7%BB%9C/">网络</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%99%9A%E6%8B%9F%E6%9C%BA/%E7%BD%91%E7%BB%9C/linux%E6%95%99%E7%A8%8B/">linux教程</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%99%9A%E6%8B%9F%E6%9C%BA/%E7%BD%91%E7%BB%9C/linux%E6%95%99%E7%A8%8B/linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1/">linux基础服务</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">2.2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>11分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="【Linux基础服务教程】DNS域名解析服务"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="【Linux基础服务教程】DNS域名解析服务"><a href="#【Linux基础服务教程】DNS域名解析服务" class="headerlink" title="【Linux基础服务教程】DNS域名解析服务"></a>【Linux基础服务教程】DNS域名解析服务</h1><h2 id="一、DNS服务介绍"><a href="#一、DNS服务介绍" class="headerlink" title="一、DNS服务介绍"></a>一、DNS服务介绍</h2><ul>
+<li>DNS		应用层协议  </li>
+<li>全称：Domain Name System 	域名系统</li>
+<li>作用<ul>
+<li>正向解析<ul>
+<li>根据主机名查询对应 的IP</li>
+</ul>
+</li>
+<li>反向解析<ul>
+<li>根据IP查询对应的主机名</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="1-zone区域"><a href="#1-zone区域" class="headerlink" title="1.zone区域"></a>1.zone区域</h3><ul>
+<li><p>正向区域</p>
+<ul>
+<li>一般就是二级域名<ul>
+<li>jd.com</li>
+<li>baidu.com</li>
+<li>wangshengjj.com 等等</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>反向区域</p>
+<ul>
+<li>x.x.x.in-addr.arpa<ul>
+<li>1.168.192.in-addr.arpa </li>
+<li>1.1.10.in-addr.arpa</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-Record-记录"><a href="#2-Record-记录" class="headerlink" title="2.Record 记录"></a>2.Record 记录</h3><p>以下是常用记录</p>
+<ol>
+<li>A记录</li>
+</ol>
+<ul>
+<li>记录主机名与IP地址的对应关系 </li>
+<li>三级域名  A记录  IPV4地址</li>
+<li><a target="_blank" rel="noopener" href="http://www.baidu.com/">www.baidu.com</a>	A	3.3.3.3</li>
+</ul>
+<ol start="2">
+<li>AAAA记录</li>
+</ol>
+<ul>
+<li>记录主机名与IP地址的对应关系 </li>
+<li>三级域名  A记录  IPV6地址</li>
+<li><a target="_blank" rel="noopener" href="http://www.baidu.com/">www.baidu.com</a>	A	::1</li>
+</ul>
+<ol start="3">
+<li>PTR记录</li>
+</ol>
+<ul>
+<li>反向指针记录</li>
+<li>记录IP地址、主机名的对应关系 </li>
+<li>10.168.192.in-addr.arpa</li>
+<li>8	PTR		test1.linux.com.	#此域名对应IP为192.168.10.8</li>
+<li>12	PTR		test2.linux.com.	#此域名对应IP为192.168.10.12</li>
+</ul>
+<ol start="4">
+<li>CNAME记录</li>
+</ol>
+<ul>
+<li>别名记录、一个域名指向另一个域名</li>
+<li><a target="_blank" rel="noopener" href="http://www.baidu.com/">www.baidu.com</a>	CNAME		<a target="_blank" rel="noopener" href="http://www.a.shifen.com/">www.a.shifen.com</a></li>
+</ul>
+<ol start="5">
+<li>MX记录</li>
+</ol>
+<ul>
+<li><p>标识邮件服务器</p>
+</li>
+<li><p>必须配合A记录同时使用</p>
+</li>
+<li><p>MX	5	mail01.linux.com.</p>
+</li>
+<li><p>mail01.linux.com	A	5.5.5.5</p>
+</li>
+<li><p>MX  10	mail02.linux.com</p>
+</li>
+<li><p>mail02.linux.com	A	7.7.7.7</p>
+</li>
+<li><p>数字5: 邮件服务器的优先级，数字越小，优先级越高</p>
+</li>
+</ul>
+<ol start="6">
+<li>NS记录</li>
+</ol>
+<ul>
+<li>标识DNS服务器</li>
+<li>必须配合A记录同时使用</li>
+<li>NS		ns01.linux.com.</li>
+<li>ns01.linux.com	A	6.6.6.6</li>
+</ul>
+<h3 id="3-DNS服务用到的软件包和配置文件"><a href="#3-DNS服务用到的软件包和配置文件" class="headerlink" title="3.DNS服务用到的软件包和配置文件"></a>3.DNS服务用到的软件包和配置文件</h3><ul>
+<li><p>软件</p>
+<ul>
+<li>bind</li>
+<li>bind-chroot<ul>
+<li>增强DNS服务安全性</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>配置文件  </p>
+<ul>
+<li>主配置文件 <ul>
+<li>&#x2F;var&#x2F;named&#x2F;chroot&#x2F;etc&#x2F;named.conf</li>
+</ul>
+<p>	</p>
+</li>
+<li>数据文件&#x2F;记录文件 <ul>
+<li>&#x2F;var&#x2F;named&#x2F;chroot&#x2F;var&#x2F;named&#x2F;*</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="二、配置DNS实现正向解析"><a href="#二、配置DNS实现正向解析" class="headerlink" title="二、配置DNS实现正向解析"></a>二、配置DNS实现正向解析</h2><h3 id="二级域名：linux-com"><a href="#二级域名：linux-com" class="headerlink" title="二级域名：linux.com"></a>二级域名：linux.com</h3><table>
+<thead>
+<tr>
+<th>服务器</th>
+<th>地址</th>
+<th>三级域名</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DNS服务器</td>
+<td>192.168.140.10</td>
+<td>ns01.linux.com</td>
+</tr>
+<tr>
+<td>FTP服务器</td>
+<td>10.1.1.1</td>
+<td>ftpserver.linux.com</td>
+</tr>
+<tr>
+<td>web服务器</td>
+<td>10.1.1.2</td>
+<td>web.linux.com</td>
+</tr>
+<tr>
+<td>Mail服务器</td>
+<td>10.1.1.3</td>
+<td>mail01.linux.com</td>
+</tr>
+</tbody></table>
+<h3 id="1-关闭防火墙和SElinux"><a href="#1-关闭防火墙和SElinux" class="headerlink" title="1.关闭防火墙和SElinux"></a>1.关闭防火墙和SElinux</h3><p><strong>过程省略</strong></p>
+<h3 id="2-安装DNS软件包"><a href="#2-安装DNS软件包" class="headerlink" title="2.安装DNS软件包"></a>2.安装DNS软件包</h3><pre class="line-numbers language-none"><code class="language-none">[root@dns_server ~]# yum install bind bind-chroot <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="3-在主配置文件创建域"><a href="#3-在主配置文件创建域" class="headerlink" title="3.在主配置文件创建域"></a>3.在主配置文件创建域</h3><p><strong>域：linux.com</strong></p>
+<pre class="line-numbers language-none"><code class="language-none">[root@dns_server ~]# vim &#x2F;var&#x2F;named&#x2F;chroot&#x2F;etc&#x2F;named.conf
+
+options &#123;
+    directory &quot;&#x2F;var&#x2F;named&quot;;      #指定记录文件的存放位置 
+&#125;;
+
+zone &quot;linux.com&quot; &#123;             #指定区域名
+    type master;               #指定区域类型为主区域
+    file &quot;linux.com.zone&quot;;     #指定linux.com区域对应的记录文件名称
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-创建记录文件、添加记录"><a href="#4-创建记录文件、添加记录" class="headerlink" title="4.创建记录文件、添加记录"></a>4.创建记录文件、添加记录</h3><pre class="line-numbers language-none"><code class="language-none">[root@dns_server ~]# cp &#x2F;usr&#x2F;share&#x2F;doc&#x2F;bind-9.11.4&#x2F;sample&#x2F;var&#x2F;named&#x2F;named.localhost  &#x2F;var&#x2F;named&#x2F;chroot&#x2F;var&#x2F;named&#x2F;linux.com.zone	#复制官方文档教程文件并改名<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@dns_server ~]# vim &#x2F;var&#x2F;named&#x2F;chroot&#x2F;var&#x2F;named&#x2F;linux.com.zone
+
+$TTL 1D
+@	IN SOA	linux.com. xxxx.qq.com. (
+					0	; serial
+					1D	; refresh
+					1H	; retry
+					1W	; expire
+					3H )	; minimum
+	NS	ns01.linux.com.
+ns01	A	192.168.140.10
+ftpserver	A	10.1.1.1
+web		A	10.1.1.2
+	MX  5	mail01.linux.com.
+mail01	A	10.1.1.3<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="5-启动DNS服务、并设置开机自启"><a href="#5-启动DNS服务、并设置开机自启" class="headerlink" title="5.启动DNS服务、并设置开机自启"></a>5.启动DNS服务、并设置开机自启</h3><pre class="line-numbers language-none"><code class="language-none">[root@dns_server ~]# systemctl enable --now named named-chroot<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="6-验证DNS服务器是否启动"><a href="#6-验证DNS服务器是否启动" class="headerlink" title="6.验证DNS服务器是否启动"></a>6.验证DNS服务器是否启动</h3><pre class="line-numbers language-none"><code class="language-none">[root@dns_server ~]# ps -elf | grep name
+5 S named      7290      1  0  80   0 - 97735 sigsus 11:05 ?        00:00:00 &#x2F;usr&#x2F;sbin&#x2F;named -u named -c &#x2F;etc&#x2F;named.conf
+5 S named      7329      1  0  80   0 - 63898 sigsus 11:05 ?        00:00:00 &#x2F;usr&#x2F;sbin&#x2F;named -u named -c &#x2F;etc&#x2F;named.conf -t &#x2F;var&#x2F;named&#x2F;chroot
+0 S root       7356   6942  0  80   0 - 28177 pipe_w 11:06 pts&#x2F;0    00:00:00 grep --color&#x3D;auto name
+
+[root@dns_server ~]# netstat -tunlp | grep name
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID&#x2F;Program name    
+tcp        0      0 192.168.140.10:53       0.0.0.0:*               LISTEN      7329&#x2F;named          
+tcp        0      0 127.0.0.1:53            0.0.0.0:*               LISTEN      7290&#x2F;named          
+tcp        0      0 127.0.0.1:953           0.0.0.0:*               LISTEN      7290&#x2F;named          
+tcp6       0      0 ::1:53                  :::*                    LISTEN      7290&#x2F;named          
+tcp6       0      0 ::1:953                 :::*                    LISTEN      7290&#x2F;named          
+udp        0      0 192.168.140.10:53       0.0.0.0:*                           7329&#x2F;named          
+udp        0      0 127.0.0.1:53            0.0.0.0:*                           7329&#x2F;named          
+udp        0      0 127.0.0.1:53            0.0.0.0:*                           7290&#x2F;named          
+udp6       0      0 ::1:53                  :::*                                7290&#x2F;named  <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li>DNS默认服务端口53&#x2F;tcp&#x2F;udp</li>
+</ul>
+<h3 id="7-验证DNS"><a href="#7-验证DNS" class="headerlink" title="7.验证DNS"></a>7.验证DNS</h3><h4 id="windows工具nslookup"><a href="#windows工具nslookup" class="headerlink" title="windows工具nslookup"></a>windows工具nslookup</h4><pre class="line-numbers language-none"><code class="language-none">C:\&gt;nslookup
+默认服务器:  gjjline.bta.net.cn
+Address:  202.106.0.20
+
+&gt; server 192.168.140.10
+默认服务器:  [192.168.140.10]
+Address:  192.168.140.10
+
+&gt; ftpserver.linux.com
+服务器:  [192.168.140.10]
+Address:  192.168.140.10
+
+名称:    ftpserver.linux.com
+Address:  10.1.1.1
+
+&gt; web.linux.com
+服务器:  [192.168.140.10]
+Address:  192.168.140.10
+
+名称:    web.linux.com
+Address:  10.1.1.2
+
+&gt; mail01.linux.com
+服务器:  [192.168.140.10]
+Address:  192.168.140.10
+
+名称:    mail01.linux.com
+Address:  10.1.1.3<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="三、配置DNS实现反向解析"><a href="#三、配置DNS实现反向解析" class="headerlink" title="三、配置DNS实现反向解析"></a>三、配置DNS实现反向解析</h2><h3 id="1-添加反向域"><a href="#1-添加反向域" class="headerlink" title="1.添加反向域"></a>1.添加反向域</h3><pre class="line-numbers language-none"><code class="language-none">[root@dns_server named]# vim &#x2F;var&#x2F;named&#x2F;chroot&#x2F;etc&#x2F;named.conf
+
+options &#123;
+    directory &quot;&#x2F;var&#x2F;named&quot;;
+&#125;;
+
+zone &quot;linux.com&quot; &#123;
+    type master;
+    file &quot;linux.com.zone&quot;; 
+&#125;;
+
+zone &quot;1.1.10.in-addr.arpa&quot; &#123;
+    type master;
+    file &quot;10.1.1.zone&quot;;
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="2-添加记录文件"><a href="#2-添加记录文件" class="headerlink" title="2.添加记录文件"></a>2.添加记录文件</h3><pre class="line-numbers language-none"><code class="language-none">[root@dns_server ~]# vim &#x2F;var&#x2F;named&#x2F;chroot&#x2F;var&#x2F;named&#x2F;10.1.1.zone
+
+[root@dns_server named]# vim &#x2F;var&#x2F;named&#x2F;chroot&#x2F;var&#x2F;named&#x2F;10.1.1.zone
+$TTL 1D
+@	IN SOA	linux.com. xxxx.qq.com. (
+					0	; serial
+					1D	; refresh
+					1H	; retry
+					1W	; expire
+					3H )	; minimum
+	NS	ns01.linux.com.
+ns01	A	192.168.140.10
+1	PTR	ftpserver.linux.com.
+2	PTR	web.linux.com.
+3	PTR	mail01.linux.com.<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-重启服务"><a href="#3-重启服务" class="headerlink" title="3.重启服务"></a>3.重启服务</h3><pre class="line-numbers language-none"><code class="language-none">[root@dns_server named]# systemctl restart named named-chroot<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="4-验证反向解析"><a href="#4-验证反向解析" class="headerlink" title="4.验证反向解析"></a>4.验证反向解析</h3><pre class="line-numbers language-none"><code class="language-none">C:\Users\admin&gt;nslookup
+默认服务器:  gjjline.bta.net.cn
+Address:  202.106.0.20
+
+&gt; server 192.168.140.10
+默认服务器:  [192.168.140.10]
+Address:  192.168.140.10
+
+&gt;
+&gt; 10.1.1.1
+服务器:  [192.168.140.10]
+Address:  192.168.140.10
+
+名称:    ftpserver.linux.com
+Address:  10.1.1.1
+
+&gt; 10.1.1.2
+服务器:  [192.168.140.10]
+Address:  192.168.140.10
+
+名称:    web.linux.com
+Address:  10.1.1.2
+
+&gt; 10.1.1.3
+服务器:  [192.168.140.10]
+Address:  192.168.140.10
+
+名称:    mail01.linux.com
+Address:  10.1.1.3
+
+&gt; exit<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="5-linux测试工具dig"><a href="#5-linux测试工具dig" class="headerlink" title="5.linux测试工具dig"></a>5.linux测试工具dig</h3><pre class="line-numbers language-none"><code class="language-none">[root@localhost ~]# dig -t A mail01.linux.com<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h2 id="四、配置DNS主从"><a href="#四、配置DNS主从" class="headerlink" title="四、配置DNS主从"></a>四、配置DNS主从</h2><h3 id="1-环境准备"><a href="#1-环境准备" class="headerlink" title="1.环境准备"></a>1.环境准备</h3><ul>
+<li>192.168.140.10	主DNS</li>
+<li>192.168.140.11	备DNS</li>
+</ul>
+<h3 id="2-关闭防火墙和SElinux"><a href="#2-关闭防火墙和SElinux" class="headerlink" title="2.关闭防火墙和SElinux"></a>2.关闭防火墙和SElinux</h3><p><strong>过程省略</strong></p>
+<h3 id="3-修改主DNS配置文件，添加从服务器地址"><a href="#3-修改主DNS配置文件，添加从服务器地址" class="headerlink" title="3.修改主DNS配置文件，添加从服务器地址"></a>3.修改主DNS配置文件，添加从服务器地址</h3><pre class="line-numbers language-none"><code class="language-none">[root@dns_server ~]# vim &#x2F;var&#x2F;named&#x2F;chroot&#x2F;etc&#x2F;named.conf 
+
+options &#123;
+    directory &quot;&#x2F;var&#x2F;named&quot;; 
+&#125;;
+
+zone &quot;linux.com&quot; &#123;
+    type master;  
+    file &quot;linux.com.zone&quot;;
+    allow-transfer &#123; 192.168.140.11; &#125;;    #指定从服务器地址
+&#125;;
+
+zone &quot;1.1.10.in-addr.arpa&quot; &#123;
+    type master;
+    file &quot;10.1.1.zone&quot;;
+    allow-transfer &#123; 192.168.140.11; &#125;; 	#指定从服务器地址
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-修改主DNS配置文件"><a href="#4-修改主DNS配置文件" class="headerlink" title="4.修改主DNS配置文件"></a>4.修改主DNS配置文件</h3><pre class="line-numbers language-none"><code class="language-none">[root@dns_server ~]# vim &#x2F;var&#x2F;named&#x2F;chroot&#x2F;var&#x2F;named&#x2F;linux.com.zone	#修改正向解析配置文件
+
+$TTL 1D
+@	IN SOA	linux.com. xxxx.qq.com. (
+					0	; serial
+					1D	; refresh
+					1H	; retry
+					1W	; expire
+					3H )	; minimum
+	NS	ns01.linux.com.
+        NS      ns02.linux.com.	#添加第二个DNS记录
+ns01	A	192.168.140.10
+ns02    A       192.168.140.11	#添加从DNS的IP
+ftpserver	A	10.1.1.1
+web		A	10.1.1.2
+	MX  5	mail01.linux.com.
+mail01	A	10.1.1.3<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@dns_server named]# vim &#x2F;var&#x2F;named&#x2F;chroot&#x2F;var&#x2F;named&#x2F;10.1.1.zone	#修改反向解析配置文件
+$TTL 1D
+@	IN SOA	linux.com. xxxx.qq.com. (
+					0	; serial
+					1D	; refresh
+					1H	; retry
+					1W	; expire
+					3H )	; minimum
+	NS	ns01.linux.com.
+        NS      ns02.linux.com.	#添加第二个DNS记录
+ns01	A	192.168.140.10
+ns02    A       192.168.140.11	#添加从DNS的IP
+1	PTR	ftpserver.linux.com.
+2	PTR	web.linux.com.
+3	PTR	mail01.linux.com.<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="5-重启主DNS服务"><a href="#5-重启主DNS服务" class="headerlink" title="5.重启主DNS服务"></a>5.重启主DNS服务</h3><pre class="line-numbers language-none"><code class="language-none">[root@dns_server ~]# systemctl restart named named-chroot<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="6-在从服务器安装DNS软件包"><a href="#6-在从服务器安装DNS软件包" class="headerlink" title="6.在从服务器安装DNS软件包"></a>6.在从服务器安装DNS软件包</h3><pre class="line-numbers language-none"><code class="language-none">[root@localhost ~]# yum install bind bind-chroot <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="7-在从服务器创建相同域"><a href="#7-在从服务器创建相同域" class="headerlink" title="7.在从服务器创建相同域"></a>7.在从服务器创建相同域</h3><pre class="line-numbers language-none"><code class="language-none">[root@localhost ~]# vim &#x2F;var&#x2F;named&#x2F;chroot&#x2F;etc&#x2F;named.conf
+
+options &#123;
+   directory &quot;&#x2F;var&#x2F;named&quot;;
+&#125;;
+
+zone &quot;linux.com&quot; &#123;
+    type slave;         #指定区域类型为从，代表要从主服务器上复制记录文件
+    file &quot;slaves&#x2F;linux.com.zone&quot;;     #记录文件的存放位置 
+    masters &#123; 192.168.140.10; &#125;;     #指定主服务器地址
+&#125;;
+
+zone &quot;1.1.10.in-addr.arpa&quot; &#123;
+    type slave;
+    file &quot;slaves&#x2F;10.1.1.zone&quot;;
+    masters &#123; 192.168.140.10; &#125;; 	#指定主服务器地址
+&#125;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="8-从DNS设置开机自启并启动服务"><a href="#8-从DNS设置开机自启并启动服务" class="headerlink" title="8.从DNS设置开机自启并启动服务"></a>8.从DNS设置开机自启并启动服务</h3><pre class="line-numbers language-none"><code class="language-none">[root@localhost ~]# systemctl enable --now named named-chroot<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="9-验证主从是否完成同步"><a href="#9-验证主从是否完成同步" class="headerlink" title="9.验证主从是否完成同步"></a>9.验证主从是否完成同步</h3><pre class="line-numbers language-none"><code class="language-none">[root@localhost ~]# ls &#x2F;var&#x2F;named&#x2F;chroot&#x2F;var&#x2F;named&#x2F;slaves&#x2F;
+linux.com.zone	10.1.1.zone<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h3 id="10-测试从服务器"><a href="#10-测试从服务器" class="headerlink" title="10.测试从服务器"></a>10.测试从服务器</h3><pre class="line-numbers language-none"><code class="language-none">C:\Users\admin&gt;nslookup
+默认服务器:  gjjline.bta.net.cn
+Address:  202.106.0.20
+
+&gt;
+&gt; server 192.168.140.11
+默认服务器:  [192.168.140.11]
+Address:  192.168.140.11
+
+&gt;
+&gt; ftpserver.linux.com
+服务器:  [192.168.140.11]
+Address:  192.168.140.11
+
+名称:    ftpserver.linux.com
+Address:  10.1.1.1
+
+&gt; web.linux.com
+服务器:  [192.168.140.11]
+Address:  192.168.140.11
+
+名称:    web.linux.com
+Addresses:  10.1.1.2
+          10.1.1.10
+
+&gt; mail01.linux.com
+服务器:  [192.168.140.11]
+Address:  192.168.140.11
+
+名称:    mail01.linux.com
+Address:  10.1.1.3<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="五、本地hosts文件"><a href="#五、本地hosts文件" class="headerlink" title="五、本地hosts文件"></a>五、本地hosts文件</h2><ul>
+<li>作用：记录主机名、IP地址的对应关系 </li>
+<li>格式<ul>
+<li>IP地址	主机名</li>
+</ul>
+</li>
+<li>文件目录：&#x2F;etc&#x2F;hosts</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work">网笙久久</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work/2023/03/23/64/">https://blog.wangshengjj.work/2023/03/23/64/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.wangshengjj.work" target="_blank">WangShengJJのblog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/linux/">linux</a><a class="post-meta__tags" href="/tags/linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1/">linux基础服务</a><a class="post-meta__tags" href="/tags/linux%E5%9F%BA%E7%A1%80/">linux基础</a><a class="post-meta__tags" href="/tags/DNS/">DNS</a><a class="post-meta__tags" href="/tags/%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/">域名解析</a></div><div class="post_share"><div class="social-share" data-image="https://www.dmoe.cc/random.php" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/03/30/65/" title="【数据库系列教程】MySQL基本认识和安装"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【数据库系列教程】MySQL基本认识和安装</div></div></a></div><div class="next-post pull-right"><a href="/2023/03/22/63/" title="最近流行AI项目整合推荐"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">最近流行AI项目整合推荐</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/03/17/58/" title="【Linux基础服务教程】SSH服务"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-03-17</div><div class="title">【Linux基础服务教程】SSH服务</div></div></a></div><div><a href="/2023/03/17/59/" title="【Linux基础服务教程】DHCP服务"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-03-17</div><div class="title">【Linux基础服务教程】DHCP服务</div></div></a></div><div><a href="/2023/03/20/62/" title="【Linux基础服务教程】NFS网络文件共享"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-03-20</div><div class="title">【Linux基础服务教程】NFS网络文件共享</div></div></a></div><div><a href="/2023/04/01/69/" title="【Linux基础服务教程】httpd(Apache)安装和配置"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-04-01</div><div class="title">【Linux基础服务教程】httpd(Apache)安装和配置</div></div></a></div><div><a href="/2023/04/01/70/" title="【Linux基础服务教程】httpd(Apache)虚拟主机功能[单服务器配置多网站]"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-04-01</div><div class="title">【Linux基础服务教程】httpd(Apache)虚拟主机功能[单服务器配置多网站]</div></div></a></div><div><a href="/2023/04/03/72/" title="【数据库系列教程】MySQL视图、事务、索引"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-04-03</div><div class="title">【数据库系列教程】MySQL视图、事务、索引</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">网笙久久</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">126</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">168</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">230</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wangshengjj"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wangshengjj" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:wangshengjj@wangshengjj.work" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.wangshengjj.work" target="_blank" title="Blog"><i class="fa fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到网笙久久的博客</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E3%80%90Linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1%E6%95%99%E7%A8%8B%E3%80%91DNS%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.</span> <span class="toc-text">【Linux基础服务教程】DNS域名解析服务</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81DNS%E6%9C%8D%E5%8A%A1%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.1.</span> <span class="toc-text">一、DNS服务介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-zone%E5%8C%BA%E5%9F%9F"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.zone区域</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Record-%E8%AE%B0%E5%BD%95"><span class="toc-number">1.1.2.</span> <span class="toc-text">2.Record 记录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-DNS%E6%9C%8D%E5%8A%A1%E7%94%A8%E5%88%B0%E7%9A%84%E8%BD%AF%E4%BB%B6%E5%8C%85%E5%92%8C%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.1.3.</span> <span class="toc-text">3.DNS服务用到的软件包和配置文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E9%85%8D%E7%BD%AEDNS%E5%AE%9E%E7%8E%B0%E6%AD%A3%E5%90%91%E8%A7%A3%E6%9E%90"><span class="toc-number">1.2.</span> <span class="toc-text">二、配置DNS实现正向解析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E7%BA%A7%E5%9F%9F%E5%90%8D%EF%BC%9Alinux-com"><span class="toc-number">1.2.1.</span> <span class="toc-text">二级域名：linux.com</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%85%B3%E9%97%AD%E9%98%B2%E7%81%AB%E5%A2%99%E5%92%8CSElinux"><span class="toc-number">1.2.2.</span> <span class="toc-text">1.关闭防火墙和SElinux</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%AE%89%E8%A3%85DNS%E8%BD%AF%E4%BB%B6%E5%8C%85"><span class="toc-number">1.2.3.</span> <span class="toc-text">2.安装DNS软件包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%9C%A8%E4%B8%BB%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%88%9B%E5%BB%BA%E5%9F%9F"><span class="toc-number">1.2.4.</span> <span class="toc-text">3.在主配置文件创建域</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%88%9B%E5%BB%BA%E8%AE%B0%E5%BD%95%E6%96%87%E4%BB%B6%E3%80%81%E6%B7%BB%E5%8A%A0%E8%AE%B0%E5%BD%95"><span class="toc-number">1.2.5.</span> <span class="toc-text">4.创建记录文件、添加记录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%90%AF%E5%8A%A8DNS%E6%9C%8D%E5%8A%A1%E3%80%81%E5%B9%B6%E8%AE%BE%E7%BD%AE%E5%BC%80%E6%9C%BA%E8%87%AA%E5%90%AF"><span class="toc-number">1.2.6.</span> <span class="toc-text">5.启动DNS服务、并设置开机自启</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E9%AA%8C%E8%AF%81DNS%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%98%AF%E5%90%A6%E5%90%AF%E5%8A%A8"><span class="toc-number">1.2.7.</span> <span class="toc-text">6.验证DNS服务器是否启动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E9%AA%8C%E8%AF%81DNS"><span class="toc-number">1.2.8.</span> <span class="toc-text">7.验证DNS</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#windows%E5%B7%A5%E5%85%B7nslookup"><span class="toc-number">1.2.8.1.</span> <span class="toc-text">windows工具nslookup</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E9%85%8D%E7%BD%AEDNS%E5%AE%9E%E7%8E%B0%E5%8F%8D%E5%90%91%E8%A7%A3%E6%9E%90"><span class="toc-number">1.3.</span> <span class="toc-text">三、配置DNS实现反向解析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%B7%BB%E5%8A%A0%E5%8F%8D%E5%90%91%E5%9F%9F"><span class="toc-number">1.3.1.</span> <span class="toc-text">1.添加反向域</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%B7%BB%E5%8A%A0%E8%AE%B0%E5%BD%95%E6%96%87%E4%BB%B6"><span class="toc-number">1.3.2.</span> <span class="toc-text">2.添加记录文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E9%87%8D%E5%90%AF%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.3.3.</span> <span class="toc-text">3.重启服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E9%AA%8C%E8%AF%81%E5%8F%8D%E5%90%91%E8%A7%A3%E6%9E%90"><span class="toc-number">1.3.4.</span> <span class="toc-text">4.验证反向解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-linux%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7dig"><span class="toc-number">1.3.5.</span> <span class="toc-text">5.linux测试工具dig</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E9%85%8D%E7%BD%AEDNS%E4%B8%BB%E4%BB%8E"><span class="toc-number">1.4.</span> <span class="toc-text">四、配置DNS主从</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="toc-number">1.4.1.</span> <span class="toc-text">1.环境准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%85%B3%E9%97%AD%E9%98%B2%E7%81%AB%E5%A2%99%E5%92%8CSElinux"><span class="toc-number">1.4.2.</span> <span class="toc-text">2.关闭防火墙和SElinux</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E4%BF%AE%E6%94%B9%E4%B8%BBDNS%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%EF%BC%8C%E6%B7%BB%E5%8A%A0%E4%BB%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%9C%B0%E5%9D%80"><span class="toc-number">1.4.3.</span> <span class="toc-text">3.修改主DNS配置文件，添加从服务器地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E4%BF%AE%E6%94%B9%E4%B8%BBDNS%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.4.4.</span> <span class="toc-text">4.修改主DNS配置文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E9%87%8D%E5%90%AF%E4%B8%BBDNS%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.4.5.</span> <span class="toc-text">5.重启主DNS服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E5%9C%A8%E4%BB%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%AE%89%E8%A3%85DNS%E8%BD%AF%E4%BB%B6%E5%8C%85"><span class="toc-number">1.4.6.</span> <span class="toc-text">6.在从服务器安装DNS软件包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E5%9C%A8%E4%BB%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%9B%E5%BB%BA%E7%9B%B8%E5%90%8C%E5%9F%9F"><span class="toc-number">1.4.7.</span> <span class="toc-text">7.在从服务器创建相同域</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-%E4%BB%8EDNS%E8%AE%BE%E7%BD%AE%E5%BC%80%E6%9C%BA%E8%87%AA%E5%90%AF%E5%B9%B6%E5%90%AF%E5%8A%A8%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.4.8.</span> <span class="toc-text">8.从DNS设置开机自启并启动服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-%E9%AA%8C%E8%AF%81%E4%B8%BB%E4%BB%8E%E6%98%AF%E5%90%A6%E5%AE%8C%E6%88%90%E5%90%8C%E6%AD%A5"><span class="toc-number">1.4.9.</span> <span class="toc-text">9.验证主从是否完成同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-%E6%B5%8B%E8%AF%95%E4%BB%8E%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">1.4.10.</span> <span class="toc-text">10.测试从服务器</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%9C%AC%E5%9C%B0hosts%E6%96%87%E4%BB%B6"><span class="toc-number">1.5.</span> <span class="toc-text">五、本地hosts文件</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/05/19/120/" title="【Linux应用系列教程】基于Jenkins发布maven项目"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】基于Jenkins发布maven项目"/></a><div class="content"><a class="title" href="/2023/05/19/120/" title="【Linux应用系列教程】基于Jenkins发布maven项目">【Linux应用系列教程】基于Jenkins发布maven项目</a><time datetime="2023-05-19T03:49:39.490Z" title="发表于 2023-05-19 11:49:39">2023-05-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/19/119/" title="【Linux应用系列教程】Jenkins持续集成工具安装教程"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】Jenkins持续集成工具安装教程"/></a><div class="content"><a class="title" href="/2023/05/19/119/" title="【Linux应用系列教程】Jenkins持续集成工具安装教程">【Linux应用系列教程】Jenkins持续集成工具安装教程</a><time datetime="2023-05-19T02:49:24.709Z" title="发表于 2023-05-19 10:49:24">2023-05-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/18/118/" title="【Linux应用系列教程】Git分布式版本控制器"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】Git分布式版本控制器"/></a><div class="content"><a class="title" href="/2023/05/18/118/" title="【Linux应用系列教程】Git分布式版本控制器">【Linux应用系列教程】Git分布式版本控制器</a><time datetime="2023-05-18T12:19:54.279Z" title="发表于 2023-05-18 20:19:54">2023-05-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/16/117/" title="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客"/></a><div class="content"><a class="title" href="/2023/05/16/117/" title="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客">【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客</a><time datetime="2023-05-16T11:30:05.268Z" title="发表于 2023-05-16 19:30:05">2023-05-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【自动化运维系列教程】Ansible Playbook剧本"/></a><div class="content"><a class="title" href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本">【自动化运维系列教程】Ansible Playbook剧本</a><time datetime="2023-05-15T12:27:43.911Z" title="发表于 2023-05-15 20:27:43">2023-05-15</time></div></div></div></div></div></div></main><footer id="footer" style="background: flase"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By 网笙久久</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><div class="js-pjax"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js"></script><script>(() => {
+  document.querySelectorAll('#article-container span.katex-display').forEach(item => {
+    btf.wrap(item, 'div', { class: 'katex-wrap'})
+  })
+})()</script></div><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div><script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(n){n.imageLazyLoadSetting.processImages=i;var e=n.imageLazyLoadSetting.isSPA,r=(n.imageLazyLoadSetting.preloadRatio,Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));function i(){e&&(r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));for(var t,a=0;a<r.length;a++)0<=(t=(t=r[a]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(n.innerHeight+240||document.documentElement.clientHeight+240)&&function(){var t,e,n,i,o=r[a];t=o,e=function(){r=r.filter(function(t){return o!==t})},n=new Image,i=t.getAttribute("data-original"),n.onload=function(){t.src=i,e&&e()},t.src!==i&&(n.src=i)}()}i(),n.addEventListener("scroll",function(){var t,e;t=i,e=n,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(e)},500)})}(this);</script></body></html>

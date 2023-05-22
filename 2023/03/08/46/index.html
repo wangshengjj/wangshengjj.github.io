@@ -1,0 +1,353 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>【Linux系列教程】创建逻辑卷 | WangShengJJのblog</title><meta name="author" content="网笙久久"><meta name="copyright" content="网笙久久"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="【Linux系列教程】创建逻辑卷一、添加2块硬盘 二、基本命令1.PV物理卷创建物理卷# pvcreate 磁盘或者分区  查看物理卷# pvscan  2.VG卷组创建卷组# vgcreate 卷组名 绑定硬盘或者分区  查看卷组# vgscan  # vgdisplay 卷组名  3.LV逻辑卷创建逻辑卷# lvcreate -L 容量 -n 逻辑卷名 卷组名  列：# lvcreate -L">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Linux系列教程】创建逻辑卷">
+<meta property="og:url" content="https://blog.wangshengjj.work/2023/03/08/46/index.html">
+<meta property="og:site_name" content="WangShengJJのblog">
+<meta property="og:description" content="【Linux系列教程】创建逻辑卷一、添加2块硬盘 二、基本命令1.PV物理卷创建物理卷# pvcreate 磁盘或者分区  查看物理卷# pvscan  2.VG卷组创建卷组# vgcreate 卷组名 绑定硬盘或者分区  查看卷组# vgscan  # vgdisplay 卷组名  3.LV逻辑卷创建逻辑卷# lvcreate -L 容量 -n 逻辑卷名 卷组名  列：# lvcreate -L">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://api.ghser.com/random/api.php">
+<meta property="article:published_time" content="2023-03-08T06:10:26.774Z">
+<meta property="article:modified_time" content="2023-03-08T06:54:20.624Z">
+<meta property="article:author" content="网笙久久">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="centos">
+<meta property="article:tag" content="虚拟机">
+<meta property="article:tag" content="linux基础">
+<meta property="article:tag" content="分区">
+<meta property="article:tag" content="逻辑卷">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://api.ghser.com/random/api.php"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://blog.wangshengjj.work/2023/03/08/46/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"prismjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【Linux系列教程】创建逻辑卷',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-03-08 14:54:20'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><meting-js server="netease" type="playlist" id="7386208265" lrc-type="0" volume="0.5" fixed="true" mini="true" order="random" loop="all" autoplay="true" preload="auto" list-folded="true"></meting-js><script src="https://fastly.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/autoload.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script><meta name="generator" content="Hexo 6.1.0"></head><body><link rel="stylesheet" href="/css/barber-shop.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">126</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">168</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">230</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://api.ghser.com/random/api.php')"><nav id="nav"><span id="blog-info"><a href="/" title="WangShengJJのblog"><span class="site-name">WangShengJJのblog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【Linux系列教程】创建逻辑卷</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-03-08T06:10:26.774Z" title="发表于 2023-03-08 14:10:26">2023-03-08</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-03-08T06:54:20.624Z" title="更新于 2023-03-08 14:54:20">2023-03-08</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%99%9A%E6%8B%9F%E6%9C%BA/">虚拟机</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%99%9A%E6%8B%9F%E6%9C%BA/%E7%AC%94%E8%AE%B0/">笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%99%9A%E6%8B%9F%E6%9C%BA/%E7%AC%94%E8%AE%B0/centos/">centos</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%99%9A%E6%8B%9F%E6%9C%BA/%E7%AC%94%E8%AE%B0/centos/linux%E6%95%99%E7%A8%8B/">linux教程</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>7分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="【Linux系列教程】创建逻辑卷"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="【Linux系列教程】创建逻辑卷"><a href="#【Linux系列教程】创建逻辑卷" class="headerlink" title="【Linux系列教程】创建逻辑卷"></a>【Linux系列教程】创建逻辑卷</h1><h2 id="一、添加2块硬盘"><a href="#一、添加2块硬盘" class="headerlink" title="一、添加2块硬盘"></a>一、添加2块硬盘</h2><p><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2023/03/lv1.png" alt="lv1"></p>
+<h2 id="二、基本命令"><a href="#二、基本命令" class="headerlink" title="二、基本命令"></a>二、基本命令</h2><h3 id="1-PV物理卷"><a href="#1-PV物理卷" class="headerlink" title="1.PV物理卷"></a>1.PV物理卷</h3><h4 id="创建物理卷"><a href="#创建物理卷" class="headerlink" title="创建物理卷"></a>创建物理卷</h4><pre class="line-numbers language-none"><code class="language-none"># pvcreate 磁盘或者分区<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="查看物理卷"><a href="#查看物理卷" class="headerlink" title="查看物理卷"></a>查看物理卷</h4><pre class="line-numbers language-none"><code class="language-none"># pvscan<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="2-VG卷组"><a href="#2-VG卷组" class="headerlink" title="2.VG卷组"></a>2.VG卷组</h3><h4 id="创建卷组"><a href="#创建卷组" class="headerlink" title="创建卷组"></a>创建卷组</h4><pre class="line-numbers language-none"><code class="language-none"># vgcreate 卷组名 绑定硬盘或者分区<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="查看卷组"><a href="#查看卷组" class="headerlink" title="查看卷组"></a>查看卷组</h4><pre class="line-numbers language-none"><code class="language-none"># vgscan<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none"># vgdisplay 卷组名<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="3-LV逻辑卷"><a href="#3-LV逻辑卷" class="headerlink" title="3.LV逻辑卷"></a>3.LV逻辑卷</h3><h4 id="创建逻辑卷"><a href="#创建逻辑卷" class="headerlink" title="创建逻辑卷"></a>创建逻辑卷</h4><pre class="line-numbers language-none"><code class="language-none"># lvcreate -L 容量 -n 逻辑卷名 卷组名
+
+列：# lvcreate -L +20G -n mysql db<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="查看逻辑卷"><a href="#查看逻辑卷" class="headerlink" title="查看逻辑卷"></a>查看逻辑卷</h4><pre class="line-numbers language-none"><code class="language-none"># lvscan<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h2 id="三、案列"><a href="#三、案列" class="headerlink" title="三、案列"></a>三、案列</h2><h3 id="x2F-dev-x2F-db-x2F-mysql30Gext4-x2F-mysql"><a href="#x2F-dev-x2F-db-x2F-mysql30Gext4-x2F-mysql" class="headerlink" title="&#x2F;dev&#x2F;db&#x2F;mysql		30G		ext4		&#x2F;mysql"></a>&#x2F;dev&#x2F;db&#x2F;mysql		30G		ext4		&#x2F;mysql</h3><p><strong>创建卷组db，创建逻辑卷mysql，分配30G的空间，格式化成ext4文件系统，并且把这个逻辑卷绑定到&#x2F;mysql</strong></p>
+<h3 id="1-添加2块硬盘省略-跳转第一步"><a href="#1-添加2块硬盘省略-跳转第一步" class="headerlink" title="1.添加2块硬盘省略(跳转第一步)"></a>1.添加2块硬盘省略(跳转第一步)</h3><h3 id="2-创建一个PV物理卷"><a href="#2-创建一个PV物理卷" class="headerlink" title="2.创建一个PV物理卷"></a>2.创建一个PV物理卷</h3><pre class="line-numbers language-none"><code class="language-none">[root@localhost ~]# lsblk	#查看系统硬盘情况
+NAME        MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda           8:0    0   20G  0 disk 
+├─sda1        8:1    0  476M  0 part &#x2F;boot
+└─sda2        8:2    0 19.5G  0 part 
+  ├─centos-root
+            253:0    0 17.5G  0 lvm  &#x2F;
+  └─centos-swap
+            253:1    0    2G  0 lvm  [SWAP]
+sdb           8:16   0   20G  0 disk 	#发现我们刚刚添加的2块硬盘
+sdc           8:32   0   20G  0 disk<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@localhost ~]# pvcreate &#x2F;dev&#x2F;sdb &#x2F;dev&#x2F;sdc	#先把sdb和sdc创建一个PV物理卷
+  Physical volume &quot;&#x2F;dev&#x2F;sdb&quot; successfully created.
+  Physical volume &quot;&#x2F;dev&#x2F;sdc&quot; successfully created.
+  
+[root@localhost ~]# pvscan	#查看物理卷
+  PV &#x2F;dev&#x2F;sda2   VG centos          lvm2 [19.53 GiB &#x2F; 0    free]
+  PV &#x2F;dev&#x2F;sdb                       lvm2 [20.00 GiB]
+  PV &#x2F;dev&#x2F;sdc                       lvm2 [20.00 GiB]
+  Total: 3 [59.53 GiB] &#x2F; in use: 1 [19.53 GiB] &#x2F; in no VG: 2 [40.00 GiB]<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-创建一个VG卷组"><a href="#3-创建一个VG卷组" class="headerlink" title="3.创建一个VG卷组"></a>3.创建一个VG卷组</h3><pre class="line-numbers language-none"><code class="language-none">[root@localhost ~]# vgcreate db &#x2F;dev&#x2F;sdb &#x2F;dev&#x2F;sdc
+  Volume group &quot;db&quot; successfully created<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@localhost ~]# vgdisplay db	#查看db卷组
+  --- Volume group ---
+  VG Name               db
+  System ID             
+  Format                lvm2
+  Metadata Areas        2
+  Metadata Sequence No  1
+  VG Access             read&#x2F;write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                0
+  Open LV               0
+  Max PV                0
+  Cur PV                2
+  Act PV                2
+  VG Size               39.99 GiB
+  PE Size               4.00 MiB
+  Total PE              10238
+  Alloc PE &#x2F; Size       0 &#x2F; 0   
+  Free  PE &#x2F; Size       10238 &#x2F; 39.99 GiB
+  VG UUID               Wvv01t-agHC-gEa3-kV7Y-DEND-9IFt-gegH2K<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-创卷LV逻辑卷"><a href="#4-创卷LV逻辑卷" class="headerlink" title="4.创卷LV逻辑卷"></a>4.创卷LV逻辑卷</h3><pre class="line-numbers language-none"><code class="language-none">[root@localhost ~]# lvcreate -L +30G -n mysql db	#创建一个名为mysql的30G大小的逻辑卷，卷组为db
+  Logical volume &quot;mysql&quot; created.<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@localhost ~]# lvscan
+  ACTIVE            &#39;&#x2F;dev&#x2F;db&#x2F;mysql&#39; [30.00 GiB] inherit
+  ACTIVE            &#39;&#x2F;dev&#x2F;centos&#x2F;swap&#39; [2.00 GiB] inherit
+  ACTIVE            &#39;&#x2F;dev&#x2F;centos&#x2F;root&#39; [17.53 GiB] inherit<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="5-绑定mysql"><a href="#5-绑定mysql" class="headerlink" title="5.绑定mysql"></a>5.绑定mysql</h3><pre class="line-numbers language-none"><code class="language-none">[root@localhost ~]# mkdir &#x2F;mysql	#先创建文件夹
+
+[root@localhost ~]# mkfs -t ext4 &#x2F;dev&#x2F;db&#x2F;mysql	#格式化刚刚创建的逻辑卷为ext4文件系统
+mke2fs 1.42.9 (28-Dec-2013)
+文件系统标签&#x3D;
+OS type: Linux
+块大小&#x3D;4096 (log&#x3D;2)
+分块大小&#x3D;4096 (log&#x3D;2)
+Stride&#x3D;0 blocks, Stripe width&#x3D;0 blocks
+1966080 inodes, 7864320 blocks
+393216 blocks (5.00%) reserved for the super user
+第一个数据块&#x3D;0
+Maximum filesystem blocks&#x3D;2155872256
+240 block groups
+32768 blocks per group, 32768 fragments per group
+8192 inodes per group
+Superblock backups stored on blocks: 
+	32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208, 
+	4096000
+
+Allocating group tables: 完成                            
+正在写入inode表: 完成                            
+Creating journal (32768 blocks): 完成
+Writing superblocks and filesystem accounting information: 完成<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@localhost ~]# vim &#x2F;etc&#x2F;fstab	#编辑配置文件，配置永久挂载
+
+&#x2F;dev&#x2F;db&#x2F;mysql   &#x2F;mysql  ext4    defaults        0 0
+
+[root@localhost ~]# mount -a<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="6验证是否成功挂载"><a href="#6验证是否成功挂载" class="headerlink" title="6验证是否成功挂载"></a>6验证是否成功挂载</h3><pre class="line-numbers language-none"><code class="language-none">[root@localhost ~]# lsblk
+NAME        MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda           8:0    0   20G  0 disk 
+├─sda1        8:1    0  476M  0 part &#x2F;boot
+└─sda2        8:2    0 19.5G  0 part 
+  ├─centos-root
+            253:0    0 17.5G  0 lvm  &#x2F;
+  └─centos-swap
+            253:1    0    2G  0 lvm  [SWAP]
+sdb           8:16   0   20G  0 disk 
+└─db-mysql  253:2    0   30G  0 lvm  &#x2F;mysql
+sdc           8:32   0   20G  0 disk 
+└─db-mysql  253:2    0   30G  0 lvm  &#x2F;mysql
+
+[root@localhost ~]# df -hT | grep &quot;mysql&quot;
+&#x2F;dev&#x2F;mapper&#x2F;db-mysql    ext4       30G   45M   28G    1% &#x2F;mysql<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="四、指定PE的方式创建逻辑卷"><a href="#四、指定PE的方式创建逻辑卷" class="headerlink" title="四、指定PE的方式创建逻辑卷"></a>四、指定PE的方式创建逻辑卷</h2><h3 id="x2F-dev-x2F-db-x2F-redisxfs-x2F-redis800M"><a href="#x2F-dev-x2F-db-x2F-redisxfs-x2F-redis800M" class="headerlink" title="&#x2F;dev&#x2F;db&#x2F;redis	xfs	&#x2F;redis	800M"></a>&#x2F;dev&#x2F;db&#x2F;redis	xfs	&#x2F;redis	800M</h3><p><strong>在db卷组下创建一个名为redis的逻辑卷，大小800M，文件系统为xfs，并且挂载到&#x2F;redis</strong></p>
+<h3 id="1-创建LV逻辑卷"><a href="#1-创建LV逻辑卷" class="headerlink" title="1.创建LV逻辑卷"></a>1.创建LV逻辑卷</h3><p>因为我们上一题已经创建了一个名为db的卷组，所以直接用就可以了</p>
+<ul>
+<li>-l 指定PE参数</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">[root@localhost ~]# lvcreate -l 200 -n redis db	
+  Logical volume &quot;redis&quot; created.
+#一个PE大小为4M，因为我们要创建800M的数据卷，所以上面的参数小l后面的数字为200
+[root@localhost ~]# lvscan
+  ACTIVE            &#39;&#x2F;dev&#x2F;db&#x2F;mysql&#39; [30.00 GiB] inherit
+  ACTIVE            &#39;&#x2F;dev&#x2F;db&#x2F;redis&#39; [800.00 MiB] inherit
+  ACTIVE            &#39;&#x2F;dev&#x2F;centos&#x2F;swap&#39; [2.00 GiB] inherit
+  ACTIVE            &#39;&#x2F;dev&#x2F;centos&#x2F;root&#39; [17.53 GiB] inherit<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="2-格式化xfs"><a href="#2-格式化xfs" class="headerlink" title="2.格式化xfs"></a>2.格式化xfs</h3><pre class="line-numbers language-none"><code class="language-none">[root@localhost ~]# mkfs -t xfs &#x2F;dev&#x2F;db&#x2F;redis
+meta-data&#x3D;&#x2F;dev&#x2F;db&#x2F;redis          isize&#x3D;512    agcount&#x3D;4, agsize&#x3D;51200 blks
+         &#x3D;                       sectsz&#x3D;512   attr&#x3D;2, projid32bit&#x3D;1
+         &#x3D;                       crc&#x3D;1        finobt&#x3D;0, sparse&#x3D;0
+data     &#x3D;                       bsize&#x3D;4096   blocks&#x3D;204800, imaxpct&#x3D;25
+         &#x3D;                       sunit&#x3D;0      swidth&#x3D;0 blks
+naming   &#x3D;version 2              bsize&#x3D;4096   ascii-ci&#x3D;0 ftype&#x3D;1
+log      &#x3D;internal log           bsize&#x3D;4096   blocks&#x3D;855, version&#x3D;2
+         &#x3D;                       sectsz&#x3D;512   sunit&#x3D;0 blks, lazy-count&#x3D;1
+realtime &#x3D;none                   extsz&#x3D;4096   blocks&#x3D;0, rtextents&#x3D;0<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-配置永久挂载"><a href="#3-配置永久挂载" class="headerlink" title="3.配置永久挂载"></a>3.配置永久挂载</h3><pre class="line-numbers language-none"><code class="language-none">[root@localhost ~]# mkdir &#x2F;redis<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">vim &#x2F;etc&#x2F;fstab
+
+&#x2F;dev&#x2F;db&#x2F;redis   &#x2F;redis  xfs     defaults        0 0
+
+[root@localhost ~]# mount -a<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-验证结果"><a href="#4-验证结果" class="headerlink" title="4.验证结果"></a>4.验证结果</h3><pre class="line-numbers language-none"><code class="language-none">[root@localhost ~]# lsblk
+NAME        MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda           8:0    0   20G  0 disk 
+├─sda1        8:1    0  476M  0 part &#x2F;boot
+└─sda2        8:2    0 19.5G  0 part 
+  ├─centos-root
+            253:0    0 17.5G  0 lvm  &#x2F;
+  └─centos-swap
+            253:1    0    2G  0 lvm  [SWAP]
+sdb           8:16   0   20G  0 disk 
+└─db-mysql  253:2    0   30G  0 lvm  &#x2F;mysql
+sdc           8:32   0   20G  0 disk 
+├─db-mysql  253:2    0   30G  0 lvm  &#x2F;mysql
+└─db-redis  253:3    0  800M  0 lvm  &#x2F;redis<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@localhost ~]# df -hT | grep &quot;redis&quot;
+&#x2F;dev&#x2F;mapper&#x2F;db-redis    xfs       797M   33M  765M    5% &#x2F;redis<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work">网笙久久</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work/2023/03/08/46/">https://blog.wangshengjj.work/2023/03/08/46/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.wangshengjj.work" target="_blank">WangShengJJのblog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/linux/">linux</a><a class="post-meta__tags" href="/tags/centos/">centos</a><a class="post-meta__tags" href="/tags/%E8%99%9A%E6%8B%9F%E6%9C%BA/">虚拟机</a><a class="post-meta__tags" href="/tags/linux%E5%9F%BA%E7%A1%80/">linux基础</a><a class="post-meta__tags" href="/tags/%E5%88%86%E5%8C%BA/">分区</a><a class="post-meta__tags" href="/tags/%E9%80%BB%E8%BE%91%E5%8D%B7/">逻辑卷</a></div><div class="post_share"><div class="social-share" data-image="https://api.ghser.com/random/api.php" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/03/08/47/" title="【Linux系列教程】逻辑卷扩容"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【Linux系列教程】逻辑卷扩容</div></div></a></div><div class="next-post pull-right"><a href="/2023/03/08/45/" title="【Linux系列教程】GPT分区"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【Linux系列教程】GPT分区</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/02/20/30/" title="【Linux系列教程】基本的目录认识"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-02-20</div><div class="title">【Linux系列教程】基本的目录认识</div></div></a></div><div><a href="/2023/02/20/31/" title="【Linux系列教程】ls和cd命令的使用"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-02-20</div><div class="title">【Linux系列教程】ls和cd命令的使用</div></div></a></div><div><a href="/2023/02/20/32/" title="【Linux系列教程】创建文件夹和文件"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-02-20</div><div class="title">【Linux系列教程】创建文件夹和文件</div></div></a></div><div><a href="/2023/02/21/33/" title="【Linux系列教程】复制移动和删除"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-02-21</div><div class="title">【Linux系列教程】复制移动和删除</div></div></a></div><div><a href="/2023/02/21/34/" title="【Linux系列教程】多种查看命令的使用方法"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-02-21</div><div class="title">【Linux系列教程】多种查看命令的使用方法</div></div></a></div><div><a href="/2023/02/21/35/" title="【Linux系列教程】管道符的使用"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-02-21</div><div class="title">【Linux系列教程】管道符的使用</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">网笙久久</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">126</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">168</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">230</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wangshengjj"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wangshengjj" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:wangshengjj@wangshengjj.work" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.wangshengjj.work" target="_blank" title="Blog"><i class="fa fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到网笙久久的博客</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E3%80%90Linux%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%E3%80%91%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%8D%B7"><span class="toc-number">1.</span> <span class="toc-text">【Linux系列教程】创建逻辑卷</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%B7%BB%E5%8A%A02%E5%9D%97%E7%A1%AC%E7%9B%98"><span class="toc-number">1.1.</span> <span class="toc-text">一、添加2块硬盘</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%9F%BA%E6%9C%AC%E5%91%BD%E4%BB%A4"><span class="toc-number">1.2.</span> <span class="toc-text">二、基本命令</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-PV%E7%89%A9%E7%90%86%E5%8D%B7"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.PV物理卷</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E7%89%A9%E7%90%86%E5%8D%B7"><span class="toc-number">1.2.1.1.</span> <span class="toc-text">创建物理卷</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E7%89%A9%E7%90%86%E5%8D%B7"><span class="toc-number">1.2.1.2.</span> <span class="toc-text">查看物理卷</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-VG%E5%8D%B7%E7%BB%84"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.VG卷组</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E5%8D%B7%E7%BB%84"><span class="toc-number">1.2.2.1.</span> <span class="toc-text">创建卷组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E5%8D%B7%E7%BB%84"><span class="toc-number">1.2.2.2.</span> <span class="toc-text">查看卷组</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-LV%E9%80%BB%E8%BE%91%E5%8D%B7"><span class="toc-number">1.2.3.</span> <span class="toc-text">3.LV逻辑卷</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%8D%B7"><span class="toc-number">1.2.3.1.</span> <span class="toc-text">创建逻辑卷</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E9%80%BB%E8%BE%91%E5%8D%B7"><span class="toc-number">1.2.3.2.</span> <span class="toc-text">查看逻辑卷</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%A1%88%E5%88%97"><span class="toc-number">1.3.</span> <span class="toc-text">三、案列</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#x2F-dev-x2F-db-x2F-mysql30Gext4-x2F-mysql"><span class="toc-number">1.3.1.</span> <span class="toc-text">&#x2F;dev&#x2F;db&#x2F;mysql		30G		ext4		&#x2F;mysql</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%B7%BB%E5%8A%A02%E5%9D%97%E7%A1%AC%E7%9B%98%E7%9C%81%E7%95%A5-%E8%B7%B3%E8%BD%AC%E7%AC%AC%E4%B8%80%E6%AD%A5"><span class="toc-number">1.3.2.</span> <span class="toc-text">1.添加2块硬盘省略(跳转第一步)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAPV%E7%89%A9%E7%90%86%E5%8D%B7"><span class="toc-number">1.3.3.</span> <span class="toc-text">2.创建一个PV物理卷</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAVG%E5%8D%B7%E7%BB%84"><span class="toc-number">1.3.4.</span> <span class="toc-text">3.创建一个VG卷组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%88%9B%E5%8D%B7LV%E9%80%BB%E8%BE%91%E5%8D%B7"><span class="toc-number">1.3.5.</span> <span class="toc-text">4.创卷LV逻辑卷</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E7%BB%91%E5%AE%9Amysql"><span class="toc-number">1.3.6.</span> <span class="toc-text">5.绑定mysql</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6%E9%AA%8C%E8%AF%81%E6%98%AF%E5%90%A6%E6%88%90%E5%8A%9F%E6%8C%82%E8%BD%BD"><span class="toc-number">1.3.7.</span> <span class="toc-text">6验证是否成功挂载</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%8C%87%E5%AE%9APE%E7%9A%84%E6%96%B9%E5%BC%8F%E5%88%9B%E5%BB%BA%E9%80%BB%E8%BE%91%E5%8D%B7"><span class="toc-number">1.4.</span> <span class="toc-text">四、指定PE的方式创建逻辑卷</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#x2F-dev-x2F-db-x2F-redisxfs-x2F-redis800M"><span class="toc-number">1.4.1.</span> <span class="toc-text">&#x2F;dev&#x2F;db&#x2F;redis	xfs	&#x2F;redis	800M</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%88%9B%E5%BB%BALV%E9%80%BB%E8%BE%91%E5%8D%B7"><span class="toc-number">1.4.2.</span> <span class="toc-text">1.创建LV逻辑卷</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%A0%BC%E5%BC%8F%E5%8C%96xfs"><span class="toc-number">1.4.3.</span> <span class="toc-text">2.格式化xfs</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E9%85%8D%E7%BD%AE%E6%B0%B8%E4%B9%85%E6%8C%82%E8%BD%BD"><span class="toc-number">1.4.4.</span> <span class="toc-text">3.配置永久挂载</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E9%AA%8C%E8%AF%81%E7%BB%93%E6%9E%9C"><span class="toc-number">1.4.5.</span> <span class="toc-text">4.验证结果</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/05/19/120/" title="【Linux应用系列教程】基于Jenkins发布maven项目"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】基于Jenkins发布maven项目"/></a><div class="content"><a class="title" href="/2023/05/19/120/" title="【Linux应用系列教程】基于Jenkins发布maven项目">【Linux应用系列教程】基于Jenkins发布maven项目</a><time datetime="2023-05-19T03:49:39.490Z" title="发表于 2023-05-19 11:49:39">2023-05-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/19/119/" title="【Linux应用系列教程】Jenkins持续集成工具安装教程"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】Jenkins持续集成工具安装教程"/></a><div class="content"><a class="title" href="/2023/05/19/119/" title="【Linux应用系列教程】Jenkins持续集成工具安装教程">【Linux应用系列教程】Jenkins持续集成工具安装教程</a><time datetime="2023-05-19T02:49:24.709Z" title="发表于 2023-05-19 10:49:24">2023-05-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/18/118/" title="【Linux应用系列教程】Git分布式版本控制器"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】Git分布式版本控制器"/></a><div class="content"><a class="title" href="/2023/05/18/118/" title="【Linux应用系列教程】Git分布式版本控制器">【Linux应用系列教程】Git分布式版本控制器</a><time datetime="2023-05-18T12:19:54.279Z" title="发表于 2023-05-18 20:19:54">2023-05-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/16/117/" title="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客"/></a><div class="content"><a class="title" href="/2023/05/16/117/" title="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客">【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客</a><time datetime="2023-05-16T11:30:05.268Z" title="发表于 2023-05-16 19:30:05">2023-05-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【自动化运维系列教程】Ansible Playbook剧本"/></a><div class="content"><a class="title" href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本">【自动化运维系列教程】Ansible Playbook剧本</a><time datetime="2023-05-15T12:27:43.911Z" title="发表于 2023-05-15 20:27:43">2023-05-15</time></div></div></div></div></div></div></main><footer id="footer" style="background: flase"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By 网笙久久</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><div class="js-pjax"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js"></script><script>(() => {
+  document.querySelectorAll('#article-container span.katex-display').forEach(item => {
+    btf.wrap(item, 'div', { class: 'katex-wrap'})
+  })
+})()</script></div><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div><script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(n){n.imageLazyLoadSetting.processImages=i;var e=n.imageLazyLoadSetting.isSPA,r=(n.imageLazyLoadSetting.preloadRatio,Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));function i(){e&&(r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));for(var t,a=0;a<r.length;a++)0<=(t=(t=r[a]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(n.innerHeight+240||document.documentElement.clientHeight+240)&&function(){var t,e,n,i,o=r[a];t=o,e=function(){r=r.filter(function(t){return o!==t})},n=new Image,i=t.getAttribute("data-original"),n.onload=function(){t.src=i,e&&e()},t.src!==i&&(n.src=i)}()}i(),n.addEventListener("scroll",function(){var t,e;t=i,e=n,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(e)},500)})}(this);</script></body></html>

@@ -1,0 +1,418 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>【Zabbix系列教程】Agent端部署教程 | WangShengJJのblog</title><meta name="author" content="网笙久久"><meta name="copyright" content="网笙久久"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="【Zabbix系列教程】Agent端部署教程 上一期教程：【Zabbix系列教程】Server端部署教程下一期教程：【Zabbix系列教程】触发器和报警器  一、关闭防火墙SElinux、时间同步 过程省略  二、部署zabbix agent端1.配置yum源和epel源 如果没有wget命令，请安装yum install -y wget  [root@node1 ~]# wget -O &amp;#x2">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Zabbix系列教程】Agent端部署教程">
+<meta property="og:url" content="https://blog.wangshengjj.work/2023/05/09/110/index.html">
+<meta property="og:site_name" content="WangShengJJのblog">
+<meta property="og:description" content="【Zabbix系列教程】Agent端部署教程 上一期教程：【Zabbix系列教程】Server端部署教程下一期教程：【Zabbix系列教程】触发器和报警器  一、关闭防火墙SElinux、时间同步 过程省略  二、部署zabbix agent端1.配置yum源和epel源 如果没有wget命令，请安装yum install -y wget  [root@node1 ~]# wget -O &amp;#x2">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://api.ghser.com/random/api.php">
+<meta property="article:published_time" content="2023-05-09T07:27:23.083Z">
+<meta property="article:modified_time" content="2023-05-11T02:39:59.079Z">
+<meta property="article:author" content="网笙久久">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="zabbix">
+<meta property="article:tag" content="zabbix server">
+<meta property="article:tag" content="linux监控">
+<meta property="article:tag" content="zabbix agent">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://api.ghser.com/random/api.php"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://blog.wangshengjj.work/2023/05/09/110/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"prismjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【Zabbix系列教程】Agent端部署教程',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-05-11 10:39:59'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><meting-js server="netease" type="playlist" id="7386208265" lrc-type="0" volume="0.5" fixed="true" mini="true" order="random" loop="all" autoplay="true" preload="auto" list-folded="true"></meting-js><script src="https://fastly.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/autoload.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script><meta name="generator" content="Hexo 6.1.0"></head><body><link rel="stylesheet" href="/css/barber-shop.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">126</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">168</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">230</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://api.ghser.com/random/api.php')"><nav id="nav"><span id="blog-info"><a href="/" title="WangShengJJのblog"><span class="site-name">WangShengJJのblog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【Zabbix系列教程】Agent端部署教程</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-05-09T07:27:23.083Z" title="发表于 2023-05-09 15:27:23">2023-05-09</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-05-11T02:39:59.079Z" title="更新于 2023-05-11 10:39:59">2023-05-11</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/">服务器搭建</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/zabbix/">zabbix</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/zabbix/%E7%AC%94%E8%AE%B0/">笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/zabbix/%E7%AC%94%E8%AE%B0/linux%E7%9B%91%E6%8E%A7/">linux监控</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/zabbix/%E7%AC%94%E8%AE%B0/linux%E7%9B%91%E6%8E%A7/%E5%BA%94%E7%94%A8/">应用</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.6k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>7分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="【Zabbix系列教程】Agent端部署教程"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="【Zabbix系列教程】Agent端部署教程"><a href="#【Zabbix系列教程】Agent端部署教程" class="headerlink" title="【Zabbix系列教程】Agent端部署教程"></a>【Zabbix系列教程】Agent端部署教程</h1><blockquote>
+<p><strong>上一期教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/109">【Zabbix系列教程】Server端部署教程</a></strong><br><strong>下一期教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/111">【Zabbix系列教程】触发器和报警器</a></strong></p>
+</blockquote>
+<h2 id="一、关闭防火墙SElinux、时间同步"><a href="#一、关闭防火墙SElinux、时间同步" class="headerlink" title="一、关闭防火墙SElinux、时间同步"></a>一、关闭防火墙SElinux、时间同步</h2><blockquote>
+<p><strong>过程省略</strong></p>
+</blockquote>
+<h2 id="二、部署zabbix-agent端"><a href="#二、部署zabbix-agent端" class="headerlink" title="二、部署zabbix agent端"></a>二、部署zabbix agent端</h2><h3 id="1-配置yum源和epel源"><a href="#1-配置yum源和epel源" class="headerlink" title="1.配置yum源和epel源"></a>1.配置yum源和epel源</h3><blockquote>
+<p><strong>如果没有<code>wget</code>命令，请安装<code>yum install -y wget</code></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# wget -O &#x2F;etc&#x2F;yum.repos.d&#x2F;CentOS-Base.repo http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;repo&#x2F;Centos-7.repo<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# wget -O &#x2F;etc&#x2F;yum.repos.d&#x2F;epel.repo https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;repo&#x2F;epel-7.repo<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="2-配置zabbix4-X国内源"><a href="#2-配置zabbix4-X国内源" class="headerlink" title="2.配置zabbix4.X国内源"></a>2.配置zabbix4.X国内源</h3><blockquote>
+<p><strong>如果没有<code>vim</code>命令，请使用vi命令或者安装<code>yum install -y vim</code></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# vim &#x2F;etc&#x2F;yum.repos.d&#x2F;zabbix.repo
+[zabbix4]
+name&#x3D;zabbix4
+baseurl&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;zabbix&#x2F;zabbix&#x2F;4.4&#x2F;rhel&#x2F;7&#x2F;x86_64&#x2F;
+enabled&#x3D;1
+gpgcheck&#x3D;0<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="清理旧yum缓存，建立新的缓存"><a href="#清理旧yum缓存，建立新的缓存" class="headerlink" title="清理旧yum缓存，建立新的缓存"></a>清理旧yum缓存，建立新的缓存</h4><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# yum clean all &amp;&amp; yum makecache fast<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="3-安装zabbix-agent软件"><a href="#3-安装zabbix-agent软件" class="headerlink" title="3.安装zabbix agent软件"></a>3.安装<code>zabbix agent</code>软件</h3><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# yum install -y zabbix-agent<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="4-修改配置文件"><a href="#4-修改配置文件" class="headerlink" title="4.修改配置文件"></a>4.修改配置文件</h3><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# vim &#x2F;etc&#x2F;zabbix&#x2F;zabbix_agentd.conf
+#配置文件并不完整，仅展示修改的地方
+Server&#x3D;192.168.140.10	#指定我们Server端IP
+ServerActive&#x3D;192.168.140.10	#指定Server端IP，今后让agent端主动联系server端
+Hostname&#x3D;node1	#指定主机名，或者修改为本机IP
+UnsafeUserParameters&#x3D;1	#把默认0改成1，并且删除注释<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="5-设置Agent服务开机自启动"><a href="#5-设置Agent服务开机自启动" class="headerlink" title="5.设置Agent服务开机自启动"></a>5.设置Agent服务开机自启动</h3><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# systemctl enable --now zabbix-agent.service<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="6-回到Server端web界面，添加Agent端"><a href="#6-回到Server端web界面，添加Agent端" class="headerlink" title="6.回到Server端web界面，添加Agent端"></a>6.回到<code>Server</code>端<code>web</code>界面，添加<code>Agent</code>端</h3><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-13.png" alt="zabbix4-13"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-14.png" alt="zabbix4-14"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-15.png" alt="zabbix4-15"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-16.png" alt="zabbix4-16"></p>
+<blockquote>
+<p><strong>我们添加了&#x3D;&#x3D;最基础&#x3D;&#x3D;的监控模板，等待<code>1-2</code>分钟亮起即可</strong></p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-17.png" alt="zabbix4-17"></p>
+<h2 id="三、zabbix键值"><a href="#三、zabbix键值" class="headerlink" title="三、zabbix键值"></a>三、<code>zabbix</code>键值</h2><h3 id="1-手动创建一个监控项"><a href="#1-手动创建一个监控项" class="headerlink" title="1.手动创建一个监控项"></a>1.手动创建一个监控项</h3><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-18.png" alt="zabbix4-18"></p>
+<h3 id="2-键值"><a href="#2-键值" class="headerlink" title="2.键值"></a>2.键值</h3><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-19.png" alt="zabbix4-19"></p>
+<blockquote>
+<p><strong>官方提供了一些常用的键值</strong><br><strong>部分服务(<code>MySQL</code>、<code>Nginx</code>、<code>Redis</code>)的常用键值教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/112">https://www.wsjj.top/archives/112</a></strong></p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-20.png" alt="zabbix4-20"></p>
+<h3 id="3-关于键值的写法"><a href="#3-关于键值的写法" class="headerlink" title="3.关于键值的写法"></a>3.关于键值的写法</h3><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-21.png" alt="zabbix4-21"></p>
+<h3 id="4-平常生活常用的键值汇总"><a href="#4-平常生活常用的键值汇总" class="headerlink" title="4.平常生活常用的键值汇总"></a>4.平常生活常用的键值汇总</h3><ul>
+<li>监控网卡流量 <ul>
+<li><code>net.if.in[if,&lt;mode&gt;]</code><ul>
+<li>⇒ <code>net.if.in[eth0,errors]</code></li>
+<li>⇒ <code>net.if.in[eth0]</code></li>
+</ul>
+</li>
+<li><code>net.if.total[if,&lt;mode&gt;]</code></li>
+<li><code>net.if.out[if,&lt;mode&gt;]</code></li>
+</ul>
+</li>
+<li>监控TCP服务状态 <ul>
+<li><code>net.tcp.listen[port]</code><ul>
+<li>⇒ <code>net.tcp.listen[80]</code></li>
+</ul>
+</li>
+<li><code>net.tcp.port[&lt;ip&gt;,port]</code><ul>
+<li>⇒ <code>net.tcp.port[,80]</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>监控UDP服务状态 <ul>
+<li><code>net.udp.listen[port]</code><ul>
+<li>&#x3D;&gt; <code>net.udp.listen[123]</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>进程数量<ul>
+<li><code>proc.num[&lt;name&gt;,&lt;user&gt;,&lt;state&gt;,&lt;cmdline&gt;]</code><ul>
+<li>⇒ <code>proc.num[]</code></li>
+<li>⇒ <code>proc.num[redis_server,,,]</code></li>
+<li>⇒ <code>proc.num[nginx,www]</code></li>
+<li>&#x3D;&gt; <code>proc.num[,,zomb]</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>进程所消耗的内存<ul>
+<li><code>proc.mem[&lt;name&gt;,&lt;user&gt;,&lt;mode&gt;,&lt;cmdline&gt;,&lt;memtype&gt;]</code><ul>
+<li>&#x3D;&gt; <code>proc.mem[httpd]</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>进程所消耗的CPU使用率<ul>
+<li><code>proc.cpu.util[&lt;name&gt;,&lt;user&gt;,&lt;type&gt;,&lt;cmdline&gt;,&lt;mode&gt;,&lt;zone&gt;]</code><ul>
+<li>&#x3D;&gt; <code>proc.cpu.util[httpd]</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>磁盘空间<ul>
+<li><code>vfs.fs.size[fs,&lt;mode&gt;]</code></li>
+<li><code>vfs.fs.size[/webdata, free]</code></li>
+<li><code>vfs.fs.size[/var/lib/mysql, pfree]</code></li>
+</ul>
+</li>
+<li>内存大小<ul>
+<li><code>vm.memory.size[&lt;mode&gt;]</code></li>
+<li><code>vm.memory.size[free]</code></li>
+<li><code>vm.memory.size[buffers]</code></li>
+<li><code>vm.memory.size[cached]</code></li>
+</ul>
+</li>
+<li>文件内容变化<ul>
+<li><code>vfs.file.cksum[file]</code><ul>
+<li>⇒ <code>vfs.file.cksum[/etc/passwd]</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p><strong>更多键值，请参考官方文档：<a target="_blank" rel="noopener" href="https://www.zabbix.com/documentation/4.0/zh/manual/config/items/itemtypes/zabbix_agent">https://www.zabbix.com/documentation/4.0/zh/manual/config/items/itemtypes/zabbix_agent</a></strong></p>
+</blockquote>
+<h3 id="5-创建图形"><a href="#5-创建图形" class="headerlink" title="5.创建图形"></a>5.创建图形</h3><blockquote>
+<p><strong>一定要选择适当的图形类型展示</strong><br><strong>监控项选择我们刚刚创建的相应监控项</strong></p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-22.png" alt="zabbix4-22"></p>
+<h4 id="图例查看"><a href="#图例查看" class="headerlink" title="图例查看"></a>图例查看</h4><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-23.png" alt="zabbix4-23"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-24.png" alt="zabbix4-24"></p>
+<h2 id="四、自定义无参数的key-键值"><a href="#四、自定义无参数的key-键值" class="headerlink" title="四、自定义无参数的key(键值)"></a>四、自定义无参数的key(键值)</h2><ul>
+<li>在被监控端定义</li>
+<li>配置语法<ul>
+<li><code>UserParameter=&lt;key&gt;,&lt;shell command&gt;</code></li>
+<li><code>UnsafeUserParameters=1</code>	#修改配置允许用户使用特殊符号和自定义键值</li>
+</ul>
+</li>
+</ul>
+<h3 id="例1：监控Agent端MySQL用户数"><a href="#例1：监控Agent端MySQL用户数" class="headerlink" title="例1：监控Agent端MySQL用户数"></a>例1：监控Agent端MySQL用户数</h3><h4 id="A-编写命令"><a href="#A-编写命令" class="headerlink" title="A.编写命令"></a>A.编写命令</h4><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# mysql -uroot -e &quot;select count(*) from mysql.user&quot;
++----------+
+| count(*) |
++----------+
+|        9 |
++----------+
+#可以看到一共有9个用户，但是显示的结果有多条数据，可以利用sed命令过滤结果
+
+[root@node1 ~]# mysql -uroot -e &quot;select count(*) from mysql.user&quot; | sed &#39;1d&#39;
+9
+#注意，zabbix通过这条命令收到的数据只能有一个结果！<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="B-修改配置文件"><a href="#B-修改配置文件" class="headerlink" title="B.修改配置文件"></a>B.修改配置文件</h4><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# vim &#x2F;etc&#x2F;zabbix&#x2F;zabbix_agentd.conf
+#配置文件并不完整，仅展示修改的地方，请勿删改其他！
+UnsafeUserParameters&#x3D;1	#再次确认是否已经启用
+UserParameter&#x3D;mysql.user.number,mysql -uroot -e &quot;select count(*) from mysql.user&quot; | sed &#39;1d&#39;
+#UserParameter&#x3D;自定义键值,命令<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="C-重启服务，让配置文件生效"><a href="#C-重启服务，让配置文件生效" class="headerlink" title="C.重启服务，让配置文件生效"></a>C.重启服务，让配置文件生效</h4><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# systemctl restart zabbix-agent.service<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="D-回到web端配置"><a href="#D-回到web端配置" class="headerlink" title="D.回到web端配置"></a>D.回到web端配置</h4><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-25.png" alt="zabbix4-25"></p>
+<h5 id="创建图形"><a href="#创建图形" class="headerlink" title="创建图形"></a>创建图形</h5><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-26.png" alt="zabbix4-26"></p>
+<h5 id="查看图形"><a href="#查看图形" class="headerlink" title="查看图形"></a>查看图形</h5><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-27.png" alt="zabbix4-27"></p>
+<h4 id="D-测试创建几个数据库用户"><a href="#D-测试创建几个数据库用户" class="headerlink" title="D.测试创建几个数据库用户"></a>D.测试创建几个数据库用户</h4><blockquote>
+<p><strong>如果您配置了主从环境，请回到主库创建！</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">MariaDB [(none)]&gt; create user &#39;user01&#39;@&#39;localhost&#39;;
+Query OK, 0 rows affected (0.00 sec)
+
+MariaDB [(none)]&gt; create user &#39;user02&#39;@&#39;localhost&#39;;
+Query OK, 0 rows affected (0.00 sec)
+
+MariaDB [(none)]&gt; create user &#39;user03&#39;@&#39;localhost&#39;;
+Query OK, 0 rows affected (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="E-查看图形，是否更新"><a href="#E-查看图形，是否更新" class="headerlink" title="E.查看图形，是否更新"></a>E.查看图形，是否更新</h4><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-28.png" alt="zabbix4-28"></p>
+<h3 id="例2：检测MySQL数据库的IO线程和SQL线程"><a href="#例2：检测MySQL数据库的IO线程和SQL线程" class="headerlink" title="例2：检测MySQL数据库的IO线程和SQL线程"></a>例2：检测MySQL数据库的IO线程和SQL线程</h3><blockquote>
+<p><strong>需要提前配置主从复制环境</strong><br><strong>MySQL主从复制教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/76">https://www.wsjj.top/archives/76</a></strong></p>
+</blockquote>
+<h4 id="A-编写脚本"><a href="#A-编写脚本" class="headerlink" title="A.编写脚本"></a>A.编写脚本</h4><blockquote>
+<p><strong>当<code>2</code>个结果都是<code>yes</code>的时候返回<code>1</code>，如果其中一个或者所有都不等于<code>yes</code>，就返回<code>0</code></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# vim &#x2F;opt&#x2F;slave.sh
+#! &#x2F;bin&#x2F;bash
+
+io&#x3D;$(mysql -uroot -e &quot;show slave status\G&quot; | awk &#39;&#x2F;Slave_IO_Running&#x2F;&#123;print $2&#125;&#39;)
+sql&#x3D;$(mysql -uroot -e &quot;show slave status\G&quot; | awk &#39;&#x2F;Slave_SQL_Running&#x2F;&#123;print $2&#125;&#39;)
+
+if [ $io &#x3D;&#x3D; Yes ] &amp;&amp; [ $sql &#x3D;&#x3D; Yes ] ; then
+    echo 1
+else
+    echo 0
+fi<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="B-给予执行权限-重要"><a href="#B-给予执行权限-重要" class="headerlink" title="B.给予执行权限(重要)"></a>B.给予执行权限(重要)</h4><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# chmod a+x &#x2F;opt&#x2F;slave.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="C-修改配置文件"><a href="#C-修改配置文件" class="headerlink" title="C.修改配置文件"></a>C.修改配置文件</h4><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# vim &#x2F;etc&#x2F;zabbix&#x2F;zabbix_agentd.conf
+UserParameter&#x3D;mysql.slave,bash &#x2F;opt&#x2F;slave.sh<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="D-重启服务"><a href="#D-重启服务" class="headerlink" title="D.重启服务"></a>D.重启服务</h4><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# systemctl restart zabbix-agent.service<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="E-Server端测试"><a href="#E-Server端测试" class="headerlink" title="E.Server端测试"></a>E.Server端测试</h4><h5 id="安装测试软件"><a href="#安装测试软件" class="headerlink" title="安装测试软件"></a>安装测试软件</h5><pre class="line-numbers language-none"><code class="language-none">[root@zabbix-server ~]# yum install -y zabbix-get<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h5 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h5><blockquote>
+<p><strong><code>-s</code>指定客户端地址 <code>-k</code>键值</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@zabbix-server ~]# zabbix_get -s 192.168.140.12 -k mysql.slave
+1<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h2 id="五、定义有参数的key-键值"><a href="#五、定义有参数的key-键值" class="headerlink" title="五、定义有参数的key(键值)"></a>五、定义有参数的key(键值)</h2><h3 id="例子1：查看系统的内存"><a href="#例子1：查看系统的内存" class="headerlink" title="例子1：查看系统的内存"></a>例子1：查看系统的内存</h3><h4 id="A-查看系统内存文件"><a href="#A-查看系统内存文件" class="headerlink" title="A.查看系统内存文件"></a>A.查看系统内存文件</h4><blockquote>
+<p><strong><code>/proc/meminfo</code>记录系统内存各种参数的文件</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# cat &#x2F;proc&#x2F;meminfo<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h5 id="查看内存"><a href="#查看内存" class="headerlink" title="查看内存"></a>查看内存</h5><blockquote>
+<p><strong>关于<code>awk</code>命令教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/82">https://www.wsjj.top/archives/82</a></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# awk &#39;&#x2F;^MemTotal&#x2F;&#123;print $2&#125;&#39; &#x2F;proc&#x2F;meminfo
+1863000	#系统总内存
+[root@node1 ~]# awk &#39;&#x2F;^MemFree&#x2F;&#123;print $2&#125;&#39; &#x2F;proc&#x2F;meminfo
+1120644	#系统剩余内存<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="B-修改配置文件-1"><a href="#B-修改配置文件-1" class="headerlink" title="B.修改配置文件"></a>B.修改配置文件</h4><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# vim &#x2F;etc&#x2F;zabbix&#x2F;zabbix_agentd.conf
+
+UserParameter&#x3D;system.memory.size[*],awk &#39;&#x2F;^$1&#x2F;&#123;print $$2&#125;&#39; &#x2F;proc&#x2F;meminfo
+# [*]是我们将来要写的参数
+# $1不是awk中的参数，而是zabbix内置的变量，代表上一个[*]中第一个参数
+# $$2,其中第一个$符号代表转译字符<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="C-重启服务器，让配置文件生效"><a href="#C-重启服务器，让配置文件生效" class="headerlink" title="C.重启服务器，让配置文件生效"></a>C.重启服务器，让配置文件生效</h4><pre class="line-numbers language-none"><code class="language-none">[root@node1 ~]# systemctl restart zabbix-agent.service<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="D-回到web界面配置"><a href="#D-回到web界面配置" class="headerlink" title="D.回到web界面配置"></a>D.回到<code>web</code>界面配置</h4><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-29.png" alt="zabbix4-29"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-30.png" alt="zabbix4-30"></p>
+<h5 id="创建图形并查看图形"><a href="#创建图形并查看图形" class="headerlink" title="创建图形并查看图形"></a>创建图形并查看图形</h5><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/zabbix4-31.png" alt="zabbix4-31"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work">网笙久久</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work/2023/05/09/110/">https://blog.wangshengjj.work/2023/05/09/110/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.wangshengjj.work" target="_blank">WangShengJJのblog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/linux/">linux</a><a class="post-meta__tags" href="/tags/zabbix/">zabbix</a><a class="post-meta__tags" href="/tags/zabbix-server/">zabbix server</a><a class="post-meta__tags" href="/tags/linux%E7%9B%91%E6%8E%A7/">linux监控</a><a class="post-meta__tags" href="/tags/zabbix-agent/">zabbix agent</a></div><div class="post_share"><div class="social-share" data-image="https://api.ghser.com/random/api.php" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/05/10/111/" title="【Zabbix系列教程】触发器和报警器"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【Zabbix系列教程】触发器和报警器</div></div></a></div><div class="next-post pull-right"><a href="/2023/05/09/109/" title="【Zabbix系列教程】Server端部署教程"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【Zabbix系列教程】Server端部署教程</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/05/12/113/" title="【Zabbix系列教程】自动发现和自动注册"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-12</div><div class="title">【Zabbix系列教程】自动发现和自动注册</div></div></a></div><div><a href="/2023/05/11/112/" title="【Zabbix系列教程】监控MySQL、Nginx、Redis常用键值"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-11</div><div class="title">【Zabbix系列教程】监控MySQL、Nginx、Redis常用键值</div></div></a></div><div><a href="/2023/05/12/114/" title="【Zabbix系列教程】Proxy端部署教程+分布式监控"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-12</div><div class="title">【Zabbix系列教程】Proxy端部署教程+分布式监控</div></div></a></div><div><a href="/2023/05/10/111/" title="【Zabbix系列教程】触发器和报警器"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-10</div><div class="title">【Zabbix系列教程】触发器和报警器</div></div></a></div><div><a href="/2023/05/09/109/" title="【Zabbix系列教程】Server端部署教程"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-09</div><div class="title">【Zabbix系列教程】Server端部署教程</div></div></a></div><div><a href="/2023/05/04/102/" title="【Linux存储系列教程】常见存储类型"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-04</div><div class="title">【Linux存储系列教程】常见存储类型</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">网笙久久</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">126</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">168</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">230</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wangshengjj"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wangshengjj" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:wangshengjj@wangshengjj.work" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.wangshengjj.work" target="_blank" title="Blog"><i class="fa fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到网笙久久的博客</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E3%80%90Zabbix%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%E3%80%91Agent%E7%AB%AF%E9%83%A8%E7%BD%B2%E6%95%99%E7%A8%8B"><span class="toc-number">1.</span> <span class="toc-text">【Zabbix系列教程】Agent端部署教程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%85%B3%E9%97%AD%E9%98%B2%E7%81%AB%E5%A2%99SElinux%E3%80%81%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5"><span class="toc-number">1.1.</span> <span class="toc-text">一、关闭防火墙SElinux、时间同步</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E9%83%A8%E7%BD%B2zabbix-agent%E7%AB%AF"><span class="toc-number">1.2.</span> <span class="toc-text">二、部署zabbix agent端</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E9%85%8D%E7%BD%AEyum%E6%BA%90%E5%92%8Cepel%E6%BA%90"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.配置yum源和epel源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%85%8D%E7%BD%AEzabbix4-X%E5%9B%BD%E5%86%85%E6%BA%90"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.配置zabbix4.X国内源</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B8%85%E7%90%86%E6%97%A7yum%E7%BC%93%E5%AD%98%EF%BC%8C%E5%BB%BA%E7%AB%8B%E6%96%B0%E7%9A%84%E7%BC%93%E5%AD%98"><span class="toc-number">1.2.2.1.</span> <span class="toc-text">清理旧yum缓存，建立新的缓存</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%AE%89%E8%A3%85zabbix-agent%E8%BD%AF%E4%BB%B6"><span class="toc-number">1.2.3.</span> <span class="toc-text">3.安装zabbix agent软件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.4.</span> <span class="toc-text">4.修改配置文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E8%AE%BE%E7%BD%AEAgent%E6%9C%8D%E5%8A%A1%E5%BC%80%E6%9C%BA%E8%87%AA%E5%90%AF%E5%8A%A8"><span class="toc-number">1.2.5.</span> <span class="toc-text">5.设置Agent服务开机自启动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E5%9B%9E%E5%88%B0Server%E7%AB%AFweb%E7%95%8C%E9%9D%A2%EF%BC%8C%E6%B7%BB%E5%8A%A0Agent%E7%AB%AF"><span class="toc-number">1.2.6.</span> <span class="toc-text">6.回到Server端web界面，添加Agent端</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81zabbix%E9%94%AE%E5%80%BC"><span class="toc-number">1.3.</span> <span class="toc-text">三、zabbix键值</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%89%8B%E5%8A%A8%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%9B%91%E6%8E%A7%E9%A1%B9"><span class="toc-number">1.3.1.</span> <span class="toc-text">1.手动创建一个监控项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%94%AE%E5%80%BC"><span class="toc-number">1.3.2.</span> <span class="toc-text">2.键值</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%85%B3%E4%BA%8E%E9%94%AE%E5%80%BC%E7%9A%84%E5%86%99%E6%B3%95"><span class="toc-number">1.3.3.</span> <span class="toc-text">3.关于键值的写法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%B9%B3%E5%B8%B8%E7%94%9F%E6%B4%BB%E5%B8%B8%E7%94%A8%E7%9A%84%E9%94%AE%E5%80%BC%E6%B1%87%E6%80%BB"><span class="toc-number">1.3.4.</span> <span class="toc-text">4.平常生活常用的键值汇总</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%88%9B%E5%BB%BA%E5%9B%BE%E5%BD%A2"><span class="toc-number">1.3.5.</span> <span class="toc-text">5.创建图形</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%BE%E4%BE%8B%E6%9F%A5%E7%9C%8B"><span class="toc-number">1.3.5.1.</span> <span class="toc-text">图例查看</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E8%87%AA%E5%AE%9A%E4%B9%89%E6%97%A0%E5%8F%82%E6%95%B0%E7%9A%84key-%E9%94%AE%E5%80%BC"><span class="toc-number">1.4.</span> <span class="toc-text">四、自定义无参数的key(键值)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%8B1%EF%BC%9A%E7%9B%91%E6%8E%A7Agent%E7%AB%AFMySQL%E7%94%A8%E6%88%B7%E6%95%B0"><span class="toc-number">1.4.1.</span> <span class="toc-text">例1：监控Agent端MySQL用户数</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E7%BC%96%E5%86%99%E5%91%BD%E4%BB%A4"><span class="toc-number">1.4.1.1.</span> <span class="toc-text">A.编写命令</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.4.1.2.</span> <span class="toc-text">B.修改配置文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#C-%E9%87%8D%E5%90%AF%E6%9C%8D%E5%8A%A1%EF%BC%8C%E8%AE%A9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E7%94%9F%E6%95%88"><span class="toc-number">1.4.1.3.</span> <span class="toc-text">C.重启服务，让配置文件生效</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#D-%E5%9B%9E%E5%88%B0web%E7%AB%AF%E9%85%8D%E7%BD%AE"><span class="toc-number">1.4.1.4.</span> <span class="toc-text">D.回到web端配置</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E5%9B%BE%E5%BD%A2"><span class="toc-number">1.4.1.4.1.</span> <span class="toc-text">创建图形</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E5%9B%BE%E5%BD%A2"><span class="toc-number">1.4.1.4.2.</span> <span class="toc-text">查看图形</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#D-%E6%B5%8B%E8%AF%95%E5%88%9B%E5%BB%BA%E5%87%A0%E4%B8%AA%E6%95%B0%E6%8D%AE%E5%BA%93%E7%94%A8%E6%88%B7"><span class="toc-number">1.4.1.5.</span> <span class="toc-text">D.测试创建几个数据库用户</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#E-%E6%9F%A5%E7%9C%8B%E5%9B%BE%E5%BD%A2%EF%BC%8C%E6%98%AF%E5%90%A6%E6%9B%B4%E6%96%B0"><span class="toc-number">1.4.1.6.</span> <span class="toc-text">E.查看图形，是否更新</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%8B2%EF%BC%9A%E6%A3%80%E6%B5%8BMySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84IO%E7%BA%BF%E7%A8%8B%E5%92%8CSQL%E7%BA%BF%E7%A8%8B"><span class="toc-number">1.4.2.</span> <span class="toc-text">例2：检测MySQL数据库的IO线程和SQL线程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E7%BC%96%E5%86%99%E8%84%9A%E6%9C%AC"><span class="toc-number">1.4.2.1.</span> <span class="toc-text">A.编写脚本</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E7%BB%99%E4%BA%88%E6%89%A7%E8%A1%8C%E6%9D%83%E9%99%90-%E9%87%8D%E8%A6%81"><span class="toc-number">1.4.2.2.</span> <span class="toc-text">B.给予执行权限(重要)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#C-%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.4.2.3.</span> <span class="toc-text">C.修改配置文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#D-%E9%87%8D%E5%90%AF%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.4.2.4.</span> <span class="toc-text">D.重启服务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#E-Server%E7%AB%AF%E6%B5%8B%E8%AF%95"><span class="toc-number">1.4.2.5.</span> <span class="toc-text">E.Server端测试</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E6%B5%8B%E8%AF%95%E8%BD%AF%E4%BB%B6"><span class="toc-number">1.4.2.5.1.</span> <span class="toc-text">安装测试软件</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-number">1.4.2.5.2.</span> <span class="toc-text">测试</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%AE%9A%E4%B9%89%E6%9C%89%E5%8F%82%E6%95%B0%E7%9A%84key-%E9%94%AE%E5%80%BC"><span class="toc-number">1.5.</span> <span class="toc-text">五、定义有参数的key(键值)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%8B%E5%AD%901%EF%BC%9A%E6%9F%A5%E7%9C%8B%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%86%85%E5%AD%98"><span class="toc-number">1.5.1.</span> <span class="toc-text">例子1：查看系统的内存</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E6%9F%A5%E7%9C%8B%E7%B3%BB%E7%BB%9F%E5%86%85%E5%AD%98%E6%96%87%E4%BB%B6"><span class="toc-number">1.5.1.1.</span> <span class="toc-text">A.查看系统内存文件</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E5%86%85%E5%AD%98"><span class="toc-number">1.5.1.1.1.</span> <span class="toc-text">查看内存</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6-1"><span class="toc-number">1.5.1.2.</span> <span class="toc-text">B.修改配置文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#C-%E9%87%8D%E5%90%AF%E6%9C%8D%E5%8A%A1%E5%99%A8%EF%BC%8C%E8%AE%A9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E7%94%9F%E6%95%88"><span class="toc-number">1.5.1.3.</span> <span class="toc-text">C.重启服务器，让配置文件生效</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#D-%E5%9B%9E%E5%88%B0web%E7%95%8C%E9%9D%A2%E9%85%8D%E7%BD%AE"><span class="toc-number">1.5.1.4.</span> <span class="toc-text">D.回到web界面配置</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E5%9B%BE%E5%BD%A2%E5%B9%B6%E6%9F%A5%E7%9C%8B%E5%9B%BE%E5%BD%A2"><span class="toc-number">1.5.1.4.1.</span> <span class="toc-text">创建图形并查看图形</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/05/19/120/" title="【Linux应用系列教程】基于Jenkins发布maven项目"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】基于Jenkins发布maven项目"/></a><div class="content"><a class="title" href="/2023/05/19/120/" title="【Linux应用系列教程】基于Jenkins发布maven项目">【Linux应用系列教程】基于Jenkins发布maven项目</a><time datetime="2023-05-19T03:49:39.490Z" title="发表于 2023-05-19 11:49:39">2023-05-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/19/119/" title="【Linux应用系列教程】Jenkins持续集成工具安装教程"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】Jenkins持续集成工具安装教程"/></a><div class="content"><a class="title" href="/2023/05/19/119/" title="【Linux应用系列教程】Jenkins持续集成工具安装教程">【Linux应用系列教程】Jenkins持续集成工具安装教程</a><time datetime="2023-05-19T02:49:24.709Z" title="发表于 2023-05-19 10:49:24">2023-05-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/18/118/" title="【Linux应用系列教程】Git分布式版本控制器"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Linux应用系列教程】Git分布式版本控制器"/></a><div class="content"><a class="title" href="/2023/05/18/118/" title="【Linux应用系列教程】Git分布式版本控制器">【Linux应用系列教程】Git分布式版本控制器</a><time datetime="2023-05-18T12:19:54.279Z" title="发表于 2023-05-18 20:19:54">2023-05-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/16/117/" title="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客"/></a><div class="content"><a class="title" href="/2023/05/16/117/" title="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客">【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客</a><time datetime="2023-05-16T11:30:05.268Z" title="发表于 2023-05-16 19:30:05">2023-05-16</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【自动化运维系列教程】Ansible Playbook剧本"/></a><div class="content"><a class="title" href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本">【自动化运维系列教程】Ansible Playbook剧本</a><time datetime="2023-05-15T12:27:43.911Z" title="发表于 2023-05-15 20:27:43">2023-05-15</time></div></div></div></div></div></div></main><footer id="footer" style="background: flase"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By 网笙久久</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><div class="js-pjax"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js"></script><script>(() => {
+  document.querySelectorAll('#article-container span.katex-display').forEach(item => {
+    btf.wrap(item, 'div', { class: 'katex-wrap'})
+  })
+})()</script></div><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div><script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(n){n.imageLazyLoadSetting.processImages=i;var e=n.imageLazyLoadSetting.isSPA,r=(n.imageLazyLoadSetting.preloadRatio,Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));function i(){e&&(r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));for(var t,a=0;a<r.length;a++)0<=(t=(t=r[a]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(n.innerHeight+240||document.documentElement.clientHeight+240)&&function(){var t,e,n,i,o=r[a];t=o,e=function(){r=r.filter(function(t){return o!==t})},n=new Image,i=t.getAttribute("data-original"),n.onload=function(){t.src=i,e&&e()},t.src!==i&&(n.src=i)}()}i(),n.addEventListener("scroll",function(){var t,e;t=i,e=n,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(e)},500)})}(this);</script></body></html>
