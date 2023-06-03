@@ -1,0 +1,1061 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>【自动化运维系列教程】Saltstack工具部署及常用模块 | WangShengJJのblog</title><meta name="author" content="网笙久久"><meta name="copyright" content="网笙久久"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="【自动化运维系列教程】Saltstack工具部署及常用模块一、Saltstack的介绍1.作用 基于python语言开发、实现对IT基础设施批量管控  2.特性 开源的、跨平台 基于证书的方式进行认证 saltstack角色 salt-master管理端 salt-minion被管理端 salt-syndic分布式 salt-api提供API接口   支持分布式部署 支持sls状态文件  二、部署">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【自动化运维系列教程】Saltstack工具部署及常用模块">
+<meta property="og:url" content="https://blog.wangshengjj.work/2023/05/20/121/index.html">
+<meta property="og:site_name" content="WangShengJJのblog">
+<meta property="og:description" content="【自动化运维系列教程】Saltstack工具部署及常用模块一、Saltstack的介绍1.作用 基于python语言开发、实现对IT基础设施批量管控  2.特性 开源的、跨平台 基于证书的方式进行认证 saltstack角色 salt-master管理端 salt-minion被管理端 salt-syndic分布式 salt-api提供API接口   支持分布式部署 支持sls状态文件  二、部署">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://api.ghser.com/random/api.php">
+<meta property="article:published_time" content="2023-05-20T02:49:53.175Z">
+<meta property="article:modified_time" content="2023-05-20T09:57:35.630Z">
+<meta property="article:author" content="网笙久久">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="centos">
+<meta property="article:tag" content="自动化运维工具">
+<meta property="article:tag" content="saltstack">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://api.ghser.com/random/api.php"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://blog.wangshengjj.work/2023/05/20/121/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"prismjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【自动化运维系列教程】Saltstack工具部署及常用模块',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-05-20 17:57:35'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><meting-js server="netease" type="playlist" id="7386208265" lrc-type="0" volume="0.5" fixed="true" mini="true" order="random" loop="all" autoplay="true" preload="auto" list-folded="true"></meting-js><script src="https://fastly.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/autoload.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script><meta name="generator" content="Hexo 6.1.0"></head><body><link rel="stylesheet" href="/css/barber-shop.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">139</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">185</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">261</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://api.ghser.com/random/api.php')"><nav id="nav"><span id="blog-info"><a href="/" title="WangShengJJのblog"><span class="site-name">WangShengJJのblog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【自动化运维系列教程】Saltstack工具部署及常用模块</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-05-20T02:49:53.175Z" title="发表于 2023-05-20 10:49:53">2023-05-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-05-20T09:57:35.630Z" title="更新于 2023-05-20 17:57:35">2023-05-20</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/%E8%87%AA%E5%8A%A8%E5%8C%96%E8%BF%90%E7%BB%B4%E5%B7%A5%E5%85%B7/">自动化运维工具</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/%E8%87%AA%E5%8A%A8%E5%8C%96%E8%BF%90%E7%BB%B4%E5%B7%A5%E5%85%B7/Saltstack/">Saltstack</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">3.3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>18分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="【自动化运维系列教程】Saltstack工具部署及常用模块"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="【自动化运维系列教程】Saltstack工具部署及常用模块"><a href="#【自动化运维系列教程】Saltstack工具部署及常用模块" class="headerlink" title="【自动化运维系列教程】Saltstack工具部署及常用模块"></a>【自动化运维系列教程】Saltstack工具部署及常用模块</h1><h2 id="一、Saltstack的介绍"><a href="#一、Saltstack的介绍" class="headerlink" title="一、Saltstack的介绍"></a>一、Saltstack的介绍</h2><h3 id="1-作用"><a href="#1-作用" class="headerlink" title="1.作用"></a>1.作用</h3><blockquote>
+<p><strong>基于<code>python</code>语言开发、实现对IT基础设施批量管控</strong></p>
+</blockquote>
+<h3 id="2-特性"><a href="#2-特性" class="headerlink" title="2.特性"></a>2.特性</h3><ul>
+<li>开源的、跨平台</li>
+<li>基于证书的方式进行认证</li>
+<li><code>saltstack</code>角色<ul>
+<li><code>salt-master</code>管理端</li>
+<li><code>salt-minion</code>被管理端</li>
+<li><code>salt-syndic</code>分布式</li>
+<li><code>salt-api</code>提供API接口</li>
+</ul>
+</li>
+<li>支持分布式部署</li>
+<li>支持<code>sls</code>状态文件</li>
+</ul>
+<h2 id="二、部署Saltstack"><a href="#二、部署Saltstack" class="headerlink" title="二、部署Saltstack"></a>二、部署Saltstack</h2><h3 id="1-环境准备"><a href="#1-环境准备" class="headerlink" title="1.环境准备"></a>1.环境准备</h3><table>
+<thead>
+<tr>
+<th>主机名</th>
+<th>IP地址</th>
+<th>安装的软件</th>
+<th>系统版本</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>salt_master.linux.com</td>
+<td>192.168.140.11</td>
+<td>salt-master</td>
+<td>Centos7.9</td>
+</tr>
+<tr>
+<td>salt_node1.linux.com</td>
+<td>192.168.140.14</td>
+<td>salt-minion</td>
+<td>Centos7.9</td>
+</tr>
+<tr>
+<td>salt_node2.linux.com</td>
+<td>192.168.140.15</td>
+<td>salt-minion</td>
+<td>Centos7.9</td>
+</tr>
+</tbody></table>
+<h3 id="2-三台服务器关闭防火墙和SElinux、配置时间同步"><a href="#2-三台服务器关闭防火墙和SElinux、配置时间同步" class="headerlink" title="2.三台服务器关闭防火墙和SElinux、配置时间同步"></a>2.三台服务器关闭防火墙和SElinux、配置时间同步</h3><blockquote>
+<p><strong>过程省略</strong></p>
+</blockquote>
+<h3 id="3-三台服务器配置Yum源和Epel源还有Saltstack安装源"><a href="#3-三台服务器配置Yum源和Epel源还有Saltstack安装源" class="headerlink" title="3.三台服务器配置Yum源和Epel源还有Saltstack安装源"></a>3.三台服务器配置<code>Yum</code>源和<code>Epel</code>源还有<code>Saltstack</code>安装源</h3><blockquote>
+<p><strong>如果没有<code>wget</code>命令，请安装<code>yum install -y wget</code></strong></p>
+</blockquote>
+<pre class="line-numbers language-|配置yum源" data-language="|配置yum源"><code class="language-|配置yum源">[root@salt_master ~]# wget -O &#x2F;etc&#x2F;yum.repos.d&#x2F;CentOS-Base.repo https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;repo&#x2F;Centos-7.repo
+[root@salt_node1 ~]# wget -O &#x2F;etc&#x2F;yum.repos.d&#x2F;CentOS-Base.repo https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;repo&#x2F;Centos-7.repo
+[root@salt_node2 ~]# wget -O &#x2F;etc&#x2F;yum.repos.d&#x2F;CentOS-Base.repo https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;repo&#x2F;Centos-7.repo<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-|配置epel源" data-language="|配置epel源"><code class="language-|配置epel源">[root@salt_master ~]# wget -O &#x2F;etc&#x2F;yum.repos.d&#x2F;epel.repo http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;repo&#x2F;epel-7.repo
+[root@salt_node1 ~]# wget -O &#x2F;etc&#x2F;yum.repos.d&#x2F;epel.repo http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;repo&#x2F;epel-7.repo
+[root@salt_node2 ~]# wget -O &#x2F;etc&#x2F;yum.repos.d&#x2F;epel.repo http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;repo&#x2F;epel-7.repo<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-|配置salt源" data-language="|配置salt源"><code class="language-|配置salt源">[root@salt_master ~]# wget https:&#x2F;&#x2F;archive.repo.saltproject.io&#x2F;yum&#x2F;redhat&#x2F;7&#x2F;x86_64&#x2F;2019.2.repo -O &#x2F;etc&#x2F;yum.repos.d&#x2F;salt.repo
+[root@salt_node1 ~]# wget https:&#x2F;&#x2F;archive.repo.saltproject.io&#x2F;yum&#x2F;redhat&#x2F;7&#x2F;x86_64&#x2F;2019.2.repo -O &#x2F;etc&#x2F;yum.repos.d&#x2F;salt.repo
+[root@salt_node2 ~]# wget https:&#x2F;&#x2F;archive.repo.saltproject.io&#x2F;yum&#x2F;redhat&#x2F;7&#x2F;x86_64&#x2F;2019.2.repo -O &#x2F;etc&#x2F;yum.repos.d&#x2F;salt.repo<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-|清理旧缓存，建立新缓存" data-language="|清理旧缓存，建立新缓存"><code class="language-|清理旧缓存，建立新缓存">[root@salt_master ~]# yum clean all &amp;&amp; yum makecache
+[root@salt_node1 ~]# yum clean all &amp;&amp; yum makecache
+[root@salt_node2 ~]# yum clean all &amp;&amp; yum makecache<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-在管理端安装Salt-master"><a href="#4-在管理端安装Salt-master" class="headerlink" title="4.在管理端安装Salt-master"></a>4.在管理端安装<code>Salt-master</code></h3><h4 id="A-安装Salt-master"><a href="#A-安装Salt-master" class="headerlink" title="A.安装Salt-master"></a>A.安装<code>Salt-master</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@salt_master ~]# yum install -y salt-master<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="B-启动Salt-master服务"><a href="#B-启动Salt-master服务" class="headerlink" title="B.启动Salt-master服务"></a>B.启动<code>Salt-master</code>服务</h4><pre class="line-numbers language-none"><code class="language-none">[root@salt_master ~]# systemctl enable --now salt-master<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="C-检查服务是否启动"><a href="#C-检查服务是否启动" class="headerlink" title="C.检查服务是否启动"></a>C.检查服务是否启动</h4><blockquote>
+<p><strong>因为<code>Saltstack</code>基于<code>Python</code>开发，所以需要搜索<code>Python</code></strong><br><strong>如果没有<code>netstat</code>命令，请安装<code>yum install -y net-tools</code></strong></p>
+</blockquote>
+<pre class="line-numbers language-|netstat" data-language="|netstat"><code class="language-|netstat">[root@salt_master ~]# netstat -tunlp | grep python
+tcp        0      0 0.0.0.0:4505            0.0.0.0:*               LISTEN      1652&#x2F;python         
+tcp        0      0 0.0.0.0:4506            0.0.0.0:*               LISTEN      1659&#x2F;python<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p><strong><code>4505</code>端口用于<code>Salt-master</code>内部通信</strong><br><strong><code>4506</code>端口用于<code>Salt-master</code>和<code>Salt-minion</code>之间的通信，用于&#x3D;&#x3D;推送任务&#x3D;&#x3D;和&#x3D;&#x3D;发布任务&#x3D;&#x3D;</strong></p>
+</blockquote>
+<h3 id="5-在被管理端安装Salt-minion"><a href="#5-在被管理端安装Salt-minion" class="headerlink" title="5.在被管理端安装Salt-minion"></a>5.在被管理端安装<code>Salt-minion</code></h3><h4 id="A-安装Salt-minion"><a href="#A-安装Salt-minion" class="headerlink" title="A.安装Salt-minion"></a>A.安装<code>Salt-minion</code></h4><pre class="line-numbers language-|yum" data-language="|yum"><code class="language-|yum">[root@salt_node1 ~]# yum install -y salt-minion
+[root@salt_node2 ~]# yum install -y salt-minion<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="B-修改被管理端上的配置文件"><a href="#B-修改被管理端上的配置文件" class="headerlink" title="B.修改被管理端上的配置文件"></a>B.修改被管理端上的配置文件</h4><pre class="line-numbers language-|vim" data-language="|vim"><code class="language-|vim">[root@salt_node1 ~]# vim &#x2F;etc&#x2F;salt&#x2F;minion
+#配置文件并不完整，仅展示修改的地方
+master: 192.168.140.11	#修改为管理端IP，注意格式“：”后面要有空格
+id: 192.168.140.14	#修改为本机IP，注意格式“：”后面要有空格<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-|vim" data-language="|vim"><code class="language-|vim">[root@salt_node2 ~]# vim &#x2F;etc&#x2F;salt&#x2F;minion
+#配置文件并不完整，仅展示修改的地方
+master: 192.168.140.11	#修改为管理端IP，注意格式“：”后面要有空格
+id: 192.168.140.15	#修改为本机IP，注意格式“：”后面要有空格<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="C-启动Salt-minion服务"><a href="#C-启动Salt-minion服务" class="headerlink" title="C.启动Salt-minion服务"></a>C.启动<code>Salt-minion</code>服务</h4><pre class="line-numbers language-|systemctl" data-language="|systemctl"><code class="language-|systemctl">[root@salt_node1 ~]# systemctl enable --now salt-minion
+[root@salt_node2 ~]# systemctl enable --now salt-minion<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h3 id="6-回到管理端，签署证书"><a href="#6-回到管理端，签署证书" class="headerlink" title="6.回到管理端，签署证书"></a>6.回到管理端，签署证书</h3><h4 id="A-查看未签署证书的机器"><a href="#A-查看未签署证书的机器" class="headerlink" title="A.查看未签署证书的机器"></a>A.查看未签署证书的机器</h4><pre class="line-numbers language-|salt-key" data-language="|salt-key"><code class="language-|salt-key">[root@salt_master ~]# salt-key -L
+Accepted Keys:	#已签署的证书
+Denied Keys:	#拒绝的证书
+Unaccepted Keys:	#未接受的证书
+192.168.140.14
+192.168.140.15
+Rejected Keys:	#拒绝的证书<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="B-接受所有的请求证书"><a href="#B-接受所有的请求证书" class="headerlink" title="B.接受所有的请求证书"></a>B.接受所有的请求证书</h4><pre class="line-numbers language-|salt-key" data-language="|salt-key"><code class="language-|salt-key">[root@salt_master ~]# salt-key -A -y
+The following keys are going to be accepted:
+Unaccepted Keys:
+192.168.140.14
+192.168.140.15
+Key for minion 192.168.140.14 accepted.
+Key for minion 192.168.140.15 accepted.<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="C-再次查看状态"><a href="#C-再次查看状态" class="headerlink" title="C.再次查看状态"></a>C.再次查看状态</h4><pre class="line-numbers language-|salt-key" data-language="|salt-key"><code class="language-|salt-key">[root@salt_master ~]# salt-key -L
+Accepted Keys:	#2台机器已经签署证书了
+192.168.140.14
+192.168.140.15
+Denied Keys:
+Unaccepted Keys:
+Rejected Keys:<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="D-salt-key命令参数说明"><a href="#D-salt-key命令参数说明" class="headerlink" title="D.salt-key命令参数说明"></a>D.<code>salt-key</code>命令参数说明</h4><ul>
+<li><code>-A</code>接受所有</li>
+<li><code>-a 主机名/IP</code>接受某一个</li>
+<li><code>-D</code>删除所有</li>
+<li><code>-d 主机名/IP</code>删除某一个</li>
+<li><code>-R</code>拒绝所有</li>
+<li><code>-r 主机名/IP</code>拒绝某一个</li>
+<li><code>-L</code>列出所有状态</li>
+<li><code>-y</code>所有条件都接受</li>
+</ul>
+<h4 id="E-测试"><a href="#E-测试" class="headerlink" title="E.测试"></a>E.测试</h4><h5 id="测试主机连通性"><a href="#测试主机连通性" class="headerlink" title="测试主机连通性"></a>测试主机连通性</h5><pre class="line-numbers language-|salt" data-language="|salt"><code class="language-|salt">[root@salt_master ~]# salt &quot;*&quot; test.ping
+192.168.140.14:
+    True
+192.168.140.15:
+    True<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-|salt" data-language="|salt"><code class="language-|salt">[root@salt_master ~]# salt &quot;*&quot; cmd.run &#39;hostname&#39; 
+192.168.140.15:
+    salt_node2.linux.com
+192.168.140.14:
+    salt_node1.linux.com<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="三、匹配minion的方法"><a href="#三、匹配minion的方法" class="headerlink" title="三、匹配minion的方法"></a>三、匹配minion的方法</h2><h3 id="L支持以逗号隔开的方式匹配多个minion"><a href="#L支持以逗号隔开的方式匹配多个minion" class="headerlink" title="-L支持以逗号隔开的方式匹配多个minion"></a><code>-L</code>支持以逗号隔开的方式匹配多个<code>minion</code></h3><pre class="line-numbers language-|salt" data-language="|salt"><code class="language-|salt">[root@salt_master ~]# salt -L &#39;192.168.140.14,192.168.140.15&#39; test.ping
+192.168.140.15:
+    True
+192.168.140.14:
+    True<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="S以网段的形式匹配minion"><a href="#S以网段的形式匹配minion" class="headerlink" title="-S以网段的形式匹配minion"></a><code>-S</code>以网段的形式匹配<code>minion</code></h3><pre class="line-numbers language-|salt" data-language="|salt"><code class="language-|salt">[root@salt_master ~]# salt -S &#39;192.168.140.0&#x2F;24&#39; test.ping
+192.168.140.15:
+    True
+192.168.140.14:
+    True<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="E以正则表达式的方式匹配minion"><a href="#E以正则表达式的方式匹配minion" class="headerlink" title="-E以正则表达式的方式匹配minion"></a><code>-E</code>以正则表达式的方式匹配<code>minion</code></h3><pre class="line-numbers language-|salt" data-language="|salt"><code class="language-|salt">[root@salt_master ~]# salt -E &#39;^192&#39; test.ping
+192.168.140.15:
+    True
+192.168.140.14:
+    True<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-|salt" data-language="|salt"><code class="language-|salt">[root@salt_master ~]# salt -E &#39;192.168.140.(14|15)&#39; test.ping
+192.168.140.15:
+    True
+192.168.140.14:
+    True<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="C以复合条件匹配minion"><a href="#C以复合条件匹配minion" class="headerlink" title="-C以复合条件匹配minion"></a><code>-C</code>以复合条件匹配<code>minion</code></h3><blockquote>
+<p><strong><code>and/or</code></strong><br><strong><code>S@</code>是特殊写法，和<code>-S</code>作用一致</strong></p>
+</blockquote>
+<pre class="line-numbers language-|salt" data-language="|salt"><code class="language-|salt">[root@salt_master ~]# salt -C &#39;192.168.140.15 and S@192.168.140.0&#x2F;24&#39; test.ping
+192.168.140.15:
+    True
+[root@salt_master ~]# salt -C &#39;192.168.140.15 or S@192.168.140.0&#x2F;24&#39; test.ping
+192.168.140.14:
+    True
+192.168.140.15:
+    True<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="N以主机组的方式匹配"><a href="#N以主机组的方式匹配" class="headerlink" title="-N以主机组的方式匹配"></a><code>-N</code>以主机组的方式匹配</h3><blockquote>
+<p><strong>需要提前在配置文件中<code>/etc/salt/master</code>定义主机组</strong><br><strong><code>L@</code>是特殊写法，和<code>-L</code>作用相同</strong></p>
+</blockquote>
+<pre class="line-numbers language-|salt" data-language="|salt"><code class="language-|salt">[root@salt_master ~]# vim &#x2F;etc&#x2F;salt&#x2F;master
+#配置文件并不完整，仅展示修改的地方
+nodegroups:
+   webserver: &#39;L@192.168.140.14,192.168.140.15&#39;
+   
+[root@salt_master ~]# systemctl restart salt-master<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-|salt" data-language="|salt"><code class="language-|salt">[root@salt_master ~]# salt -N &#39;webserver&#39; test.ping
+192.168.140.14:
+    True
+192.168.140.15:
+    True<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="G以grains数据组件中的数据匹配minion"><a href="#G以grains数据组件中的数据匹配minion" class="headerlink" title="-G以grains数据组件中的数据匹配minion"></a><code>-G</code>以<code>grains</code>数据组件中的数据匹配<code>minion</code></h3><ul>
+<li><code>grains</code>数据组件<ul>
+<li>保存<code>minion</code>端的状态数据(IP、系统版本、内核版本、主机名等)</li>
+</ul>
+</li>
+<li>查看<code>grains</code>组件中的数据 <ul>
+<li><code>salt &#39;*&#39; grains.items</code></li>
+</ul>
+</li>
+</ul>
+<h4 id="查看grains收集到的数据"><a href="#查看grains收集到的数据" class="headerlink" title="查看grains收集到的数据"></a>查看<code>grains</code>收集到的数据</h4><pre class="line-numbers language-|salt" data-language="|salt"><code class="language-|salt">[root@salt_master ~]# salt &#39;192.168.140.14&#39; grains.items
+192.168.140.14:
+    ----------
+    SSDs:
+    biosreleasedate:
+        11&#x2F;12&#x2F;2020
+    biosversion:
+        6.00
+    cpu_flags:
+        - fpu
+        - vme
+        - de
+        - pse
+        - tsc
+        - msr
+        - pae
+        - mce
+        - cx8
+        - apic
+        - sep
+        - mtrr
+        - pge
+        - mca
+        - cmov
+        - pat
+        - pse36
+        - clflush
+        - mmx
+        - fxsr
+        - sse
+        - sse2
+        - ss
+        - syscall
+        - nx
+        - pdpe1gb
+        - rdtscp
+        - lm
+        - constant_tsc
+        - arch_perfmon
+        - nopl
+        - xtopology
+        - tsc_reliable
+        - nonstop_tsc
+        - eagerfpu
+        - pni
+        - pclmulqdq
+        - ssse3
+        - fma
+        - cx16
+        - pcid
+        - sse4_1
+        - sse4_2
+        - x2apic
+        - movbe
+        - popcnt
+        - tsc_deadline_timer
+        - aes
+        - xsave
+        - avx
+        - f16c
+        - rdrand
+        - hypervisor
+        - lahf_lm
+        - abm
+        - 3dnowprefetch
+        - invpcid_single
+        - ssbd
+        - ibrs
+        - ibpb
+        - stibp
+        - ibrs_enhanced
+        - fsgsbase
+        - tsc_adjust
+        - bmi1
+        - avx2
+        - smep
+        - bmi2
+        - invpcid
+        - rdseed
+        - adx
+        - smap
+        - clflushopt
+        - xsaveopt
+        - xsavec
+        - xgetbv1
+        - arat
+        - pku
+        - ospke
+        - md_clear
+        - spec_ctrl
+        - intel_stibp
+        - flush_l1d
+        - arch_capabilities
+    cpu_model:
+        Intel(R) Core(TM) i7-10875H CPU @ 2.30GHz
+    cpuarch:
+        x86_64
+    disks:
+        - sda
+        - sr0
+        - dm-0
+        - dm-1
+    dns:
+        ----------
+        domain:
+        ip4_nameservers:
+            - 114.114.114.114
+            - 8.8.8.8
+        ip6_nameservers:
+        nameservers:
+            - 114.114.114.114
+            - 8.8.8.8
+        options:
+        search:
+            - linux.com
+        sortlist:
+    domain:
+        linux.com
+    fqdn:
+        salt_node1.linux.com
+    fqdn_ip4:
+        - 192.168.140.14
+    fqdn_ip6:
+        - fe80::20c:29ff:fe9a:65ec
+    fqdns:
+    gid:
+        0
+    gpus:
+        |_
+          ----------
+          model:
+              SVGA II Adapter
+          vendor:
+              vmware
+    groupname:
+        root
+    host:
+        salt_node1
+    hwaddr_interfaces:
+        ----------
+        ens33:
+            00:0c:29:9a:65:ec
+        lo:
+            00:00:00:00:00:00
+    id:
+        192.168.140.14
+    init:
+        systemd
+    ip4_gw:
+        192.168.140.2
+    ip4_interfaces:
+        ----------
+        ens33:
+            - 192.168.140.14
+        lo:
+            - 127.0.0.1
+    ip6_gw:
+        False
+    ip6_interfaces:
+        ----------
+        ens33:
+            - fe80::20c:29ff:fe9a:65ec
+        lo:
+            - ::1
+    ip_gw:
+        True
+    ip_interfaces:
+        ----------
+        ens33:
+            - 192.168.140.14
+            - fe80::20c:29ff:fe9a:65ec
+        lo:
+            - 127.0.0.1
+            - ::1
+    ipv4:
+        - 127.0.0.1
+        - 192.168.140.14
+    ipv6:
+        - ::1
+        - fe80::20c:29ff:fe9a:65ec
+    kernel:
+        Linux
+    kernelrelease:
+        3.10.0-1160.el7.x86_64
+    kernelversion:
+        #1 SMP Mon Oct 19 16:18:59 UTC 2020
+    locale_info:
+        ----------
+        defaultencoding:
+            UTF-8
+        defaultlanguage:
+            zh_CN
+        detectedencoding:
+            UTF-8
+        timezone:
+            unknown
+    localhost:
+        salt_node1.linux.com
+    lsb_distrib_codename:
+        CentOS Linux 7 (Core)
+    lsb_distrib_id:
+        CentOS Linux
+    machine_id:
+        fccaaadc79334eeca70f71b88e47f377
+    manufacturer:
+        VMware, Inc.
+    master:
+        192.168.140.11
+    mdadm:
+    mem_total:
+        1819
+    nodename:
+        salt_node1.linux.com
+    num_cpus:
+        1
+    num_gpus:
+        1
+    os:
+        CentOS
+    os_family:
+        RedHat
+    osarch:
+        x86_64
+    oscodename:
+        CentOS Linux 7 (Core)
+    osfinger:
+        CentOS Linux-7
+    osfullname:
+        CentOS Linux
+    osmajorrelease:
+        7
+    osrelease:
+        7.9.2009
+    osrelease_info:
+        - 7
+        - 9
+        - 2009
+    path:
+        &#x2F;usr&#x2F;local&#x2F;sbin:&#x2F;usr&#x2F;local&#x2F;bin:&#x2F;usr&#x2F;sbin:&#x2F;usr&#x2F;bin
+    pid:
+        11846
+    productname:
+        VMware Virtual Platform
+    ps:
+        ps -efHww
+    pythonexecutable:
+        &#x2F;usr&#x2F;bin&#x2F;python
+    pythonpath:
+        - &#x2F;usr&#x2F;bin
+        - &#x2F;usr&#x2F;lib64&#x2F;python27.zip
+        - &#x2F;usr&#x2F;lib64&#x2F;python2.7
+        - &#x2F;usr&#x2F;lib64&#x2F;python2.7&#x2F;plat-linux2
+        - &#x2F;usr&#x2F;lib64&#x2F;python2.7&#x2F;lib-tk
+        - &#x2F;usr&#x2F;lib64&#x2F;python2.7&#x2F;lib-old
+        - &#x2F;usr&#x2F;lib64&#x2F;python2.7&#x2F;lib-dynload
+        - &#x2F;usr&#x2F;lib64&#x2F;python2.7&#x2F;site-packages
+        - &#x2F;usr&#x2F;lib&#x2F;python2.7&#x2F;site-packages
+    pythonversion:
+        - 2
+        - 7
+        - 5
+        - final
+        - 0
+    saltpath:
+        &#x2F;usr&#x2F;lib&#x2F;python2.7&#x2F;site-packages&#x2F;salt
+    saltversion:
+        2019.2.8
+    saltversioninfo:
+        - 2019
+        - 2
+        - 8
+        - 0
+    selinux:
+        ----------
+        enabled:
+            False
+        enforced:
+            Disabled
+    serialnumber:
+        VMware-56 4d fb 59 5c 83 ad 5a-5d 09 15 06 b8 9a 65 ec
+    server_id:
+        925752345
+    shell:
+        &#x2F;bin&#x2F;sh
+    swap_total:
+        2047
+    systemd:
+        ----------
+        features:
+            +PAM +AUDIT +SELINUX +IMA -APPARMOR +SMACK +SYSVINIT +UTMP +LIBCRYPTSETUP +GCRYPT +GNUTLS +ACL +XZ +LZ4 -SECCOMP +BLKID +ELFUTILS +KMOD +IDN
+        version:
+            219
+    uid:
+        0
+    username:
+        root
+    uuid:
+        59fb4d56-835c-5aad-5d09-1506b89a65ec
+    virtual:
+        VMware
+    zfs_feature_flags:
+        False
+    zfs_support:
+        False
+    zmqversion:
+        4.1.4<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="以grains数据组件中的数据匹配minion"><a href="#以grains数据组件中的数据匹配minion" class="headerlink" title="以grains数据组件中的数据匹配minion"></a>以<code>grains</code>数据组件中的数据匹配<code>minion</code></h4><pre class="line-numbers language-|salt" data-language="|salt"><code class="language-|salt">[root@salt_master ~]# salt -G &#39;master:192.168.140.11&#39; test.ping
+192.168.140.14:
+    True
+192.168.140.15:
+    True
+[root@salt_master ~]# salt -G &#39;os:Centos&#39; test.ping
+192.168.140.14:
+    True
+192.168.140.15:
+    True<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="四、常用的模块"><a href="#四、常用的模块" class="headerlink" title="四、常用的模块"></a>四、常用的模块</h2><h3 id="1-查看modules组件中的所有模块"><a href="#1-查看modules组件中的所有模块" class="headerlink" title="1.查看modules组件中的所有模块"></a>1.查看<code>modules</code>组件中的所有模块</h3><pre class="line-numbers language-|salt" data-language="|salt"><code class="language-|salt">[root@salt_master ~]# salt &#39;192.168.140.14&#39; sys.list_modules
+192.168.140.14:
+    - acl
+    - aliases
+    - alternatives
+    - ansible
+    - archive
+    - artifactory
+    - beacons
+    - bigip
+    - btrfs
+    - buildout
+    - cloud
+    - cmd
+    - composer
+    - config
+    - consul
+    - container_resource
+    - cp
+    - cron
+    - cryptdev
+    - data
+    - defaults
+    - devmap
+    - disk
+    - django
+    - dnsmasq
+    - dnsutil
+    - drbd
+    - environ
+    - etcd
+    - ethtool
+    - event
+    - extfs
+    - file
+    - firewalld
+    - gem
+    - genesis
+    - glassfish
+    - gnome
+    - google_chat
+    - grafana4
+    - grains
+    - group
+    - hashutil
+    - highstate_doc
+    - hipchat
+    - hosts
+    - http
+    - incron
+    - ini
+    - inspector
+    - introspect
+    - iosconfig
+    - ip
+    - ipset
+    - iptables
+    - jboss7
+    - jboss7_cli
+    - k8s
+    - kernelpkg
+    - key
+    - keyboard
+    - kmod
+    - locale
+    - locate
+    - log
+    - logrotate
+    - lowpkg
+    - lvm
+    - mandrill
+    - match
+    - mattermost
+    - mine
+    - minion
+    - modjk
+    - mount
+    - msteams
+    - nagios_rpc
+    - namecheap_domains
+    - namecheap_domains_dns
+    - namecheap_domains_ns
+    - namecheap_ssl
+    - namecheap_users
+    - network
+    - nexus
+    - nova
+    - nspawn
+    - nxos_api
+    - openscap
+    - openstack_config
+    - opsgenie
+    - out
+    - pagerduty
+    - pagerduty_util
+    - pam
+    - parallels
+    - partition
+    - peeringdb
+    - pillar
+    - pkg
+    - pkg_resource
+    - postfix
+    - ps
+    - publish
+    - pushover
+    - pyenv
+    - random
+    - random_org
+    - rbenv
+    - rest_sample_utils
+    - restartcheck
+    - ret
+    - rsync
+    - rvm
+    - s3
+    - s6
+    - salt_proxy
+    - saltcheck
+    - saltutil
+    - schedule
+    - scsi
+    - sdb
+    - seed
+    - serverdensity_device
+    - service
+    - shadow
+    - slack
+    - slsutil
+    - smbios
+    - smtp
+    - solrcloud
+    - sqlite3
+    - ssh
+    - state
+    - status
+    - statuspage
+    - supervisord
+    - sys
+    - sysctl
+    - sysfs
+    - syslog_ng
+    - system
+    - telegram
+    - telemetry
+    - temp
+    - test
+    - timezone
+    - tuned
+    - udev
+    - uptime
+    - user
+    - vault
+    - vbox_guest
+    - virtualenv
+    - vsphere
+    - xfs
+    - zabbix
+    - zenoss<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="2-查看某个模块的操作方法"><a href="#2-查看某个模块的操作方法" class="headerlink" title="2.查看某个模块的操作方法"></a>2.查看某个模块的操作方法</h3><pre class="line-numbers language-|salt" data-language="|salt"><code class="language-|salt">[root@salt_master ~]# salt &#39;192.168.140.14&#39; sys.list_functions user
+192.168.140.14:
+    - user.add
+    - user.chfullname
+    - user.chgid
+    - user.chgroups
+    - user.chhome
+    - user.chhomephone
+    - user.chloginclass
+    - user.chother
+    - user.chroomnumber
+    - user.chshell
+    - user.chuid
+    - user.chworkphone
+    - user.delete
+    - user.get_loginclass
+    - user.getent
+    - user.info
+    - user.list_groups
+    - user.list_users
+    - user.primary_group
+    - user.rename<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-|salt" data-language="|salt"><code class="language-|salt">[root@salt_master ~]# salt &#39;192.168.140.14&#39; sys.list_functions service
+192.168.140.14:
+    - service.available
+    - service.disable
+    - service.disabled
+    - service.enable
+    - service.enabled
+    - service.execs
+    - service.force_reload
+    - service.get_all
+    - service.get_disabled
+    - service.get_enabled
+    - service.get_running
+    - service.get_static
+    - service.mask
+    - service.masked
+    - service.missing
+    - service.reload
+    - service.restart
+    - service.show
+    - service.start
+    - service.status
+    - service.stop
+    - service.systemctl_reload
+    - service.unmask<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-查看操作方法的使用说明"><a href="#3-查看操作方法的使用说明" class="headerlink" title="3.查看操作方法的使用说明"></a>3.查看操作方法的使用说明</h3><pre class="line-numbers language-|salt" data-language="|salt"><code class="language-|salt">[root@salt_master ~]# salt &#39;192.168.140.14&#39; sys.doc user.add
+user.add:
+
+    Add a user to the minion
+
+    CLI Example:
+
+        salt &#39;*&#39; user.add name &lt;uid&gt; &lt;gid&gt; &lt;groups&gt; &lt;home&gt; &lt;shell&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-|salt" data-language="|salt"><code class="language-|salt">[root@salt_master ~]# salt &#39;192.168.140.14&#39; sys.doc service.start
+service.start:
+
+    Changed in version 2015.8.12,2016.3.3,2016.11.0
+        On minions running systemd&gt;&#x3D;205, &#96;systemd-run(1)&#96;_ is now used to
+        isolate commands run by this function from the &#96;&#96;salt-minion&#96;&#96; daemon&#39;s
+        control group. This is done to avoid a race condition in cases where
+        the &#96;&#96;salt-minion&#96;&#96; service is restarted while a service is being
+        modified. If desired, usage of &#96;systemd-run(1)&#96;_ can be suppressed by
+        setting a :mod:&#96;config option &lt;salt.modules.config.get&gt;&#96; called
+        &#96;&#96;systemd.scope&#96;&#96;, with a value of &#96;&#96;False&#96;&#96; (no quotes).
+
+    .. _&#96;systemd-run(1)&#96;: https:&#x2F;&#x2F;www.freedesktop.org&#x2F;software&#x2F;systemd&#x2F;man&#x2F;systemd-run.html
+
+    Start the specified service with systemd
+
+    no_block : False
+        Set to &#96;&#96;True&#96;&#96; to start the service using &#96;&#96;--no-block&#96;&#96;.
+
+        New in version 2017.7.0
+
+    unmask : False
+        Set to &#96;&#96;True&#96;&#96; to remove an indefinite mask before attempting to start
+        the service.
+
+        New in version 2017.7.0
+            In previous releases, Salt would simply unmask a service before
+            starting. This behavior is no longer the default.
+
+    unmask_runtime : False
+        Set to &#96;&#96;True&#96;&#96; to remove a runtime mask before attempting to start the
+        service.
+
+        New in version 2017.7.0
+            In previous releases, Salt would simply unmask a service before
+            starting. This behavior is no longer the default.
+
+    CLI Example:
+
+        salt &#39;*&#39; service.start &lt;service name&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-cmd执行命令模块"><a href="#4-cmd执行命令模块" class="headerlink" title="4.cmd执行命令模块"></a>4.<code>cmd</code>执行命令模块</h3><pre class="line-numbers language-|查询所有minion的主机名" data-language="|查询所有minion的主机名"><code class="language-|查询所有minion的主机名">[root@salt_master ~]# salt &#39;*&#39; cmd.run &#39;hostname&#39;
+192.168.140.14:
+    salt_node1.linux.com
+192.168.140.15:
+    salt_node2.linux.com<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="5-cron计划任务模块"><a href="#5-cron计划任务模块" class="headerlink" title="5.cron计划任务模块"></a>5.<code>cron</code>计划任务模块</h3><blockquote>
+<p><strong>如果没有<code>ntpdate</code>命令，请安装<code>yum install -y ntpdate</code></strong></p>
+</blockquote>
+<pre class="line-numbers language-|新增计划任务，每半小时同步一次时间" data-language="|新增计划任务，每半小时同步一次时间"><code class="language-|新增计划任务，每半小时同步一次时间">[root@salt_master ~]# salt &#39;*&#39; cron.set_job root &#39;*&#x2F;30&#39; &#39;*&#39; &#39;*&#39; &#39;*&#39; &#39;*&#39; &quot;&#x2F;usr&#x2F;sbin&#x2F;ntpdate 120.25.115.20 &amp;&gt; &#x2F;dev&#x2F;null&quot;
+192.168.140.14:
+    new
+192.168.140.15:
+    new<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-|查询当前系统的计划任务" data-language="|查询当前系统的计划任务"><code class="language-|查询当前系统的计划任务">[root@salt_master ~]# salt &#39;*&#39; cmd.run &#39;crontab -l&#39;
+192.168.140.14:
+    # Lines below here are managed by Salt, do not edit
+    *&#x2F;30 * * * * &#x2F;usr&#x2F;sbin&#x2F;ntpdate 120.25.115.20 &amp;&gt; &#x2F;dev&#x2F;null
+192.168.140.15:
+    # Lines below here are managed by Salt, do not edit
+    *&#x2F;30 * * * * &#x2F;usr&#x2F;sbin&#x2F;ntpdate 120.25.115.20 &amp;&gt; &#x2F;dev&#x2F;null<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="6-file管理文件模块"><a href="#6-file管理文件模块" class="headerlink" title="6.file管理文件模块"></a>6.<code>file</code>管理文件模块</h3><blockquote>
+<p><strong>在文件中写入数据，这个文件在被控端上必须存在</strong></p>
+</blockquote>
+<pre class="line-numbers language-|在/tmp/file01文件中写入内容" data-language="|在/tmp/file01文件中写入内容"><code class="language-|在/tmp/file01文件中写入内容">[root@salt_master ~]# salt &#39;*&#39; file.append &#x2F;tmp&#x2F;file01 &quot;abc123&quot;
+192.168.140.15:
+    Wrote 1 lines to &quot;&#x2F;tmp&#x2F;file01&quot;
+192.168.140.14:
+    Wrote 1 lines to &quot;&#x2F;tmp&#x2F;file01&quot;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="7-hosts主机名解析模块"><a href="#7-hosts主机名解析模块" class="headerlink" title="7.hosts主机名解析模块"></a>7.<code>hosts</code>主机名解析模块</h3><pre class="line-numbers language-|在所有minion添加一个主机名解析" data-language="|在所有minion添加一个主机名解析"><code class="language-|在所有minion添加一个主机名解析">[root@salt_master ~]# salt &#39;*&#39; hosts.set_host 192.168.140.11 salt_master.linux.com
+192.168.140.15:
+    True
+192.168.140.14:
+    True<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-|查询/etc/hosts文件是否修改" data-language="|查询/etc/hosts文件是否修改"><code class="language-|查询/etc/hosts文件是否修改">[root@salt_master ~]# salt &#39;*&#39; cmd.run &#39;cat &#x2F;etc&#x2F;hosts&#39;
+192.168.140.15:
+    127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+    ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+    192.168.140.11		salt_master.linux.com
+192.168.140.14:
+    127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+    ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+    192.168.140.11		salt_master.linux.com<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="8-pkg管理软件模块"><a href="#8-pkg管理软件模块" class="headerlink" title="8.pkg管理软件模块"></a>8.<code>pkg</code>管理软件模块</h3><pre class="line-numbers language-|在所有minion上安装FTP软件" data-language="|在所有minion上安装FTP软件"><code class="language-|在所有minion上安装FTP软件">[root@salt_master ~]# salt &#39;*&#39; pkg.install vsftpd
+192.168.140.14:
+    ----------
+    vsftpd:
+        ----------
+        new:
+            3.0.2-29.el7_9
+        old:
+192.168.140.15:
+    ----------
+    vsftpd:
+        ----------
+        new:
+            3.0.2-29.el7_9
+        old:<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="9-service管理服务模块"><a href="#9-service管理服务模块" class="headerlink" title="9.service管理服务模块"></a>9.<code>service</code>管理服务模块</h3><pre class="line-numbers language-|启动所有minion上的FTP服务" data-language="|启动所有minion上的FTP服务"><code class="language-|启动所有minion上的FTP服务">[root@salt_master ~]# salt &#39;*&#39; service.start vsftpd
+192.168.140.15:
+    True
+192.168.140.14:
+    True<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-|设置所有minion上的FTP服务为开机自启" data-language="|设置所有minion上的FTP服务为开机自启"><code class="language-|设置所有minion上的FTP服务为开机自启">[root@salt_master ~]# salt &#39;*&#39; service.enable vsftpd
+192.168.140.15:
+    True
+192.168.140.14:
+    True<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-|查询所有minion的FTP服务" data-language="|查询所有minion的FTP服务"><code class="language-|查询所有minion的FTP服务">[root@salt_master ~]# salt &#39;*&#39; cmd.run &#39;netstat -tunlp | grep ftp&#39;
+192.168.140.15:
+    tcp6       0      0 :::21                   :::*                    LISTEN      2605&#x2F;vsftpd
+192.168.140.14:
+    tcp6       0      0 :::21                   :::*                    LISTEN      12441&#x2F;vsftpd<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="10-user-group管理用户和组的模块"><a href="#10-user-group管理用户和组的模块" class="headerlink" title="10.user/group管理用户和组的模块"></a>10.<code>user/group</code>管理用户和组的模块</h3><pre class="line-numbers language-|在所有minion上创建用户king" data-language="|在所有minion上创建用户king"><code class="language-|在所有minion上创建用户king">[root@salt_master ~]# salt &#39;*&#39; user.add king
+192.168.140.14:
+    True
+192.168.140.15:
+    True<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-|在所有minion上创建jishu组" data-language="|在所有minion上创建jishu组"><code class="language-|在所有minion上创建jishu组">[root@salt_master ~]# salt &#39;*&#39; group.add jishu
+192.168.140.14:
+    True
+192.168.140.15:
+    True<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-|在所有minion上把king用户加入到jishu组里" data-language="|在所有minion上把king用户加入到jishu组里"><code class="language-|在所有minion上把king用户加入到jishu组里">[root@salt_master ~]# salt &#39;*&#39; group.adduser jishu king
+192.168.140.15:
+    True
+192.168.140.14:
+    True<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work">网笙久久</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work/2023/05/20/121/">https://blog.wangshengjj.work/2023/05/20/121/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.wangshengjj.work" target="_blank">WangShengJJのblog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/linux/">linux</a><a class="post-meta__tags" href="/tags/centos/">centos</a><a class="post-meta__tags" href="/tags/%E8%87%AA%E5%8A%A8%E5%8C%96%E8%BF%90%E7%BB%B4%E5%B7%A5%E5%85%B7/">自动化运维工具</a><a class="post-meta__tags" href="/tags/saltstack/">saltstack</a></div><div class="post_share"><div class="social-share" data-image="https://api.ghser.com/random/api.php" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/05/23/122/" title="【Linus应用系列教程】ELK统一日志分析"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【Linus应用系列教程】ELK统一日志分析</div></div></a></div><div class="next-post pull-right"><a href="/2023/05/19/120/" title="【Linux应用系列教程】基于Jenkins发布maven项目"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【Linux应用系列教程】基于Jenkins发布maven项目</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/05/15/115/" title="【自动化运维系列教程】Ansible自动化运维工具"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-15</div><div class="title">【自动化运维系列教程】Ansible自动化运维工具</div></div></a></div><div><a href="/2023/05/15/116/" title="【自动化运维系列教程】Ansible Playbook剧本"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-15</div><div class="title">【自动化运维系列教程】Ansible Playbook剧本</div></div></a></div><div><a href="/2023/05/12/113/" title="【Zabbix系列教程】自动发现和自动注册"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-12</div><div class="title">【Zabbix系列教程】自动发现和自动注册</div></div></a></div><div><a href="/2023/05/11/112/" title="【Zabbix系列教程】监控MySQL、Nginx、Redis常用键值"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-11</div><div class="title">【Zabbix系列教程】监控MySQL、Nginx、Redis常用键值</div></div></a></div><div><a href="/2023/05/12/114/" title="【Zabbix系列教程】Proxy端部署教程+分布式监控"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-12</div><div class="title">【Zabbix系列教程】Proxy端部署教程+分布式监控</div></div></a></div><div><a href="/2023/05/16/117/" title="【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-16</div><div class="title">【自动化运维系列教程】Ansible Playbook剧本部署LNMP环境+WordPress博客</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">网笙久久</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">139</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">185</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">261</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wangshengjj"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wangshengjj" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:wangshengjj@wangshengjj.work" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.wangshengjj.work" target="_blank" title="Blog"><i class="fa fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到网笙久久的博客</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E3%80%90%E8%87%AA%E5%8A%A8%E5%8C%96%E8%BF%90%E7%BB%B4%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%E3%80%91Saltstack%E5%B7%A5%E5%85%B7%E9%83%A8%E7%BD%B2%E5%8F%8A%E5%B8%B8%E7%94%A8%E6%A8%A1%E5%9D%97"><span class="toc-number">1.</span> <span class="toc-text">【自动化运维系列教程】Saltstack工具部署及常用模块</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81Saltstack%E7%9A%84%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.1.</span> <span class="toc-text">一、Saltstack的介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%BD%9C%E7%94%A8"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.作用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E7%89%B9%E6%80%A7"><span class="toc-number">1.1.2.</span> <span class="toc-text">2.特性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E9%83%A8%E7%BD%B2Saltstack"><span class="toc-number">1.2.</span> <span class="toc-text">二、部署Saltstack</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.环境准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E4%B8%89%E5%8F%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%85%B3%E9%97%AD%E9%98%B2%E7%81%AB%E5%A2%99%E5%92%8CSElinux%E3%80%81%E9%85%8D%E7%BD%AE%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.三台服务器关闭防火墙和SElinux、配置时间同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E4%B8%89%E5%8F%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%85%8D%E7%BD%AEYum%E6%BA%90%E5%92%8CEpel%E6%BA%90%E8%BF%98%E6%9C%89Saltstack%E5%AE%89%E8%A3%85%E6%BA%90"><span class="toc-number">1.2.3.</span> <span class="toc-text">3.三台服务器配置Yum源和Epel源还有Saltstack安装源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%9C%A8%E7%AE%A1%E7%90%86%E7%AB%AF%E5%AE%89%E8%A3%85Salt-master"><span class="toc-number">1.2.4.</span> <span class="toc-text">4.在管理端安装Salt-master</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E5%AE%89%E8%A3%85Salt-master"><span class="toc-number">1.2.4.1.</span> <span class="toc-text">A.安装Salt-master</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E5%90%AF%E5%8A%A8Salt-master%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.2.4.2.</span> <span class="toc-text">B.启动Salt-master服务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#C-%E6%A3%80%E6%9F%A5%E6%9C%8D%E5%8A%A1%E6%98%AF%E5%90%A6%E5%90%AF%E5%8A%A8"><span class="toc-number">1.2.4.3.</span> <span class="toc-text">C.检查服务是否启动</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%9C%A8%E8%A2%AB%E7%AE%A1%E7%90%86%E7%AB%AF%E5%AE%89%E8%A3%85Salt-minion"><span class="toc-number">1.2.5.</span> <span class="toc-text">5.在被管理端安装Salt-minion</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E5%AE%89%E8%A3%85Salt-minion"><span class="toc-number">1.2.5.1.</span> <span class="toc-text">A.安装Salt-minion</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E4%BF%AE%E6%94%B9%E8%A2%AB%E7%AE%A1%E7%90%86%E7%AB%AF%E4%B8%8A%E7%9A%84%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.5.2.</span> <span class="toc-text">B.修改被管理端上的配置文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#C-%E5%90%AF%E5%8A%A8Salt-minion%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.2.5.3.</span> <span class="toc-text">C.启动Salt-minion服务</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E5%9B%9E%E5%88%B0%E7%AE%A1%E7%90%86%E7%AB%AF%EF%BC%8C%E7%AD%BE%E7%BD%B2%E8%AF%81%E4%B9%A6"><span class="toc-number">1.2.6.</span> <span class="toc-text">6.回到管理端，签署证书</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E6%9F%A5%E7%9C%8B%E6%9C%AA%E7%AD%BE%E7%BD%B2%E8%AF%81%E4%B9%A6%E7%9A%84%E6%9C%BA%E5%99%A8"><span class="toc-number">1.2.6.1.</span> <span class="toc-text">A.查看未签署证书的机器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E6%8E%A5%E5%8F%97%E6%89%80%E6%9C%89%E7%9A%84%E8%AF%B7%E6%B1%82%E8%AF%81%E4%B9%A6"><span class="toc-number">1.2.6.2.</span> <span class="toc-text">B.接受所有的请求证书</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#C-%E5%86%8D%E6%AC%A1%E6%9F%A5%E7%9C%8B%E7%8A%B6%E6%80%81"><span class="toc-number">1.2.6.3.</span> <span class="toc-text">C.再次查看状态</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#D-salt-key%E5%91%BD%E4%BB%A4%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E"><span class="toc-number">1.2.6.4.</span> <span class="toc-text">D.salt-key命令参数说明</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#E-%E6%B5%8B%E8%AF%95"><span class="toc-number">1.2.6.5.</span> <span class="toc-text">E.测试</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95%E4%B8%BB%E6%9C%BA%E8%BF%9E%E9%80%9A%E6%80%A7"><span class="toc-number">1.2.6.5.1.</span> <span class="toc-text">测试主机连通性</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%8C%B9%E9%85%8Dminion%E7%9A%84%E6%96%B9%E6%B3%95"><span class="toc-number">1.3.</span> <span class="toc-text">三、匹配minion的方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#L%E6%94%AF%E6%8C%81%E4%BB%A5%E9%80%97%E5%8F%B7%E9%9A%94%E5%BC%80%E7%9A%84%E6%96%B9%E5%BC%8F%E5%8C%B9%E9%85%8D%E5%A4%9A%E4%B8%AAminion"><span class="toc-number">1.3.1.</span> <span class="toc-text">-L支持以逗号隔开的方式匹配多个minion</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#S%E4%BB%A5%E7%BD%91%E6%AE%B5%E7%9A%84%E5%BD%A2%E5%BC%8F%E5%8C%B9%E9%85%8Dminion"><span class="toc-number">1.3.2.</span> <span class="toc-text">-S以网段的形式匹配minion</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#E%E4%BB%A5%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%9A%84%E6%96%B9%E5%BC%8F%E5%8C%B9%E9%85%8Dminion"><span class="toc-number">1.3.3.</span> <span class="toc-text">-E以正则表达式的方式匹配minion</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#C%E4%BB%A5%E5%A4%8D%E5%90%88%E6%9D%A1%E4%BB%B6%E5%8C%B9%E9%85%8Dminion"><span class="toc-number">1.3.4.</span> <span class="toc-text">-C以复合条件匹配minion</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#N%E4%BB%A5%E4%B8%BB%E6%9C%BA%E7%BB%84%E7%9A%84%E6%96%B9%E5%BC%8F%E5%8C%B9%E9%85%8D"><span class="toc-number">1.3.5.</span> <span class="toc-text">-N以主机组的方式匹配</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#G%E4%BB%A5grains%E6%95%B0%E6%8D%AE%E7%BB%84%E4%BB%B6%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E5%8C%B9%E9%85%8Dminion"><span class="toc-number">1.3.6.</span> <span class="toc-text">-G以grains数据组件中的数据匹配minion</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8Bgrains%E6%94%B6%E9%9B%86%E5%88%B0%E7%9A%84%E6%95%B0%E6%8D%AE"><span class="toc-number">1.3.6.1.</span> <span class="toc-text">查看grains收集到的数据</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%A5grains%E6%95%B0%E6%8D%AE%E7%BB%84%E4%BB%B6%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E5%8C%B9%E9%85%8Dminion"><span class="toc-number">1.3.6.2.</span> <span class="toc-text">以grains数据组件中的数据匹配minion</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%B8%B8%E7%94%A8%E7%9A%84%E6%A8%A1%E5%9D%97"><span class="toc-number">1.4.</span> <span class="toc-text">四、常用的模块</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%9F%A5%E7%9C%8Bmodules%E7%BB%84%E4%BB%B6%E4%B8%AD%E7%9A%84%E6%89%80%E6%9C%89%E6%A8%A1%E5%9D%97"><span class="toc-number">1.4.1.</span> <span class="toc-text">1.查看modules组件中的所有模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%9F%A5%E7%9C%8B%E6%9F%90%E4%B8%AA%E6%A8%A1%E5%9D%97%E7%9A%84%E6%93%8D%E4%BD%9C%E6%96%B9%E6%B3%95"><span class="toc-number">1.4.2.</span> <span class="toc-text">2.查看某个模块的操作方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%9F%A5%E7%9C%8B%E6%93%8D%E4%BD%9C%E6%96%B9%E6%B3%95%E7%9A%84%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E"><span class="toc-number">1.4.3.</span> <span class="toc-text">3.查看操作方法的使用说明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-cmd%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%9D%97"><span class="toc-number">1.4.4.</span> <span class="toc-text">4.cmd执行命令模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-cron%E8%AE%A1%E5%88%92%E4%BB%BB%E5%8A%A1%E6%A8%A1%E5%9D%97"><span class="toc-number">1.4.5.</span> <span class="toc-text">5.cron计划任务模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-file%E7%AE%A1%E7%90%86%E6%96%87%E4%BB%B6%E6%A8%A1%E5%9D%97"><span class="toc-number">1.4.6.</span> <span class="toc-text">6.file管理文件模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-hosts%E4%B8%BB%E6%9C%BA%E5%90%8D%E8%A7%A3%E6%9E%90%E6%A8%A1%E5%9D%97"><span class="toc-number">1.4.7.</span> <span class="toc-text">7.hosts主机名解析模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-pkg%E7%AE%A1%E7%90%86%E8%BD%AF%E4%BB%B6%E6%A8%A1%E5%9D%97"><span class="toc-number">1.4.8.</span> <span class="toc-text">8.pkg管理软件模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-service%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1%E6%A8%A1%E5%9D%97"><span class="toc-number">1.4.9.</span> <span class="toc-text">9.service管理服务模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-user-group%E7%AE%A1%E7%90%86%E7%94%A8%E6%88%B7%E5%92%8C%E7%BB%84%E7%9A%84%E6%A8%A1%E5%9D%97"><span class="toc-number">1.4.10.</span> <span class="toc-text">10.user&#x2F;group管理用户和组的模块</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/06/02/132/" title="【容器应用系列教程】容器介绍、Docker的安装和基本操作"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【容器应用系列教程】容器介绍、Docker的安装和基本操作"/></a><div class="content"><a class="title" href="/2023/06/02/132/" title="【容器应用系列教程】容器介绍、Docker的安装和基本操作">【容器应用系列教程】容器介绍、Docker的安装和基本操作</a><time datetime="2023-06-02T02:59:37.570Z" title="发表于 2023-06-02 10:59:37">2023-06-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/01/131/" title="【虚拟化应用系列教程】OpenStack组件"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【虚拟化应用系列教程】OpenStack组件"/></a><div class="content"><a class="title" href="/2023/06/01/131/" title="【虚拟化应用系列教程】OpenStack组件">【虚拟化应用系列教程】OpenStack组件</a><time datetime="2023-06-01T09:41:14.757Z" title="发表于 2023-06-01 17:41:14">2023-06-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/31/130/" title="【虚拟化应用系列教程】KVM存储管理"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【虚拟化应用系列教程】KVM存储管理"/></a><div class="content"><a class="title" href="/2023/05/31/130/" title="【虚拟化应用系列教程】KVM存储管理">【虚拟化应用系列教程】KVM存储管理</a><time datetime="2023-05-31T07:33:09.421Z" title="发表于 2023-05-31 15:33:09">2023-05-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/31/129/" title="【虚拟化应用系列教程】KVM网络管理"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【虚拟化应用系列教程】KVM网络管理"/></a><div class="content"><a class="title" href="/2023/05/31/129/" title="【虚拟化应用系列教程】KVM网络管理">【虚拟化应用系列教程】KVM网络管理</a><time datetime="2023-05-31T05:20:18.393Z" title="发表于 2023-05-31 13:20:18">2023-05-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/30/128/" title="【虚拟化应用系列教程】KVM虚拟机管理"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【虚拟化应用系列教程】KVM虚拟机管理"/></a><div class="content"><a class="title" href="/2023/05/30/128/" title="【虚拟化应用系列教程】KVM虚拟机管理">【虚拟化应用系列教程】KVM虚拟机管理</a><time datetime="2023-05-30T10:46:29.825Z" title="发表于 2023-05-30 18:46:29">2023-05-30</time></div></div></div></div></div></div></main><footer id="footer" style="background: flase"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By 网笙久久</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><div class="js-pjax"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js"></script><script>(() => {
+  document.querySelectorAll('#article-container span.katex-display').forEach(item => {
+    btf.wrap(item, 'div', { class: 'katex-wrap'})
+  })
+})()</script></div><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div><script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(n){n.imageLazyLoadSetting.processImages=i;var e=n.imageLazyLoadSetting.isSPA,r=(n.imageLazyLoadSetting.preloadRatio,Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));function i(){e&&(r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));for(var t,a=0;a<r.length;a++)0<=(t=(t=r[a]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(n.innerHeight+240||document.documentElement.clientHeight+240)&&function(){var t,e,n,i,o=r[a];t=o,e=function(){r=r.filter(function(t){return o!==t})},n=new Image,i=t.getAttribute("data-original"),n.onload=function(){t.src=i,e&&e()},t.src!==i&&(n.src=i)}()}i(),n.addEventListener("scroll",function(){var t,e;t=i,e=n,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(e)},500)})}(this);</script></body></html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>【虚拟化应用系列教程】虚拟化的类型和KVM虚拟化应用安装 | WangShengJJのblog</title><meta name="author" content="网笙久久"><meta name="copyright" content="网笙久久"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="【虚拟化应用系列教程】虚拟化的类型和KVM虚拟化应用安装 下一期教程：KVM虚拟机管理  一、关于虚拟化1.不同的虚拟化架构基于平台的虚拟化 基于操作系统的虚拟化 2.Hypervisor的部署方式寄居虚拟化vmware workstation、virtual box、kvm、Hyper-V原生虚拟化ESXI、Xen、Proxmox VE(PVE) 3.虚拟化技术实现原理 软件虚拟化qemu  半">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【虚拟化应用系列教程】虚拟化的类型和KVM虚拟化应用安装">
+<meta property="og:url" content="https://blog.wangshengjj.work/2023/05/30/127/index.html">
+<meta property="og:site_name" content="WangShengJJのblog">
+<meta property="og:description" content="【虚拟化应用系列教程】虚拟化的类型和KVM虚拟化应用安装 下一期教程：KVM虚拟机管理  一、关于虚拟化1.不同的虚拟化架构基于平台的虚拟化 基于操作系统的虚拟化 2.Hypervisor的部署方式寄居虚拟化vmware workstation、virtual box、kvm、Hyper-V原生虚拟化ESXI、Xen、Proxmox VE(PVE) 3.虚拟化技术实现原理 软件虚拟化qemu  半">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://api.ghser.com/random/api.php">
+<meta property="article:published_time" content="2023-05-30T04:37:21.116Z">
+<meta property="article:modified_time" content="2023-05-30T06:49:15.335Z">
+<meta property="article:author" content="网笙久久">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="centos">
+<meta property="article:tag" content="虚拟机">
+<meta property="article:tag" content="kvm">
+<meta property="article:tag" content="虚拟化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://api.ghser.com/random/api.php"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://blog.wangshengjj.work/2023/05/30/127/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"prismjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【虚拟化应用系列教程】虚拟化的类型和KVM虚拟化应用安装',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-05-30 14:49:15'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><meting-js server="netease" type="playlist" id="7386208265" lrc-type="0" volume="0.5" fixed="true" mini="true" order="random" loop="all" autoplay="true" preload="auto" list-folded="true"></meting-js><script src="https://fastly.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/autoload.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script><meta name="generator" content="Hexo 6.1.0"></head><body><link rel="stylesheet" href="/css/barber-shop.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">139</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">185</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">261</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://api.ghser.com/random/api.php')"><nav id="nav"><span id="blog-info"><a href="/" title="WangShengJJのblog"><span class="site-name">WangShengJJのblog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【虚拟化应用系列教程】虚拟化的类型和KVM虚拟化应用安装</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-05-30T04:37:21.116Z" title="发表于 2023-05-30 12:37:21">2023-05-30</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-05-30T06:49:15.335Z" title="更新于 2023-05-30 14:49:15">2023-05-30</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/linux%E6%95%99%E7%A8%8B/">linux教程</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/linux%E6%95%99%E7%A8%8B/%E8%99%9A%E6%8B%9F%E5%8C%96%E5%BA%94%E7%94%A8/">虚拟化应用</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0/linux%E6%95%99%E7%A8%8B/%E8%99%9A%E6%8B%9F%E5%8C%96%E5%BA%94%E7%94%A8/KVM/">KVM</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">989</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>4分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="【虚拟化应用系列教程】虚拟化的类型和KVM虚拟化应用安装"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="【虚拟化应用系列教程】虚拟化的类型和KVM虚拟化应用安装"><a href="#【虚拟化应用系列教程】虚拟化的类型和KVM虚拟化应用安装" class="headerlink" title="【虚拟化应用系列教程】虚拟化的类型和KVM虚拟化应用安装"></a>【虚拟化应用系列教程】虚拟化的类型和KVM虚拟化应用安装</h1><blockquote>
+<p><strong>下一期教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/128">KVM虚拟机管理</a></strong></p>
+</blockquote>
+<h2 id="一、关于虚拟化"><a href="#一、关于虚拟化" class="headerlink" title="一、关于虚拟化"></a>一、关于虚拟化</h2><h3 id="1-不同的虚拟化架构"><a href="#1-不同的虚拟化架构" class="headerlink" title="1.不同的虚拟化架构"></a>1.不同的虚拟化架构</h3><h4 id="基于平台的虚拟化"><a href="#基于平台的虚拟化" class="headerlink" title="基于平台的虚拟化"></a>基于平台的虚拟化</h4><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/kvm01.png" alt="kvm01"></p>
+<h4 id="基于操作系统的虚拟化"><a href="#基于操作系统的虚拟化" class="headerlink" title="基于操作系统的虚拟化"></a>基于操作系统的虚拟化</h4><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/kvm02.png" alt="kvm02"></p>
+<h3 id="2-Hypervisor的部署方式"><a href="#2-Hypervisor的部署方式" class="headerlink" title="2.Hypervisor的部署方式"></a>2.Hypervisor的部署方式</h3><p>寄居虚拟化<br><code>vmware workstation</code>、<code>virtual box</code>、<code>kvm</code>、<code>Hyper-V</code><br>原生虚拟化<br><code>ESXI</code>、<code>Xen</code>、<code>Proxmox VE(PVE)</code></p>
+<h3 id="3-虚拟化技术实现原理"><a href="#3-虚拟化技术实现原理" class="headerlink" title="3.虚拟化技术实现原理"></a>3.虚拟化技术实现原理</h3><ul>
+<li>软件虚拟化<code>qemu</code> </li>
+<li>半虚拟化<code>para-virtualization</code>	<ul>
+<li>由思杰<code>critix</code>公司推出</li>
+<li><code>redhat</code>公司提供<code>virtIO</code>驱动实现半虚拟化</li>
+</ul>
+</li>
+<li>硬件辅助虚拟化<ul>
+<li><code>Intel</code><ul>
+<li><code>VT-x</code></li>
+<li><code>vmx</code></li>
+</ul>
+</li>
+<li><code>AMD</code><ul>
+<li><code>amd-v</code></li>
+<li><code>svm</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="二、KVM虚拟化"><a href="#二、KVM虚拟化" class="headerlink" title="二、KVM虚拟化"></a>二、KVM虚拟化</h2><blockquote>
+<p><strong><code>KVM</code>全称<code>Kernel-based Virtual Machine</code>是一个基于内核的虚拟机</strong></p>
+</blockquote>
+<h3 id="借助QEMU-I-O实现虚拟硬件的模拟管理"><a href="#借助QEMU-I-O实现虚拟硬件的模拟管理" class="headerlink" title="借助QEMU I/O实现虚拟硬件的模拟管理"></a>借助<code>QEMU I/O</code>实现虚拟硬件的模拟管理</h3><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/kvm03.png" alt="kvm03"></p>
+<h3 id="KVM的管理工具"><a href="#KVM的管理工具" class="headerlink" title="KVM的管理工具"></a>KVM的管理工具</h3><blockquote>
+<p><strong>依赖于<code>libvirtd</code>服务，管理命令有<code>virt-manager</code>、<code>virsh</code></strong></p>
+</blockquote>
+<h2 id="三、KVM安装"><a href="#三、KVM安装" class="headerlink" title="三、KVM安装"></a>三、KVM安装</h2><h3 id="1-准备阶段"><a href="#1-准备阶段" class="headerlink" title="1.准备阶段"></a>1.准备阶段</h3><blockquote>
+<p><strong>1.准备一台高配置的虚拟机，或者实体机，并且预装好<code>Centos7</code>的系统</strong><br><strong>2.确保您的<code>CPU</code>支持虚拟化功能，并且在<code>BIOS</code>中开启虚拟化的支持</strong></p>
+</blockquote>
+<h4 id="Windows系统确认是否开启虚拟化支持"><a href="#Windows系统确认是否开启虚拟化支持" class="headerlink" title="Windows系统确认是否开启虚拟化支持"></a><code>Windows</code>系统确认是否开启虚拟化支持</h4><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/kvm04.png" alt="kvm04"></p>
+<h4 id="防止和VMware虚拟机冲突，确保您Windows的虚拟化平台的支持是关闭的状态"><a href="#防止和VMware虚拟机冲突，确保您Windows的虚拟化平台的支持是关闭的状态" class="headerlink" title="防止和VMware虚拟机冲突，确保您Windows的虚拟化平台的支持是关闭的状态"></a>防止和<code>VMware</code>虚拟机冲突，确保您<code>Windows</code>的虚拟化平台的支持是关闭的状态</h4><blockquote>
+<p><strong><code>开始菜单</code>&gt;<code>搜索</code>&gt;<code>Windows功能</code></strong></p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/kvm05.png" alt="kvm05"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/kvm06.png" alt="kvm06"></p>
+<h4 id="虚拟机配置"><a href="#虚拟机配置" class="headerlink" title="虚拟机配置"></a>虚拟机配置</h4><blockquote>
+<p><strong>安装系统过程省略</strong></p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/05/kvm07.png" alt="kvm07"></p>
+<h3 id="2-确保虚拟硬件的CPU支持虚拟化功能"><a href="#2-确保虚拟硬件的CPU支持虚拟化功能" class="headerlink" title="2.确保虚拟硬件的CPU支持虚拟化功能"></a>2.确保虚拟硬件的<code>CPU</code>支持虚拟化功能</h3><pre class="line-numbers language-none"><code class="language-none">[root@lvm ~]# lscpu | grep -E -i &quot;vt-x|amd-v&quot;
+虚拟化：           VT-x<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h3 id="3-安装KVM相关软件和依赖"><a href="#3-安装KVM相关软件和依赖" class="headerlink" title="3.安装KVM相关软件和依赖"></a>3.安装<code>KVM</code>相关软件和依赖</h3><pre class="line-numbers language-none"><code class="language-none">[root@lvm ~]# yum install -y qemu-kvm qemu-img libvirt virt-install virt-manager libvirt-python libvirt-client virt-viewer<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="确认KVM安装成功"><a href="#确认KVM安装成功" class="headerlink" title="确认KVM安装成功"></a>确认<code>KVM</code>安装成功</h4><pre class="line-numbers language-none"><code class="language-none">[root@lvm ~]# lsmod | grep -i kvm
+kvm_intel             188740  0 
+kvm                   637289  1 kvm_intel	#AMD的CPU没有这个是正常的
+irqbypass              13503  1 kvm<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-确认libvirtd服务正常运行"><a href="#4-确认libvirtd服务正常运行" class="headerlink" title="4.确认libvirtd服务正常运行"></a>4.确认<code>libvirtd</code>服务正常运行</h3><pre class="line-numbers language-none"><code class="language-none">[root@lvm ~]# systemctl status libvirtd
+
+● libvirtd.service - Virtualization daemon
+   Loaded: loaded (&#x2F;usr&#x2F;lib&#x2F;systemd&#x2F;system&#x2F;libvirtd.service; enabled; vendor preset: enabled)
+   Active: active (running) since 二 2023-05-30 13:19:05 CST; 1min 38s ago
+     Docs: man:libvirtd(8)
+           https:&#x2F;&#x2F;libvirt.org
+ Main PID: 5318 (libvirtd)
+    Tasks: 19 (limit: 32768)
+   CGroup: &#x2F;system.slice&#x2F;libvirtd.service
+           ├─1660 &#x2F;usr&#x2F;sbin&#x2F;dnsmasq --conf-file&#x3D;&#x2F;var&#x2F;l...
+           ├─1661 &#x2F;usr&#x2F;sbin&#x2F;dnsmasq --conf-file&#x3D;&#x2F;var&#x2F;l...
+           └─5318 &#x2F;usr&#x2F;sbin&#x2F;libvirtd
+
+5月 30 13:19:05 lvm.linux.com systemd[1]: Starting Vi...
+5月 30 13:19:05 lvm.linux.com systemd[1]: Started Vir...
+5月 30 13:19:05 lvm.linux.com dnsmasq[1660]: read &#x2F;et...
+5月 30 13:19:05 lvm.linux.com dnsmasq[1660]: read &#x2F;va...
+5月 30 13:19:05 lvm.linux.com dnsmasq-dhcp[1660]: rea...
+Hint: Some lines were ellipsized, use -l to show in full.<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="四、网络环境变化"><a href="#四、网络环境变化" class="headerlink" title="四、网络环境变化"></a>四、网络环境变化</h2><blockquote>
+<p><strong>安装完<code>LVM</code>后，会自动生成一块虚拟网卡</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@lvm ~]# ifconfig virbr0
+virbr0: flags&#x3D;4099&lt;UP,BROADCAST,MULTICAST&gt;  mtu 1500
+        inet 192.168.122.1  netmask 255.255.255.0  broadcast 192.168.122.255
+        ether 52:54:00:47:c3:5c  txqueuelen 1000  (Ethernet)
+        RX packets 166  bytes 12565 (12.2 KiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 139  bytes 14068 (13.7 KiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li>作用：<ul>
+<li>让物理机通过<code>virbr0</code>和接入到<code>default</code>虚拟网络中的所有虚拟机通信 </li>
+<li>作为<code>default</code>虚拟网络中所有<code>kvm</code>虚拟机的网关</li>
+</ul>
+</li>
+</ul>
+<h3 id="查看虚拟网络"><a href="#查看虚拟网络" class="headerlink" title="查看虚拟网络"></a>查看虚拟网络</h3><blockquote>
+<p><strong><code>KVM</code>默认的虚拟网络叫<code>default</code></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@lvm ~]# virsh net-list
+ 名称               状态     自动开始  持久
+----------------------------------------------------------
+ default              活动     是           是<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="查看虚拟网络详细信息"><a href="#查看虚拟网络详细信息" class="headerlink" title="查看虚拟网络详细信息"></a>查看虚拟网络详细信息</h3><blockquote>
+<p><strong>在实体机中，<code>virbr0</code>上的IP地址<code>192.168.122.1</code>除了可以和<code>KVM</code>虚拟机建立连接，还是他们的网关</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@lvm ~]# virsh net-dumpxml default
+&lt;network&gt;
+  &lt;name&gt;default&lt;&#x2F;name&gt;
+  &lt;uuid&gt;c11cc1df-37cc-4947-93d1-fee1b4d22052&lt;&#x2F;uuid&gt;
+  &lt;forward mode&#x3D;&#39;nat&#39;&gt;
+    &lt;nat&gt;
+      &lt;port start&#x3D;&#39;1024&#39; end&#x3D;&#39;65535&#39;&#x2F;&gt;
+    &lt;&#x2F;nat&gt;
+  &lt;&#x2F;forward&gt;
+  &lt;bridge name&#x3D;&#39;virbr0&#39; stp&#x3D;&#39;on&#39; delay&#x3D;&#39;0&#39;&#x2F;&gt;
+  &lt;mac address&#x3D;&#39;52:54:00:47:c3:5c&#39;&#x2F;&gt;
+  &lt;ip address&#x3D;&#39;192.168.122.1&#39; netmask&#x3D;&#39;255.255.255.0&#39;&gt;
+    &lt;dhcp&gt;
+      &lt;range start&#x3D;&#39;192.168.122.2&#39; end&#x3D;&#39;192.168.122.254&#39;&#x2F;&gt;
+    &lt;&#x2F;dhcp&gt;
+  &lt;&#x2F;ip&gt;
+&lt;&#x2F;network&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work">网笙久久</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work/2023/05/30/127/">https://blog.wangshengjj.work/2023/05/30/127/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.wangshengjj.work" target="_blank">WangShengJJのblog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/linux/">linux</a><a class="post-meta__tags" href="/tags/centos/">centos</a><a class="post-meta__tags" href="/tags/%E8%99%9A%E6%8B%9F%E6%9C%BA/">虚拟机</a><a class="post-meta__tags" href="/tags/kvm/">kvm</a><a class="post-meta__tags" href="/tags/%E8%99%9A%E6%8B%9F%E5%8C%96/">虚拟化</a></div><div class="post_share"><div class="social-share" data-image="https://api.ghser.com/random/api.php" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/05/30/128/" title="【虚拟化应用系列教程】KVM虚拟机管理"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【虚拟化应用系列教程】KVM虚拟机管理</div></div></a></div><div class="next-post pull-right"><a href="/2023/05/29/126/" title="【经典面试题系列】浏览器访问公网上某个站点的过程"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【经典面试题系列】浏览器访问公网上某个站点的过程</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/05/31/129/" title="【虚拟化应用系列教程】KVM网络管理"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-31</div><div class="title">【虚拟化应用系列教程】KVM网络管理</div></div></a></div><div><a href="/2023/05/30/128/" title="【虚拟化应用系列教程】KVM虚拟机管理"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-30</div><div class="title">【虚拟化应用系列教程】KVM虚拟机管理</div></div></a></div><div><a href="/2023/05/31/130/" title="【虚拟化应用系列教程】KVM存储管理"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-31</div><div class="title">【虚拟化应用系列教程】KVM存储管理</div></div></a></div><div><a href="/2023/06/01/131/" title="【虚拟化应用系列教程】OpenStack组件"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-01</div><div class="title">【虚拟化应用系列教程】OpenStack组件</div></div></a></div><div><a href="/2023/02/20/30/" title="【Linux系列教程】基本的目录认识"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-02-20</div><div class="title">【Linux系列教程】基本的目录认识</div></div></a></div><div><a href="/2023/02/20/31/" title="【Linux系列教程】ls和cd命令的使用"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-02-20</div><div class="title">【Linux系列教程】ls和cd命令的使用</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">网笙久久</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">139</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">185</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">261</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wangshengjj"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wangshengjj" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:wangshengjj@wangshengjj.work" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.wangshengjj.work" target="_blank" title="Blog"><i class="fa fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到网笙久久的博客</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E3%80%90%E8%99%9A%E6%8B%9F%E5%8C%96%E5%BA%94%E7%94%A8%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%E3%80%91%E8%99%9A%E6%8B%9F%E5%8C%96%E7%9A%84%E7%B1%BB%E5%9E%8B%E5%92%8CKVM%E8%99%9A%E6%8B%9F%E5%8C%96%E5%BA%94%E7%94%A8%E5%AE%89%E8%A3%85"><span class="toc-number">1.</span> <span class="toc-text">【虚拟化应用系列教程】虚拟化的类型和KVM虚拟化应用安装</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%85%B3%E4%BA%8E%E8%99%9A%E6%8B%9F%E5%8C%96"><span class="toc-number">1.1.</span> <span class="toc-text">一、关于虚拟化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%B8%8D%E5%90%8C%E7%9A%84%E8%99%9A%E6%8B%9F%E5%8C%96%E6%9E%B6%E6%9E%84"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.不同的虚拟化架构</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E5%B9%B3%E5%8F%B0%E7%9A%84%E8%99%9A%E6%8B%9F%E5%8C%96"><span class="toc-number">1.1.1.1.</span> <span class="toc-text">基于平台的虚拟化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%99%9A%E6%8B%9F%E5%8C%96"><span class="toc-number">1.1.1.2.</span> <span class="toc-text">基于操作系统的虚拟化</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Hypervisor%E7%9A%84%E9%83%A8%E7%BD%B2%E6%96%B9%E5%BC%8F"><span class="toc-number">1.1.2.</span> <span class="toc-text">2.Hypervisor的部署方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E8%99%9A%E6%8B%9F%E5%8C%96%E6%8A%80%E6%9C%AF%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="toc-number">1.1.3.</span> <span class="toc-text">3.虚拟化技术实现原理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81KVM%E8%99%9A%E6%8B%9F%E5%8C%96"><span class="toc-number">1.2.</span> <span class="toc-text">二、KVM虚拟化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%80%9F%E5%8A%A9QEMU-I-O%E5%AE%9E%E7%8E%B0%E8%99%9A%E6%8B%9F%E7%A1%AC%E4%BB%B6%E7%9A%84%E6%A8%A1%E6%8B%9F%E7%AE%A1%E7%90%86"><span class="toc-number">1.2.1.</span> <span class="toc-text">借助QEMU I&#x2F;O实现虚拟硬件的模拟管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#KVM%E7%9A%84%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7"><span class="toc-number">1.2.2.</span> <span class="toc-text">KVM的管理工具</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81KVM%E5%AE%89%E8%A3%85"><span class="toc-number">1.3.</span> <span class="toc-text">三、KVM安装</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%87%86%E5%A4%87%E9%98%B6%E6%AE%B5"><span class="toc-number">1.3.1.</span> <span class="toc-text">1.准备阶段</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Windows%E7%B3%BB%E7%BB%9F%E7%A1%AE%E8%AE%A4%E6%98%AF%E5%90%A6%E5%BC%80%E5%90%AF%E8%99%9A%E6%8B%9F%E5%8C%96%E6%94%AF%E6%8C%81"><span class="toc-number">1.3.1.1.</span> <span class="toc-text">Windows系统确认是否开启虚拟化支持</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%98%B2%E6%AD%A2%E5%92%8CVMware%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%86%B2%E7%AA%81%EF%BC%8C%E7%A1%AE%E4%BF%9D%E6%82%A8Windows%E7%9A%84%E8%99%9A%E6%8B%9F%E5%8C%96%E5%B9%B3%E5%8F%B0%E7%9A%84%E6%94%AF%E6%8C%81%E6%98%AF%E5%85%B3%E9%97%AD%E7%9A%84%E7%8A%B6%E6%80%81"><span class="toc-number">1.3.1.2.</span> <span class="toc-text">防止和VMware虚拟机冲突，确保您Windows的虚拟化平台的支持是关闭的状态</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%99%9A%E6%8B%9F%E6%9C%BA%E9%85%8D%E7%BD%AE"><span class="toc-number">1.3.1.3.</span> <span class="toc-text">虚拟机配置</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E7%A1%AE%E4%BF%9D%E8%99%9A%E6%8B%9F%E7%A1%AC%E4%BB%B6%E7%9A%84CPU%E6%94%AF%E6%8C%81%E8%99%9A%E6%8B%9F%E5%8C%96%E5%8A%9F%E8%83%BD"><span class="toc-number">1.3.2.</span> <span class="toc-text">2.确保虚拟硬件的CPU支持虚拟化功能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%AE%89%E8%A3%85KVM%E7%9B%B8%E5%85%B3%E8%BD%AF%E4%BB%B6%E5%92%8C%E4%BE%9D%E8%B5%96"><span class="toc-number">1.3.3.</span> <span class="toc-text">3.安装KVM相关软件和依赖</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A1%AE%E8%AE%A4KVM%E5%AE%89%E8%A3%85%E6%88%90%E5%8A%9F"><span class="toc-number">1.3.3.1.</span> <span class="toc-text">确认KVM安装成功</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E7%A1%AE%E8%AE%A4libvirtd%E6%9C%8D%E5%8A%A1%E6%AD%A3%E5%B8%B8%E8%BF%90%E8%A1%8C"><span class="toc-number">1.3.4.</span> <span class="toc-text">4.确认libvirtd服务正常运行</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E7%BD%91%E7%BB%9C%E7%8E%AF%E5%A2%83%E5%8F%98%E5%8C%96"><span class="toc-number">1.4.</span> <span class="toc-text">四、网络环境变化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E8%99%9A%E6%8B%9F%E7%BD%91%E7%BB%9C"><span class="toc-number">1.4.1.</span> <span class="toc-text">查看虚拟网络</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E8%99%9A%E6%8B%9F%E7%BD%91%E7%BB%9C%E8%AF%A6%E7%BB%86%E4%BF%A1%E6%81%AF"><span class="toc-number">1.4.2.</span> <span class="toc-text">查看虚拟网络详细信息</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/06/02/132/" title="【容器应用系列教程】容器介绍、Docker的安装和基本操作"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【容器应用系列教程】容器介绍、Docker的安装和基本操作"/></a><div class="content"><a class="title" href="/2023/06/02/132/" title="【容器应用系列教程】容器介绍、Docker的安装和基本操作">【容器应用系列教程】容器介绍、Docker的安装和基本操作</a><time datetime="2023-06-02T02:59:37.570Z" title="发表于 2023-06-02 10:59:37">2023-06-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/01/131/" title="【虚拟化应用系列教程】OpenStack组件"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【虚拟化应用系列教程】OpenStack组件"/></a><div class="content"><a class="title" href="/2023/06/01/131/" title="【虚拟化应用系列教程】OpenStack组件">【虚拟化应用系列教程】OpenStack组件</a><time datetime="2023-06-01T09:41:14.757Z" title="发表于 2023-06-01 17:41:14">2023-06-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/31/130/" title="【虚拟化应用系列教程】KVM存储管理"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【虚拟化应用系列教程】KVM存储管理"/></a><div class="content"><a class="title" href="/2023/05/31/130/" title="【虚拟化应用系列教程】KVM存储管理">【虚拟化应用系列教程】KVM存储管理</a><time datetime="2023-05-31T07:33:09.421Z" title="发表于 2023-05-31 15:33:09">2023-05-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/31/129/" title="【虚拟化应用系列教程】KVM网络管理"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【虚拟化应用系列教程】KVM网络管理"/></a><div class="content"><a class="title" href="/2023/05/31/129/" title="【虚拟化应用系列教程】KVM网络管理">【虚拟化应用系列教程】KVM网络管理</a><time datetime="2023-05-31T05:20:18.393Z" title="发表于 2023-05-31 13:20:18">2023-05-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/30/128/" title="【虚拟化应用系列教程】KVM虚拟机管理"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【虚拟化应用系列教程】KVM虚拟机管理"/></a><div class="content"><a class="title" href="/2023/05/30/128/" title="【虚拟化应用系列教程】KVM虚拟机管理">【虚拟化应用系列教程】KVM虚拟机管理</a><time datetime="2023-05-30T10:46:29.825Z" title="发表于 2023-05-30 18:46:29">2023-05-30</time></div></div></div></div></div></div></main><footer id="footer" style="background: flase"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By 网笙久久</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><div class="js-pjax"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js"></script><script>(() => {
+  document.querySelectorAll('#article-container span.katex-display').forEach(item => {
+    btf.wrap(item, 'div', { class: 'katex-wrap'})
+  })
+})()</script></div><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div><script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(n){n.imageLazyLoadSetting.processImages=i;var e=n.imageLazyLoadSetting.isSPA,r=(n.imageLazyLoadSetting.preloadRatio,Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));function i(){e&&(r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));for(var t,a=0;a<r.length;a++)0<=(t=(t=r[a]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(n.innerHeight+240||document.documentElement.clientHeight+240)&&function(){var t,e,n,i,o=r[a];t=o,e=function(){r=r.filter(function(t){return o!==t})},n=new Image,i=t.getAttribute("data-original"),n.onload=function(){t.src=i,e&&e()},t.src!==i&&(n.src=i)}()}i(),n.addEventListener("scroll",function(){var t,e;t=i,e=n,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(e)},500)})}(this);</script></body></html>

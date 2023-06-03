@@ -1,0 +1,178 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>分类: iptables防火墙 | WangShengJJのblog</title><meta name="author" content="网笙久久"><meta name="copyright" content="网笙久久"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta property="og:type" content="website">
+<meta property="og:title" content="WangShengJJのblog">
+<meta property="og:url" content="https://blog.wangshengjj.work/categories/%E7%AC%94%E8%AE%B0/Linux%E5%AE%89%E5%85%A8/%E9%98%B2%E7%81%AB%E5%A2%99/iptables%E9%98%B2%E7%81%AB%E5%A2%99/index.html">
+<meta property="og:site_name" content="WangShengJJのblog">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.wangshengjj.work/upload/2022/10/touxiang.png">
+<meta property="article:author" content="网笙久久">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.wangshengjj.work/upload/2022/10/touxiang.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://blog.wangshengjj.work/categories/%E7%AC%94%E8%AE%B0/Linux%E5%AE%89%E5%85%A8/%E9%98%B2%E7%81%AB%E5%A2%99/iptables%E9%98%B2%E7%81%AB%E5%A2%99/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"prismjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '分类: iptables防火墙',
+  isPost: false,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2023-06-03 22:15:25'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><meting-js server="netease" type="playlist" id="7386208265" lrc-type="0" volume="0.5" fixed="true" mini="true" order="random" loop="all" autoplay="true" preload="auto" list-folded="true"></meting-js><script src="https://fastly.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/autoload.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script><meta name="generator" content="Hexo 6.1.0"></head><body><link rel="stylesheet" href="/css/barber-shop.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">139</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">185</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">261</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="not-home-page" id="page-header" style="background-image: url('https://api.ghser.com/random/api.php')"><nav id="nav"><span id="blog-info"><a href="/" title="WangShengJJのblog"><span class="site-name">WangShengJJのblog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="page-site-info"><h1 id="site-title">iptables防火墙</h1></div></header><main class="layout" id="content-inner"><div id="category"><div class="article-sort-title">分类 - iptables防火墙</div><div class="article-sort"><div class="article-sort-item year">2023</div><div class="article-sort-item"><a class="article-sort-item-img" href="/2023/05/24/124/" title="【Linux安全系列教程】iptables防火墙"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="【Linux安全系列教程】iptables防火墙" onerror="this.onerror=null;this.src='/img/404.jpg'"></a><div class="article-sort-item-info"><div class="article-sort-item-time"><i class="far fa-calendar-alt"></i><time class="post-meta-date-created" datetime="2023-05-24T05:36:24.144Z" title="发表于 2023-05-24 13:36:24">2023-05-24</time></div><a class="article-sort-item-title" href="/2023/05/24/124/" title="【Linux安全系列教程】iptables防火墙">【Linux安全系列教程】iptables防火墙</a></div></div></div><nav id="pagination"><div class="pagination"><span class="page-number current">1</span></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">网笙久久</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">139</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">185</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">261</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wangshengjj"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wangshengjj" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:wangshengjj@wangshengjj.work" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.wangshengjj.work" target="_blank" title="Blog"><i class="fa fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到网笙久久的博客</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/06/02/132/" title="【容器应用系列教程】容器介绍、Docker的安装和基本操作"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【容器应用系列教程】容器介绍、Docker的安装和基本操作"/></a><div class="content"><a class="title" href="/2023/06/02/132/" title="【容器应用系列教程】容器介绍、Docker的安装和基本操作">【容器应用系列教程】容器介绍、Docker的安装和基本操作</a><time datetime="2023-06-02T02:59:37.570Z" title="发表于 2023-06-02 10:59:37">2023-06-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/01/131/" title="【虚拟化应用系列教程】OpenStack组件"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【虚拟化应用系列教程】OpenStack组件"/></a><div class="content"><a class="title" href="/2023/06/01/131/" title="【虚拟化应用系列教程】OpenStack组件">【虚拟化应用系列教程】OpenStack组件</a><time datetime="2023-06-01T09:41:14.757Z" title="发表于 2023-06-01 17:41:14">2023-06-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/31/130/" title="【虚拟化应用系列教程】KVM存储管理"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【虚拟化应用系列教程】KVM存储管理"/></a><div class="content"><a class="title" href="/2023/05/31/130/" title="【虚拟化应用系列教程】KVM存储管理">【虚拟化应用系列教程】KVM存储管理</a><time datetime="2023-05-31T07:33:09.421Z" title="发表于 2023-05-31 15:33:09">2023-05-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/31/129/" title="【虚拟化应用系列教程】KVM网络管理"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【虚拟化应用系列教程】KVM网络管理"/></a><div class="content"><a class="title" href="/2023/05/31/129/" title="【虚拟化应用系列教程】KVM网络管理">【虚拟化应用系列教程】KVM网络管理</a><time datetime="2023-05-31T05:20:18.393Z" title="发表于 2023-05-31 13:20:18">2023-05-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/05/30/128/" title="【虚拟化应用系列教程】KVM虚拟机管理"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【虚拟化应用系列教程】KVM虚拟机管理"/></a><div class="content"><a class="title" href="/2023/05/30/128/" title="【虚拟化应用系列教程】KVM虚拟机管理">【虚拟化应用系列教程】KVM虚拟机管理</a><time datetime="2023-05-30T10:46:29.825Z" title="发表于 2023-05-30 18:46:29">2023-05-30</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            <a class="card-more-btn" href="/categories/" title="查看更多">
+    <i class="fas fa-angle-right"></i></a>
+            </div>
+            <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Ansible/"><span class="card-category-list-name">Ansible</span><span class="card-category-list-count">2</span></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Ansible/%E7%AC%94%E8%AE%B0/"><span class="card-category-list-name">笔记</span><span class="card-category-list-count">2</span></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Ansible/%E7%AC%94%E8%AE%B0/linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1/"><span class="card-category-list-name">linux基础服务</span><span class="card-category-list-count">2</span></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Ansible/%E7%AC%94%E8%AE%B0/linux%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1/%E8%87%AA%E5%8A%A8%E5%8C%96%E8%BF%90%E7%BB%B4%E5%B7%A5%E5%85%B7/"><span class="card-category-list-name">自动化运维工具</span><span class="card-category-list-count">2</span></a></li></ul></li></ul></li></ul></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Docker/"><span class="card-category-list-name">Docker</span><span class="card-category-list-count">1</span></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Docker/%E7%AC%94%E8%AE%B0/"><span class="card-category-list-name">笔记</span><span class="card-category-list-count">1</span></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Docker/%E7%AC%94%E8%AE%B0/%E5%AE%B9%E5%99%A8/"><span class="card-category-list-name">容器</span><span class="card-category-list-count">1</span></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Docker/%E7%AC%94%E8%AE%B0/%E5%AE%B9%E5%99%A8/%E5%BA%94%E7%94%A8/"><span class="card-category-list-name">应用</span><span class="card-category-list-count">1</span></a></li></ul></li></ul></li></ul></li>
+            </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/linux%E6%90%AD%E5%BB%BA%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 1.5em; color: #99a9bf">linux搭建服务器</a> <a href="/tags/%E7%9B%91%E6%8E%A7/" style="font-size: 1.1em; color: #999">监控</a> <a href="/tags/%E4%BA%8C%E5%8D%81%E5%A4%A7/" style="font-size: 1.1em; color: #999">二十大</a> <a href="/tags/Ai%E7%94%BB%E5%9B%BE/" style="font-size: 1.1em; color: #999">Ai画图</a> <a href="/tags/%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6%E5%99%A8/" style="font-size: 1.1em; color: #999">版本控制器</a> <a href="/tags/vi/" style="font-size: 1.1em; color: #999">vi</a> <a href="/tags/centos7/" style="font-size: 1.39em; color: #99a4b4">centos7</a> <a href="/tags/sspanel/" style="font-size: 1.1em; color: #999">sspanel</a> <a href="/tags/vim/" style="font-size: 1.1em; color: #999">vim</a> <a href="/tags/iptables/" style="font-size: 1.1em; color: #999">iptables</a> <a href="/tags/%E6%8A%A5%E8%AD%A6%E5%99%A8/" style="font-size: 1.1em; color: #999">报警器</a> <a href="/tags/%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90/" style="font-size: 1.1em; color: #999">域名解析</a> <a href="/tags/%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/" style="font-size: 1.1em; color: #999">主从复制</a> <a href="/tags/haproxy/" style="font-size: 1.1em; color: #999">haproxy</a> <a href="/tags/%E6%95%99%E7%A8%8B/" style="font-size: 1.1em; color: #999">教程</a> <a href="/tags/sed/" style="font-size: 1.1em; color: #999">sed</a> <a href="/tags/%E5%AE%B9%E5%99%A8/" style="font-size: 1.1em; color: #999">容器</a> <a href="/tags/%E7%BD%91%E5%BF%83%E4%BA%91/" style="font-size: 1.1em; color: #999">网心云</a> <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/" style="font-size: 1.44em; color: #99a7ba">服务器搭建</a> <a href="/tags/kernel/" style="font-size: 1.1em; color: #999">kernel</a> <a href="/tags/FTP/" style="font-size: 1.1em; color: #999">FTP</a> <a href="/tags/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/" style="font-size: 1.1em; color: #999">进程调度</a> <a href="/tags/%E9%BB%91%E8%8B%B9%E6%9E%9C/" style="font-size: 1.1em; color: #999">黑苹果</a> <a href="/tags/%E5%9B%BE%E5%BD%A2%E5%8C%96%E6%A1%8C%E9%9D%A2%E5%AE%89%E8%A3%85/" style="font-size: 1.1em; color: #999">图形化桌面安装</a> <a href="/tags/%E5%8E%9F%E7%A5%9E/" style="font-size: 1.21em; color: #999ea4">原神</a> <a href="/tags/openai/" style="font-size: 1.1em; color: #999">openai</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 1.27em; color: #99a0a9">数据库</a> <a href="/tags/%E9%9D%A2%E8%AF%95/" style="font-size: 1.1em; color: #999">面试</a> <a href="/tags/ChatGPT/" style="font-size: 1.16em; color: #999b9e">ChatGPT</a> <a href="/tags/expect/" style="font-size: 1.1em; color: #999">expect</a> <a href="/tags/zabbix-agent/" style="font-size: 1.21em; color: #999ea4">zabbix agent</a> <a href="/tags/%E8%81%94%E6%83%B3/" style="font-size: 1.1em; color: #999">联想</a> <a href="/tags/%E8%A7%A6%E5%8F%91%E5%99%A8/" style="font-size: 1.1em; color: #999">触发器</a> <a href="/tags/%E5%BE%AA%E7%8E%AF/" style="font-size: 1.1em; color: #999">循环</a> <a href="/tags/SAN/" style="font-size: 1.1em; color: #999">SAN</a> <a href="/tags/NAS/" style="font-size: 1.1em; color: #999">NAS</a> <a href="/tags/%E6%8E%92%E5%BA%8F/" style="font-size: 1.1em; color: #999">排序</a> <a href="/tags/%E5%9B%BE%E5%BD%A2%E5%8C%96%E6%A1%8C%E9%9D%A2/" style="font-size: 1.1em; color: #999">图形化桌面</a> <a href="/tags/FTP%E6%9C%8D%E5%8A%A1%E5%99%A8/" style="font-size: 1.1em; color: #999">FTP服务器</a> <a href="/tags/nginx/" style="font-size: 1.33em; color: #99a2af">nginx</a></div></div><div class="card-widget card-archives"><div class="item-headline"><i class="fas fa-archive"></i><span>归档</span><a class="card-more-btn" href="/archives/" title="查看更多">
+    <i class="fas fa-angle-right"></i></a></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/06/"><span class="card-archive-list-date">六月 2023</span><span class="card-archive-list-count">2</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/05/"><span class="card-archive-list-date">五月 2023</span><span class="card-archive-list-count">31</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/04/"><span class="card-archive-list-date">四月 2023</span><span class="card-archive-list-count">35</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/03/"><span class="card-archive-list-date">三月 2023</span><span class="card-archive-list-count">26</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/02/"><span class="card-archive-list-date">二月 2023</span><span class="card-archive-list-count">15</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/01/"><span class="card-archive-list-date">一月 2023</span><span class="card-archive-list-count">3</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2022/12/"><span class="card-archive-list-date">十二月 2022</span><span class="card-archive-list-count">3</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2022/11/"><span class="card-archive-list-date">十一月 2022</span><span class="card-archive-list-count">4</span></a></li></ul></div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站资讯</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">139</div></div><div class="webinfo-item"><div class="item-name">本站总字数 :</div><div class="item-count">196.6k</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总访问量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2023-06-03T14:15:24.296Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer" style="background: flase"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By 网笙久久</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><div class="js-pjax"></div><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div><script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(n){n.imageLazyLoadSetting.processImages=i;var e=n.imageLazyLoadSetting.isSPA,r=(n.imageLazyLoadSetting.preloadRatio,Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));function i(){e&&(r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));for(var t,a=0;a<r.length;a++)0<=(t=(t=r[a]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(n.innerHeight+240||document.documentElement.clientHeight+240)&&function(){var t,e,n,i,o=r[a];t=o,e=function(){r=r.filter(function(t){return o!==t})},n=new Image,i=t.getAttribute("data-original"),n.onload=function(){t.src=i,e&&e()},t.src!==i&&(n.src=i)}()}i(),n.addEventListener("scroll",function(){var t,e;t=i,e=n,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(e)},500)})}(this);</script></body></html>
