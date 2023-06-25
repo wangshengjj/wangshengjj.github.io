@@ -1,0 +1,1346 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>基于Kubernetes环境搭建hk4e原神真端教程 | WangShengJJのblog</title><meta name="author" content="网笙久久"><meta name="copyright" content="网笙久久"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="基于Kubernetes环境搭建hk4e原神真端教程 仅供学习交流使用，如果侵犯到你的合法权利，请联系邮件删除，或评论。我将会在24h内删除。教程用到的文件下载链接：https:&#x2F;&#x2F;pan.baidu.com&#x2F;s&#x2F;1pJTUu1KjyAU7duIvqYwD-Q?pwd&#x3D;6zv9  一、环境介绍   主机名 IP地址 软件    master 192.168.31.200 kubernetes1.2">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于Kubernetes环境搭建hk4e原神真端教程">
+<meta property="og:url" content="https://blog.wangshengjj.work/2023/06/24/hk4e/index.html">
+<meta property="og:site_name" content="WangShengJJのblog">
+<meta property="og:description" content="基于Kubernetes环境搭建hk4e原神真端教程 仅供学习交流使用，如果侵犯到你的合法权利，请联系邮件删除，或评论。我将会在24h内删除。教程用到的文件下载链接：https:&#x2F;&#x2F;pan.baidu.com&#x2F;s&#x2F;1pJTUu1KjyAU7duIvqYwD-Q?pwd&#x3D;6zv9  一、环境介绍   主机名 IP地址 软件    master 192.168.31.200 kubernetes1.2">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.dmoe.cc/random.php">
+<meta property="article:published_time" content="2023-06-24T02:12:50.108Z">
+<meta property="article:modified_time" content="2023-06-25T02:45:51.495Z">
+<meta property="article:author" content="网笙久久">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="kubernetes">
+<meta property="article:tag" content="原神">
+<meta property="article:tag" content="原神私服">
+<meta property="article:tag" content="hk4e">
+<meta property="article:tag" content="原神真端">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.dmoe.cc/random.php"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://blog.wangshengjj.work/2023/06/24/hk4e/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"prismjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '基于Kubernetes环境搭建hk4e原神真端教程',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-06-25 10:45:51'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><meting-js server="netease" type="playlist" id="7386208265" lrc-type="0" volume="0.5" fixed="true" mini="true" order="random" loop="all" autoplay="true" preload="auto" list-folded="true"></meting-js><script src="https://fastly.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/autoload.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script><meta name="generator" content="Hexo 6.1.0"></head><body><link rel="stylesheet" href="/css/barber-shop.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">167</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">218</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">303</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://www.dmoe.cc/random.php')"><nav id="nav"><span id="blog-info"><a href="/" title="WangShengJJのblog"><span class="site-name">WangShengJJのblog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">基于Kubernetes环境搭建hk4e原神真端教程</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-06-24T02:12:50.108Z" title="发表于 2023-06-24 10:12:50">2023-06-24</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-06-25T02:45:51.495Z" title="更新于 2023-06-25 10:45:51">2023-06-25</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/">服务器搭建</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/k8s/">k8s</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/k8s/%E9%9B%86%E7%BE%A4/">集群</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/k8s/%E9%9B%86%E7%BE%A4/%E5%AE%B9%E5%99%A8/">容器</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/k8s/%E9%9B%86%E7%BE%A4/%E5%AE%B9%E5%99%A8/%E5%BA%94%E7%94%A8/">应用</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">6.8k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>36分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="基于Kubernetes环境搭建hk4e原神真端教程"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="基于Kubernetes环境搭建hk4e原神真端教程"><a href="#基于Kubernetes环境搭建hk4e原神真端教程" class="headerlink" title="基于Kubernetes环境搭建hk4e原神真端教程"></a>基于<code>Kubernetes</code>环境搭建<code>hk4e</code>原神真端教程</h1><blockquote>
+<p><strong>仅供学习交流使用，如果侵犯到你的合法权利，请联系邮件删除，或评论。我将会在24h内删除。</strong><br><strong>教程用到的文件下载链接：<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1pJTUu1KjyAU7duIvqYwD-Q?pwd=6zv9">https://pan.baidu.com/s/1pJTUu1KjyAU7duIvqYwD-Q?pwd=6zv9</a></strong></p>
+</blockquote>
+<h2 id="一、环境介绍"><a href="#一、环境介绍" class="headerlink" title="一、环境介绍"></a>一、环境介绍</h2><table>
+<thead>
+<tr>
+<th>主机名</th>
+<th>IP地址</th>
+<th>软件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>master</td>
+<td>192.168.31.200</td>
+<td>kubernetes1.20.7、Docker-ce19.03</td>
+</tr>
+<tr>
+<td>node01</td>
+<td>192.168.31.201</td>
+<td>kubernetes1.20.7、Docker-ce19.03</td>
+</tr>
+<tr>
+<td>node02</td>
+<td>192.168.31.203</td>
+<td>kubernetes1.20.7、Docker-ce19.03</td>
+</tr>
+<tr>
+<td>NFS</td>
+<td>192.168.31.202</td>
+<td>NFS网络存储</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>本教程基于<code>hk4e</code>真端<code>3.2</code>版本，把实体机部署转到容器环境。</strong><br><strong><code>Kubernetes</code>简称<code>K8s</code>，以下教程部分将以<code>K8s</code>为称</strong></p>
+</blockquote>
+<ul>
+<li>关于<code>K8s</code>环境介绍：</li>
+<li><code>k8s</code>是一个容器编排工具，它由<code>Google</code>公司开源，由<code>Go</code>语言编写，它的作用类似于<code>Docker-compose</code>，它和<code>Docker-compose</code>最大的区别在于，<code>k8s</code>可以管理多台机器，而<code>Docker-compose</code>只能管理<code>1</code>台。</li>
+<li><code>K8s</code>拥有服务发现和负载均衡的功能，同时<code>K8s</code>也支持存储编排功能</li>
+<li><code>K8s</code>可以实现资源调度的分配，自动部署更新和回滚。</li>
+<li><code>K8s</code>支持副本集功能，可以实现容器的自我修复</li>
+<li>更多关于<code>K8s</code>的介绍，请观看这期教程<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/137">【容器应用系列教程】Kubernetes介绍</a></li>
+</ul>
+<h2 id="二、部署Kubernetes环境"><a href="#二、部署Kubernetes环境" class="headerlink" title="二、部署Kubernetes环境"></a>二、部署<code>Kubernetes</code>环境</h2><blockquote>
+<p><strong>部署过程省略</strong><br><strong>关于<code>K8s</code>搭建教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/138">https://www.wsjj.top/archives/138</a></strong></p>
+</blockquote>
+<h3 id="1-修改Kube-apiserver的端口范围"><a href="#1-修改Kube-apiserver的端口范围" class="headerlink" title="1.修改Kube-apiserver的端口范围"></a>1.修改<code>Kube-apiserver</code>的端口范围</h3><blockquote>
+<p><strong>此操作，需要部署完<code>K8s</code>集群后再做修改！！！</strong><br><strong>默认端口范围在<code>30001-32767</code></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@master ~]# vim &#x2F;etc&#x2F;kubernetes&#x2F;manifests&#x2F;kube-apiserver.yaml
+#配置文件并不完整，仅展示修改部分
+containers:
+  - command:
+    - kube-apiserver
+    - --service-node-port-range&#x3D;20000-32767	#指定NodePort端口范围，需要和下面的其他参数对其<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p><strong>修改完配置文件后，<code>k8s</code>集群会自动重启，请等待重启完毕</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@master ~]# kubectl get pods -A -o wide
+NAMESPACE       NAME                                        READY   STATUS      RESTARTS   AGE   IP               NODE     NOMINATED NODE   READINESS GATES
+kube-system     calico-kube-controllers-5f6d4b864b-5vdvx    1&#x2F;1     Running     0          42m   192.168.31.201   node01   &lt;none&gt;           &lt;none&gt;
+kube-system     calico-node-4rspn                           1&#x2F;1     Running     0          42m   192.168.31.200   master   &lt;none&gt;           &lt;none&gt;
+kube-system     calico-node-smvkk                           1&#x2F;1     Running     1          42m   192.168.31.201   node01   &lt;none&gt;           &lt;none&gt;
+kube-system     calico-node-xtm4s                           1&#x2F;1     Running     0          42m   192.168.31.203   node02   &lt;none&gt;           &lt;none&gt;
+kube-system     coredns-54d67798b7-5qx8t                    1&#x2F;1     Running     0          51m   192.168.140.66   node02   &lt;none&gt;           &lt;none&gt;
+kube-system     coredns-54d67798b7-ntffw                    1&#x2F;1     Running     0          51m   192.168.140.65   node02   &lt;none&gt;           &lt;none&gt;
+kube-system     etcd-master                                 1&#x2F;1     Running     0          51m   192.168.31.200   master   &lt;none&gt;           &lt;none&gt;
+kube-system     kube-apiserver-master                       1&#x2F;1     Running     0          51m   192.168.31.200   master   &lt;none&gt;           &lt;none&gt;
+kube-system     kube-controller-manager-master              1&#x2F;1     Running     0          51m   192.168.31.200   master   &lt;none&gt;           &lt;none&gt;
+kube-system     kube-proxy-7v68r                            1&#x2F;1     R<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="2-部署nginx-ingress插件"><a href="#2-部署nginx-ingress插件" class="headerlink" title="2.部署nginx-ingress插件"></a>2.部署<code>nginx-ingress</code>插件</h3><blockquote>
+<p><strong>这个插件主要用于基于服务名的发布，发布我们<code>sdk</code>服务器的连接地址</strong><br><strong>如果不需要部署这个插件，那么一会就需要修改<code>sdkserver</code>的端口类型为<code>NodePort</code>，直接端口映射到物理机的端口上</strong><br><strong>教程用到的文件下载链接：<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1pJTUu1KjyAU7duIvqYwD-Q?pwd=6zv9">https://pan.baidu.com/s/1pJTUu1KjyAU7duIvqYwD-Q?pwd=6zv9</a></strong></p>
+</blockquote>
+<h4 id="准备yml文件"><a href="#准备yml文件" class="headerlink" title="准备yml文件"></a>准备<code>yml</code>文件</h4><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/k8s-hk4e02.png" alt="k8s-hk4e02"></p>
+<h4 id="准备镜像"><a href="#准备镜像" class="headerlink" title="准备镜像"></a>准备镜像</h4><blockquote>
+<p><strong>这一步需要再<code>2</code>个<code>node</code>节点上操作</strong><br><strong>如果你的网络条件良好，这一步可以略过<br>如果你的网络条件较差，我在镜像包里，准备了用到的镜像文件</strong></p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/k8s-hk4e04.png" alt="k8s-hk4e04"></p>
+<pre class="line-numbers language-none"><code class="language-none">[root@node01 ~]# docker load -i nginx-ingress-controller_v1.3.1.tar
+[root@node01 ~]# docker load -i kube-webhook-certgen_v1.3.0.tar
+
+[root@node02 ~]# docker load -i nginx-ingress-controller_v1.3.1.tar
+[root@node02 ~]# docker load -i kube-webhook-certgen_v1.3.0.tar<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="回到master节点，部署nginx-ingress"><a href="#回到master节点，部署nginx-ingress" class="headerlink" title="回到master节点，部署nginx-ingress"></a>回到<code>master</code>节点，部署<code>nginx-ingress</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@master ~]# kubectl create -f ingress-nginx-deploy_v1.3.1.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="部署完，可查看所有Pod状态"><a href="#部署完，可查看所有Pod状态" class="headerlink" title="部署完，可查看所有Pod状态"></a>部署完，可查看所有<code>Pod</code>状态</h4><pre class="line-numbers language-none"><code class="language-none">[root@master ~]# kubectl get pods -A -o wide
+NAMESPACE       NAME                                        READY   STATUS      RESTARTS   AGE   IP               NODE     NOMINATED NODE   READINESS GATES
+ingress-nginx   ingress-nginx-admission-create-ld8d2        0&#x2F;1     Completed   0          45s   192.168.140.70   node02   &lt;none&gt;           &lt;none&gt;
+ingress-nginx   ingress-nginx-admission-patch-9b2lx         0&#x2F;1     Completed   1          45s   192.168.140.69   node02   &lt;none&gt;           &lt;none&gt;
+ingress-nginx   ingress-nginx-controller-64ff7cd7cf-hz6ps   1&#x2F;1     Running     0          45s   192.168.31.203   node02   &lt;none&gt;           &lt;none&gt;
+kube-system     calico-kube-controllers-5f6d4b864b-5vdvx    1&#x2F;1     Running     0          42m   192.168.31.201   node01   &lt;none&gt;           &lt;none&gt;
+kube-system     calico-node-4rspn                           1&#x2F;1     Running     0          42m   192.168.31.200   master   &lt;none&gt;           &lt;none&gt;
+kube-system     calico-node-smvkk                           1&#x2F;1     Running     1          42m   192.168.31.201   node01   &lt;none&gt;           &lt;none&gt;
+kube-system     calico-node-xtm4s                           1&#x2F;1     Running     0          42m   192.168.31.203   node02   &lt;none&gt;           &lt;none&gt;
+kube-system     coredns-54d67798b7-5qx8t                    1&#x2F;1     Running     0          51m   192.168.140.66   node02   &lt;none&gt;           &lt;none&gt;
+kube-system     coredns-54d67798b7-ntffw                    1&#x2F;1     Running     0          51m   192.168.140.65   node02   &lt;none&gt;           &lt;none&gt;
+kube-system     etcd-master                                 1&#x2F;1     Running     0          51m   192.168.31.200   master   &lt;none&gt;           &lt;none&gt;
+kube-system     kube-apiserver-master                       1&#x2F;1     Running     0          51m   192.168.31.200   master   &lt;none&gt;           &lt;none&gt;
+kube-system     kube-controller-manager-master              1&#x2F;1     Running     0          51m   192.168.31.200   master   &lt;none&gt;           &lt;none&gt;
+kube-system     kube-proxy-7v68r                            1&#x2F;1     R<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="三、准备NFS网络存储共享"><a href="#三、准备NFS网络存储共享" class="headerlink" title="三、准备NFS网络存储共享"></a>三、准备<code>NFS</code>网络存储共享</h2><blockquote>
+<p><strong><code>NFS</code>搭建过程省略，请自行准备下面几个挂载点。</strong><br><strong>关于<code>NFS</code>搭建教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/62">https://www.wsjj.top/archives/62</a></strong><br><strong><code>NFS</code>比较重要，负责存储真端的所有数据，还有后续数据库做持久存储的重要存储媒介</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@nfs ~]# exportfs -rav
+exporting 192.168.31.0&#x2F;24:&#x2F;hk4e_data
+exporting 192.168.31.0&#x2F;24:&#x2F;hk4e_mongodb
+exporting 192.168.31.0&#x2F;24:&#x2F;hk4e_redis
+exporting 192.168.31.0&#x2F;24:&#x2F;hk4e_slave_data
+exporting 192.168.31.0&#x2F;24:&#x2F;hk4e_master_data<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="1-准备数据文件"><a href="#1-准备数据文件" class="headerlink" title="1.准备数据文件"></a>1.准备数据文件</h3><blockquote>
+<p><strong>教程用到的文件下载地址：<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1pJTUu1KjyAU7duIvqYwD-Q?pwd=6zv9">https://pan.baidu.com/s/1pJTUu1KjyAU7duIvqYwD-Q?pwd=6zv9</a></strong></p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/k8s-hk4e01.png" alt="k8s-hk4e01"></p>
+<blockquote>
+<p><strong>把压缩包里的所有目录个文件，拷贝到<code>hk4e_data</code>目录下</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@nfs ~]# cd &#x2F;hk4e_data
+[root@nfs hk4e_data]# ls
+hk4e-gameserver_data.zip
+
+[root@nfs hk4e_data]# unzip hk4e-gameserver_data.zip
+[root@nfs hk4e_data]# mv hk4e-gameserver_data&#x2F;* .&#x2F;
+[root@nfs hk4e_data]# chmod a+x .&#x2F;
+[root@nfs hk4e_data]# rm -rf hk4e-gameserver_data.zip<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="四、准备搭建用的镜像"><a href="#四、准备搭建用的镜像" class="headerlink" title="四、准备搭建用的镜像"></a>四、准备搭建用的镜像</h2><blockquote>
+<p><strong>我们的<code>k8s</code>使用<code>Docker</code>作为容器引擎</strong><br><strong>需要在所有<code>node</code>节点导入教程用到的镜像</strong></p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/k8s-hk4e03.png" alt="k8s-hk4e03"></p>
+<h3 id="1-导入镜像"><a href="#1-导入镜像" class="headerlink" title="1.导入镜像"></a>1.导入镜像</h3><pre class="line-numbers language-none"><code class="language-none">[root@node02 ~]# docker load -i tar包名<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="2-关于hk4e-sdkserver-ubuntu镜像和hk4e-gameserver-ubuntu镜像-可选的"><a href="#2-关于hk4e-sdkserver-ubuntu镜像和hk4e-gameserver-ubuntu镜像-可选的" class="headerlink" title="2.关于hk4e-sdkserver-ubuntu镜像和hk4e-gameserver-ubuntu镜像(可选的)"></a>2.关于<code>hk4e-sdkserver-ubuntu</code>镜像和<code>hk4e-gameserver-ubuntu</code>镜像(可选的)</h3><blockquote>
+<p><strong>如果您出现了导入失败的情况</strong><br><strong>我在文件里准备了<code>Docker build</code>用到的所有文件，可以自己手动在<code>node</code>节点上构建镜像</strong><br><strong>注意：导出的镜像名和标签，建议跟我一样</strong><br><strong>如果不同，则需要修改<code>hk4e-sdkserver.yml</code>和<code>hk4e-gameserver.yml</code>的<code>image</code>后面的镜像名</strong></p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/k8s-hk4e05.png" alt="k8s-hk4e05"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/k8s-hk4e06.png" alt="k8s-hk4e06"></p>
+<pre class="line-numbers language-none"><code class="language-none">[root@node02 Docker build]# ls
+Dockerfile  jdk-17_linux-x64_bin.tar.gz
+
+[root@node02 Docker build]# docker build -t hk4e-sdkserver-ubuntu:v0.2 .&#x2F;
+[+] Building 15.7s (9&#x2F;9) FINISHED                                                   
+ &#x3D;&gt; [internal] load build definition from Dockerfile                           0.0s
+ &#x3D;&gt; &#x3D;&gt; transferring dockerfile: 456B                                           0.0s
+ &#x3D;&gt; [internal] load .dockerignore                                              0.0s
+ &#x3D;&gt; &#x3D;&gt; transferring context: 2B                                                0.0s
+ &#x3D;&gt; [internal] load metadata for docker.io&#x2F;library&#x2F;ubuntu:20.04                0.0s
+ &#x3D;&gt; [internal] load build context                                              2.0s
+ &#x3D;&gt; &#x3D;&gt; transferring context: 181.75MB                                          2.0s
+ &#x3D;&gt; [1&#x2F;4] FROM docker.io&#x2F;library&#x2F;ubuntu:20.04                                  0.0s
+ &#x3D;&gt; &#x3D;&gt; resolve docker.io&#x2F;library&#x2F;ubuntu:20.04                                  0.0s
+ &#x3D;&gt; [2&#x2F;4] WORKDIR &#x2F;sdkserver                                                   0.1s
+ &#x3D;&gt; [3&#x2F;4] RUN sed -i s@&#x2F;archive.ubuntu.com&#x2F;@&#x2F;mirrors.aliyun.com&#x2F;@g &#x2F;etc&#x2F;apt&#x2F;  10.9s
+ &#x3D;&gt; [4&#x2F;4] ADD jdk-17_linux-x64_bin.tar.gz &#x2F;usr&#x2F;local&#x2F;                          3.5s
+ &#x3D;&gt; exporting to image                                                         1.0s 
+ &#x3D;&gt; &#x3D;&gt; exporting layers                                                        1.0s 
+ &#x3D;&gt; &#x3D;&gt; writing image sha256:802940fa7aff0ccc8b3ab56018d3361d4a29c32a30ab09d02  0.0s 
+ &#x3D;&gt; &#x3D;&gt; naming to docker.io&#x2F;library&#x2F;hk4e-sdkserver-ubuntu:v0.2                  0.0s<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@node02 Docker build]# docker build -t hk4e-gameserver-ubuntu:v0.2 .&#x2F;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h2 id="五、部署hk4e真端的数据库"><a href="#五、部署hk4e真端的数据库" class="headerlink" title="五、部署hk4e真端的数据库"></a>五、部署<code>hk4e</code>真端的数据库</h2><h3 id="1-创建命名空间-重要"><a href="#1-创建命名空间-重要" class="headerlink" title="1.创建命名空间(重要)"></a>1.创建命名空间(重要)</h3><blockquote>
+<p><strong>后续我们所有的服务和<code>Pod</code>，都在这个命名空间内部署</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@master ~]# kubectl create ns genshin<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="2-部署主从MySQL数据库"><a href="#2-部署主从MySQL数据库" class="headerlink" title="2.部署主从MySQL数据库"></a>2.部署主从<code>MySQL</code>数据库</h3><h4 id="A-准备主数据库的PV和PVC"><a href="#A-准备主数据库的PV和PVC" class="headerlink" title="A.准备主数据库的PV和PVC"></a>A.准备主数据库的<code>PV</code>和<code>PVC</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@master ~]# vim hk4e-master-pv-pvc.yml
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+   name: hk4e-master-db-pv
+   namespace: genshin	#指定命名空间
+spec:
+  capacity:
+      storage: 10G	#PV卷大小，建议和NFS那边保持一致
+  accessModes:
+       - ReadWriteMany
+  persistentVolumeReclaimPolicy: Recycle
+  nfs:
+      server: 192.168.31.202	#NFS服务器地址
+      path: &#x2F;hk4e_master_data	#NFS共享出来的目录名称
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+     name: hk4e-master-db-pvc
+     namespace: genshin	#指定命名空间
+spec:
+     accessModes:
+        - ReadWriteMany
+     resources:
+        requests:
+            storage: 10G	#PVC卷大小，建议和NFS那边保持一致<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@master ~]# kubectl create -f hk4e-master-pv-pvc.yml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="B-准备从数据库的PV和PVC"><a href="#B-准备从数据库的PV和PVC" class="headerlink" title="B.准备从数据库的PV和PVC"></a>B.准备从数据库的<code>PV</code>和<code>PVC</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@master ~]# vim hk4e-slave-pv-pvc.yml
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+   name: hk4e-slave-db-pv
+   namespace: genshin	#指定命名空间
+spec:
+  capacity:
+      storage: 10G	#PV卷大小，建议和NFS那边保持一致
+  accessModes:
+       - ReadWriteMany
+  persistentVolumeReclaimPolicy: Recycle
+  nfs:
+      server: 192.168.31.202	#NFS服务器地址
+      path: &#x2F;hk4e_slave_data	#NFS共享出来的目录名称
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+     name: hk4e-slave-db-pvc
+     namespace: genshin	#指定命名空间
+spec:
+     accessModes:
+        - ReadWriteMany
+     resources:
+        requests:
+            storage: 10G	#PVC卷大小，建议和NFS那边保持一致<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@master ~]# kubectl create -f hk4e-slave-pv-pvc.yml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h5 id="查看PV和PVC"><a href="#查看PV和PVC" class="headerlink" title="查看PV和PVC"></a>查看<code>PV</code>和<code>PVC</code></h5><pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-master-db-mysql_yaml]# kubectl get pv
+NAME                CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                        STORAGECLASS   REASON   AGE
+hk4e-master-db-pv   10G        RWX            Recycle          Bound    genshin&#x2F;hk4e-master-db-pvc                           2m52s
+hk4e-slave-db-pv    10G        RWX            Recycle          Bound    genshin&#x2F;hk4e-slave-db-pvc                            8s
+
+[root@master hk4e-master-db-mysql_yaml]# kubectl get pvc -n genshin
+NAME                 STATUS   VOLUME              CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+hk4e-master-db-pvc   Bound    hk4e-master-db-pv   10G        RWX                           2m59s
+hk4e-slave-db-pvc    Bound    hk4e-slave-db-pv    10G        RWX                           15s<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="C-创建主库用到的ConfigMap"><a href="#C-创建主库用到的ConfigMap" class="headerlink" title="C.创建主库用到的ConfigMap"></a>C.创建主库用到的<code>ConfigMap</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@master ~]# vim hk4e-master-db-config.yml
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: hk4e-master-db-config
+    namespace: genshin
+data:
+    my.cnf: |
+        [mysqld]
+        server_id&#x3D;10
+        log_bin&#x3D;master
+        gtid_mode&#x3D;on
+        enforce_gtid_consistency&#x3D;true
+        collation-server &#x3D; utf8_general_ci
+        character-set-server &#x3D; utf8<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@master ~]# kubectl craete -f hk4e-master-db-config.yml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="D-创建从库用到的ConfigMap"><a href="#D-创建从库用到的ConfigMap" class="headerlink" title="D.创建从库用到的ConfigMap"></a>D.创建从库用到的<code>ConfigMap</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@master ~]# vim hk4e-slave-db-config.yml
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: hk4e-slave-db-config
+    namespace: genshin
+data:
+    my.cnf: |
+        [mysqld]
+        server_id&#x3D;11
+        log_bin&#x3D;slave
+        gtid_mode&#x3D;on
+        enforce_gtid_consistency&#x3D;true
+        collation-server &#x3D; utf8_general_ci
+        character-set-server &#x3D; utf8<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@master ~]# kubectl craete -f hk4e-slave-db-config.yml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h5 id="查看所有ConfigMap"><a href="#查看所有ConfigMap" class="headerlink" title="查看所有ConfigMap"></a>查看所有<code>ConfigMap</code></h5><pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-master-db-mysql_yaml]# kubectl get cm -n genshin
+NAME                    DATA   AGE
+hk4e-master-db-config   1      87s
+hk4e-slave-db-config    1      28s
+kube-root-ca.crt        1      32m<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="E-创建主库Pod"><a href="#E-创建主库Pod" class="headerlink" title="E.创建主库Pod"></a>E.创建主库<code>Pod</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@master ~]# vim hk4e-master-db.yml
+
+apiVersion: apps&#x2F;v1
+kind: StatefulSet	#有状态负载类型
+metadata:
+    name: hk4e-master-mysql
+    namespace: genshin	#指定命名空间
+spec:   
+    replicas: 1	#指定保持1个副本集
+    selector:
+        matchLabels:
+            app: hk4e-master-mysql  
+    serviceName: &quot;hk4e-master-mysql&quot;	#指定下面的服务名
+    template:
+        metadata:
+            labels:
+                app: hk4e-master-mysql
+        spec:  
+            nodeName: node01	#指定调度到哪个节点上
+            containers:
+            - name: hk4e-master-mysql
+              image: mysql:5.7	#镜像名
+              imagePullPolicy: IfNotPresent	#拉取镜像策略
+              ports:
+              - containerPort: 3306
+              env:	#传递环境变量
+              - name: MYSQL_ROOT_PASSWORD
+                value: &quot;f2c340a9-bf06-4345-9654-00b074b92fe8&quot;	#数据库root用户密码
+              - name: MYSQL_USER
+                value: &quot;work&quot;	#创建work用户
+              - name: MYSQL_PASSWORD
+                value: &quot;GenshinImpactOffline2022&quot;	#创建work用户的密码
+              resources:   	#配置资源限制
+                requests:
+                  memory: &quot;1G&quot;
+                  cpu: &quot;1&quot;
+                limits:
+                  memory: &quot;2G&quot;
+                  cpu: &quot;2&quot;
+              volumeMounts:
+                  - name: mysql-data-volume	#挂载到数据目录
+                    mountPath: &#x2F;var&#x2F;lib&#x2F;mysql
+                  - name: mysql-config-volume	#挂载配置文件
+                    mountPath: &#x2F;etc&#x2F;mysql&#x2F;conf.d
+                    readOnly: true
+            volumes: 
+                - name: mysql-data-volume	#数据卷名
+                  persistentVolumeClaim:	#挂载PVC
+                    claimName: hk4e-master-db-pvc
+                - name: mysql-config-volume	#数据卷名
+                  projected:
+                    sources:
+                    - configMap:	#挂载cm
+                        name: hk4e-master-db-config  
+---
+apiVersion: v1
+kind: Service	#创建服务
+metadata:
+    name: hk4e-master-mysql	#服务名
+    namespace: genshin	#命名空间
+spec:
+    ports:
+    - port: 3306	#容器内部通信的端口
+    selector:
+      app: hk4e-master-mysql<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@master ~]# kubectl create -f hk4e-master-db.yml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="F-创建从库Pod"><a href="#F-创建从库Pod" class="headerlink" title="F.创建从库Pod"></a>F.创建从库<code>Pod</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@master ~]# vim hk4e-slave-db.yml
+
+apiVersion: apps&#x2F;v1
+kind: StatefulSet	#有状态负载类型
+metadata:
+    name: hk4e-slave-mysql
+    namespace: genshin	#指定命名空间
+spec:   
+    replicas: 1	#指定保持1个副本集
+    selector:
+        matchLabels:
+            app: hk4e-slave-mysql  
+    serviceName: &quot;hk4e-slave-mysql&quot;	#指定下面的服务名
+    template:
+        metadata:
+            labels:
+                app: hk4e-slave-mysql
+        spec:  
+            nodeName: node01	#指定调度到哪个节点上
+            containers:
+            - name: hk4e-slave-mysql
+              image: mysql:5.7	#镜像名
+              imagePullPolicy: IfNotPresent	#拉取镜像策略
+              ports:
+              - containerPort: 3306
+              env:	#传递环境变量
+              - name: MYSQL_ROOT_PASSWORD
+                value: &quot;f2c340a9-bf06-4345-9654-00b074b92fe8&quot;	#数据库root用户密码
+              resources:   	#配置资源限制
+                requests:
+                  memory: &quot;1G&quot;
+                  cpu: &quot;1&quot;
+                limits:
+                  memory: &quot;1G&quot;
+                  cpu: &quot;1&quot;
+              volumeMounts:
+                  - name: mysql-data-volume	#挂载到数据目录
+                    mountPath: &#x2F;var&#x2F;lib&#x2F;mysql
+                  - name: mysql-config-volume	#挂载配置文件
+                    mountPath: &#x2F;etc&#x2F;mysql&#x2F;conf.d
+                    readOnly: true
+            volumes: 
+                - name: mysql-data-volume	#数据卷名
+                  persistentVolumeClaim:	#挂载PVC
+                    claimName: hk4e-slave-db-pvc
+                - name: mysql-config-volume	#数据卷名
+                  projected:
+                    sources:
+                    - configMap:	#挂载cm
+                        name: hk4e-slave-db-config  
+---
+apiVersion: v1
+kind: Service	#创建服务
+metadata:
+    name: hk4e-slave-mysql	#服务名
+    namespace: genshin	#命名空间
+spec:
+    ports:
+    - port: 3306	#容器内部通信的端口
+    selector:
+      app: hk4e-slave-mysql<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@master ~]# kubectl create -f hk4e-slave-db.yml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h5 id="查看数据库Pod"><a href="#查看数据库Pod" class="headerlink" title="查看数据库Pod"></a>查看数据库<code>Pod</code></h5><pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-master-db-mysql_yaml]# kubectl get pod -n genshin
+NAME                  READY   STATUS    RESTARTS   AGE
+hk4e-master-mysql-0   1&#x2F;1     Running   0          34m
+hk4e-slave-mysql-0    1&#x2F;1     Running   0          34m<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h5 id="查看NFS服务器上的数据目录"><a href="#查看NFS服务器上的数据目录" class="headerlink" title="查看NFS服务器上的数据目录"></a>查看<code>NFS</code>服务器上的数据目录</h5><pre class="line-numbers language-none"><code class="language-none">[root@nfs ~]# ls &#x2F;hk4e_master_data&#x2F;
+auto.cnf    client-cert.pem  ibdata1      ibtmp1         master.000003  mysql.sock          public_key.pem   sys
+ca-key.pem  client-key.pem   ib_logfile0  master.000001  master.index   performance_schema  server-cert.pem
+ca.pem      ib_buffer_pool   ib_logfile1  master.000002  mysql          private_key.pem     server-key.pem
+[root@nfs ~]# ls &#x2F;hk4e_slave_data&#x2F;
+auto.cnf    client-cert.pem  ibdata1      ibtmp1      performance_schema  server-cert.pem  slave.000002  sys
+ca-key.pem  client-key.pem   ib_logfile0  mysql       private_key.pem     server-key.pem   slave.000003
+ca.pem      ib_buffer_pool   ib_logfile1  mysql.sock  public_key.pem      slave.000001     slave.index<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="G-进入主库，配置主从复制的用户和hk4e的数据库"><a href="#G-进入主库，配置主从复制的用户和hk4e的数据库" class="headerlink" title="G.进入主库，配置主从复制的用户和hk4e的数据库"></a>G.进入主库，配置主从复制的用户和<code>hk4e</code>的数据库</h4><pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-master-db-mysql_yaml]# kubectl exec -it hk4e-master-mysql-0 -n genshin -- bash<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">bash-4.2# mysql -uroot -pf2c340a9-bf06-4345-9654-00b074b92fe8
+
+mysql&gt; grant replication slave on *.* to &#39;repluser&#39;@&#39;%&#39; identified by &#39;WWW.1.com&#39;;
+Query OK, 0 rows affected, 1 warning (0.11 sec)
+
+mysql&gt; GRANT ALL PRIVILEGES ON *.* TO &#39;work&#39;@&#39;127.0.0.1&#39; IDENTIFIED BY &#39;GenshinImpactOffline2022&#39; WITH GRANT OPTION;
+Query OK, 0 rows affected, 1 warning (0.02 sec)
+
+mysql&gt; GRANT ALL PRIVILEGES ON *.* TO &#39;work&#39;@&#39;localhost&#39; IDENTIFIED BY &#39;GenshinImpactOffline2022&#39; WITH GRANT OPTION;
+Query OK, 0 rows affected, 2 warnings (0.01 sec)
+
+mysql&gt; FLUSH   PRIVILEGES;
+Query OK, 0 rows affected (0.04 sec)
+
+mysql&gt; quit
+Bye<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="H-创建hk4e用到的库，和导入数据"><a href="#H-创建hk4e用到的库，和导入数据" class="headerlink" title="H.创建hk4e用到的库，和导入数据"></a>H.创建<code>hk4e</code>用到的库，和导入数据</h4><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/k8s-hk4e07.png" alt="k8s-hk4e07"></p>
+<h5 id="先把用到的数据导入到NFS上"><a href="#先把用到的数据导入到NFS上" class="headerlink" title="先把用到的数据导入到NFS上"></a>先把用到的数据导入到<code>NFS</code>上</h5><blockquote>
+<p><strong>一定要创建完数据库后再导入，否则会报错。</strong><br><strong>或者使用<code>kubectl cp</code>命令，拷贝文件到容器内部，用法和<code>docker cp</code>一样</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@nfs hk4e_master_data]# ls | grep mysql_sql
+mysql_sql<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h5 id="回到容器内部执行脚本，一键导入数据库"><a href="#回到容器内部执行脚本，一键导入数据库" class="headerlink" title="回到容器内部执行脚本，一键导入数据库"></a>回到容器内部执行脚本，一键导入数据库</h5><pre class="line-numbers language-none"><code class="language-none">bash-4.2# bash &#x2F;var&#x2F;lib&#x2F;mysql&#x2F;mysql_sql&#x2F;sql.sh
+bash-4.2# rm -rf &#x2F;var&#x2F;lib&#x2F;mysql&#x2F;mysql_sql
+bash-4.2# exit	#退出容器
+exit
+[root@master hk4e-master-db-mysql_yaml]#<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="I-进入从库，配置主从复制环境"><a href="#I-进入从库，配置主从复制环境" class="headerlink" title="I.进入从库，配置主从复制环境"></a>I.进入从库，配置主从复制环境</h4><pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-master-db-mysql_yaml]# kubectl exec -it hk4e-slave-mysql-0 -n genshin -- bash
+bash-4.2# mysql -uroot -pf2c340a9-bf06-4345-9654-00b074b92fe8<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">mysql&gt; change master to
+    -&gt; master_host&#x3D;&quot;hk4e-master-mysql&quot;,
+    -&gt; master_user&#x3D;&quot;repluser&quot;,
+    -&gt; master_password&#x3D;&quot;WWW.1.com&quot;,
+    -&gt; master_auto_position&#x3D;1;
+Query OK, 0 rows affected, 2 warnings (0.10 sec)
+
+mysql&gt; start slave;
+Query OK, 0 rows affected (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h5 id="查看主从复制状态"><a href="#查看主从复制状态" class="headerlink" title="查看主从复制状态"></a>查看主从复制状态</h5><pre class="line-numbers language-none"><code class="language-none">mysql&gt; show slave status\G;
+*************************** 1. row ***************************
+               Slave_IO_State: Waiting for master to send event
+                  Master_Host: hk4e-master-mysql
+                  Master_User: repluser
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: master.000003
+          Read_Master_Log_Pos: 136422
+               Relay_Log_File: hk4e-slave-mysql-0-relay-bin.000003
+                Relay_Log_Pos: 136629
+        Relay_Master_Log_File: master.000003
+             Slave_IO_Running: Yes	#IO线程正常
+            Slave_SQL_Running: Yes	#SQL线程正常
+            
+mysql&gt; exit
+Bye
+bash-4.2# exit
+exit<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-部署redis"><a href="#3-部署redis" class="headerlink" title="3.部署redis"></a>3.部署<code>redis</code></h3><h4 id="A-创建redis的PV和PVC"><a href="#A-创建redis的PV和PVC" class="headerlink" title="A.创建redis的PV和PVC"></a>A.创建<code>redis</code>的<code>PV</code>和<code>PVC</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-redis_yaml]# vim hk4e-redis-pv-pvc.yml
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+   name: hk4e-redis-db-pv
+   namespace: genshin
+spec:
+  capacity:
+      storage: 10G
+  accessModes:
+       - ReadWriteMany
+  persistentVolumeReclaimPolicy: Recycle
+  nfs:
+      server: 192.168.31.202
+      path: &#x2F;hk4e_redis
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+     name: hk4e-redis-db-pvc
+     namespace: genshin
+spec:
+     accessModes:
+        - ReadWriteMany
+     resources:
+        requests:
+            storage: 10G<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-redis_yaml]# kubectl create -f hk4e-redis-pv-pvc.yml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-redis_yaml]# kubectl get pv 
+NAME                CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS      CLAIM                        STORAGECLASS   REASON   AGE
+hk4e-master-db-pv   10G        RWX            Recycle          Bound       genshin&#x2F;hk4e-master-db-pvc                           85m
+hk4e-redis-db-pv    10G        RWX            Recycle          Available                                                        8s
+hk4e-slave-db-pv    10G        RWX            Recycle          Bound       genshin&#x2F;hk4e-slave-db-pvc                            82m
+[root@master hk4e-redis_yaml]# kubectl get pvc -n genshin
+NAME                 STATUS   VOLUME              CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+hk4e-master-db-pvc   Bound    hk4e-master-db-pv   10G        RWX                           85m
+hk4e-redis-db-pvc    Bound    hk4e-redis-db-pv    10G        RWX                           14s
+hk4e-slave-db-pvc    Bound    hk4e-slave-db-pv    10G        RWX                           82m<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="B-部署redis用到的ConfigMap"><a href="#B-部署redis用到的ConfigMap" class="headerlink" title="B.部署redis用到的ConfigMap"></a>B.部署<code>redis</code>用到的<code>ConfigMap</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-redis_yaml]# vim hk4e-redis-config.yml
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: hk4e-redis-config
+    namespace: genshin
+data:
+    redis.conf: |
+        dir &#x2F;srv&#x2F;redis
+        bind 0.0.0.0
+        appendonly yes
+        protected-mode yes
+        port 6379
+        tcp-backlog 800
+        timeout 0
+        tcp-keepalive 300
+        daemonize no
+        supervised no
+        pidfile &#x2F;srv&#x2F;redis&#x2F;redis-server.pid
+        loglevel warning
+        logfile &#x2F;srv&#x2F;redis&#x2F;redis-server.log
+        databases 168
+        always-show-logo yes
+        save 900 1
+        save 300 10
+        save 60 10000
+        requirepass GenshinImpactOffline2022<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-redis_yaml]# kubectl create -f hk4e-redis-config.yml
+configmap&#x2F;hk4e-redis-config created
+[root@master hk4e-redis_yaml]# kubectl get cm -n genshin
+NAME                    DATA   AGE
+hk4e-master-db-config   1      82m
+hk4e-redis-config       1      9s
+hk4e-slave-db-config    1      81m
+kube-root-ca.crt        1      114m<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="C-部署Redis的Pod"><a href="#C-部署Redis的Pod" class="headerlink" title="C.部署Redis的Pod"></a>C.部署<code>Redis</code>的<code>Pod</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-redis_yaml]# vim hk4e-redis.yml 
+
+apiVersion: apps&#x2F;v1
+kind: StatefulSet       #有状态负载
+metadata:
+  name: hk4e-redis
+  namespace: genshin
+  labels:
+    app: hk4e-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hk4e-redis
+  serviceName: &quot;hk4e-redis&quot;
+  template:
+    metadata:
+      labels:
+        app: hk4e-redis
+    spec:
+      nodeName: node01	#指定调度到哪个节点上
+      containers:
+      - name: hk4e-redis
+        image: redis
+        command:
+          - &quot;sh&quot;
+          - &quot;-c&quot;
+          - &quot;redis-server &#x2F;usr&#x2F;local&#x2F;etc&#x2F;redis&#x2F;redis.conf&quot;
+        ports:
+        - containerPort: 6379
+        resources:
+          limits:	#资源限制
+            cpu: 1000m
+            memory: 1024Mi
+          requests:
+            cpu: 1000m
+            memory: 1024Mi
+        livenessProbe:
+          tcpSocket:
+            port: 6379
+          initialDelaySeconds: 300
+          timeoutSeconds: 1
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          tcpSocket:
+            port: 6379
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        volumeMounts:
+        - name: hk4e-redis-config
+          mountPath:  &#x2F;usr&#x2F;local&#x2F;etc&#x2F;redis&#x2F;redis.conf       #配置文件挂载到容器内
+          subPath: redis.conf
+        - name: hk4e-redis-data-volume
+          mountPath: &#x2F;srv&#x2F;redis       #配置文件里指定的数据目录
+      volumes:
+      - name: hk4e-redis-config
+        configMap:
+          name: hk4e-redis-config    #挂载配置文件
+      - name: hk4e-redis-data-volume
+        persistentVolumeClaim:
+            claimName: hk4e-redis-db-pvc     #挂载PVC
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hk4e-redis
+  namespace: genshin
+  labels:
+    app: hk4e-redis
+spec:
+  ports:
+    - name: tcp
+      port: 6379
+  selector:
+    app: hk4e-redis<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-redis_yaml]# kubectl create -f hk4e-redis.yml 
+statefulset.apps&#x2F;hk4e-redis created
+service&#x2F;hk4e-redis created<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@master ~]# kubectl get pods -n genshin
+NAME                  READY   STATUS    RESTARTS   AGE
+hk4e-master-mysql-0   1&#x2F;1     Running   0          65m
+hk4e-redis-0          1&#x2F;1     Running   0          91s
+hk4e-slave-mysql-0    1&#x2F;1     Running   0          65m<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-部署MongoDB"><a href="#4-部署MongoDB" class="headerlink" title="4.部署MongoDB"></a>4.部署<code>MongoDB</code></h3><h4 id="A-准备MongoDB的PV和PVC"><a href="#A-准备MongoDB的PV和PVC" class="headerlink" title="A.准备MongoDB的PV和PVC"></a>A.准备<code>MongoDB</code>的<code>PV</code>和<code>PVC</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-mongodb_yaml]# vim hk4e-mongodb-pv-pvc.yml
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+   name: hk4e-mongodb-db-pv
+   namespace: genshin
+spec:
+  capacity:
+      storage: 10G
+  accessModes:
+       - ReadWriteMany
+  persistentVolumeReclaimPolicy: Recycle
+  nfs:
+      server: 192.168.31.202
+      path: &#x2F;hk4e_mongodb
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+     name: hk4e-mongodb-db-pvc
+     namespace: genshin
+spec:
+     accessModes:
+        - ReadWriteMany
+     resources:
+        requests:
+            storage: 10G<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-mongodb_yaml]# kubectl create -f hk4e-mongodb-pv-pvc.yml 
+persistentvolume&#x2F;hk4e-mongodb-db-pv created
+persistentvolumeclaim&#x2F;hk4e-mongodb-db-pvc created
+
+[root@master hk4e-mongodb_yaml]# kubectl get pv
+NAME                 CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                         STORAGECLASS   REASON   AGE
+hk4e-master-db-pv    10G        RWX            Recycle          Bound    genshin&#x2F;hk4e-master-db-pvc                            92m
+hk4e-mongodb-db-pv   10G        RWX            Recycle          Bound    genshin&#x2F;hk4e-mongodb-db-pvc                           8s
+hk4e-redis-db-pv     10G        RWX            Recycle          Bound    genshin&#x2F;hk4e-redis-db-pvc                             7m21s
+hk4e-slave-db-pv     10G        RWX            Recycle          Bound    genshin&#x2F;hk4e-slave-db-pvc                             90m
+[root@master hk4e-mongodb_yaml]# kubectl get pv -n genshin
+NAME                 CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                         STORAGECLASS   REASON   AGE
+hk4e-master-db-pv    10G        RWX            Recycle          Bound    genshin&#x2F;hk4e-master-db-pvc                            92m
+hk4e-mongodb-db-pv   10G        RWX            Recycle          Bound    genshin&#x2F;hk4e-mongodb-db-pvc                           14s
+hk4e-redis-db-pv     10G        RWX            Recycle          Bound    genshin&#x2F;hk4e-redis-db-pvc                             7m27s
+hk4e-slave-db-pv     10G        RWX            Recycle          Bound    genshin&#x2F;hk4e-slave-db-pvc<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="B-创建MongoDB的Pod"><a href="#B-创建MongoDB的Pod" class="headerlink" title="B.创建MongoDB的Pod"></a>B.创建<code>MongoDB</code>的<code>Pod</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-mongodb_yaml]# vim hk4e-mongodb.yml
+
+apiVersion: apps&#x2F;v1
+kind: Deployment     
+metadata:
+    name: hk4e-mongodb
+    namespace: genshin
+spec:   
+    replicas: 1
+    selector:
+        matchLabels:
+            app: hk4e-mongodb 
+    template:
+        metadata:
+            labels:
+                app: hk4e-mongodb
+        spec:  
+            nodeName: node01	#指定调度到哪个节点上
+            containers:
+            - name: hk4e-mongodb
+              image: mongo:4.0	#镜像
+              imagePullPolicy: IfNotPresent
+              ports:
+              - containerPort: 27017
+              resources:   
+                requests:
+                  memory: &quot;1G&quot;
+                  cpu: &quot;1&quot;
+                limits:
+                  memory: &quot;1G&quot;
+                  cpu: &quot;1&quot;
+              volumeMounts:
+                  - name: hk4e-mongodb-data
+                    mountPath: &#x2F;data&#x2F;db
+            volumes:
+              - name: hk4e-mongodb-data
+                persistentVolumeClaim:
+                  claimName: hk4e-mongodb-db-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: hk4e-mongodb
+    namespace: genshin
+spec:
+    ports:
+    - port: 27017
+    selector:
+      app: hk4e-mongodb<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-mongodb_yaml]# kubectl create -f hk4e-mongodb.yml 
+deployment.apps&#x2F;hk4e-mongodb created
+service&#x2F;hk4e-mongodb created
+
+[root@master hk4e-mongodb_yaml]# kubectl get pod -n genshin
+NAME                           READY   STATUS    RESTARTS   AGE
+hk4e-master-mysql-0            1&#x2F;1     Running   0          76m
+hk4e-mongodb-5d7fc87d9-b4ql5   1&#x2F;1     Running   0          43s
+hk4e-redis-0                   1&#x2F;1     Running   0          12m
+hk4e-slave-mysql-0             1&#x2F;1     Running   0          76m<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="六、部署hk4e的sdkserver"><a href="#六、部署hk4e的sdkserver" class="headerlink" title="六、部署hk4e的sdkserver"></a>六、部署<code>hk4e</code>的<code>sdkserver</code></h2><h3 id="1-准备sdkserver的PV和PVC"><a href="#1-准备sdkserver的PV和PVC" class="headerlink" title="1.准备sdkserver的PV和PVC"></a>1.准备<code>sdkserver</code>的<code>PV</code>和<code>PVC</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-sdkserver_yaml]# vim hk4e-sdkserver-pv-pvc.yml
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+   name: hk4e-sdkserver-pv
+   namespace: genshin
+spec:
+  capacity:
+      storage: 10G
+  accessModes:
+       - ReadWriteMany
+  persistentVolumeReclaimPolicy: Recycle
+  nfs:
+      server: 192.168.31.202
+      path: &#x2F;hk4e_data&#x2F;sdkserver
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+     name: hk4e-sdkserver-pvc
+     namespace: genshin
+spec:
+     accessModes:
+        - ReadWriteMany
+     resources:
+        requests:
+            storage: 10G<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-sdkserver_yaml]# kubectl create -f hk4e-sdkserver-pv-pvc.yml
+persistentvolume&#x2F;hk4e-sdkserver-pv created
+persistentvolumeclaim&#x2F;hk4e-sdkserver-pvc created
+
+[root@master hk4e-sdkserver_yaml]# kubectl get pv
+NAME                 CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                         STORAGECLASS   REASON   AGE
+hk4e-master-db-pv    10G        RWX            Recycle          Bound    genshin&#x2F;hk4e-master-db-pvc                            108m
+hk4e-mongodb-db-pv   10G        RWX            Recycle          Bound    genshin&#x2F;hk4e-mongodb-db-pvc                           16m
+hk4e-redis-db-pv     10G        RWX            Recycle          Bound    genshin&#x2F;hk4e-redis-db-pvc                             23m
+hk4e-sdkserver-pv    10G        RWX            Recycle          Bound    genshin&#x2F;hk4e-sdkserver-pvc                            6s
+hk4e-slave-db-pv     10G        RWX            Recycle          Bound    genshin&#x2F;hk4e-slave-db-pvc
+
+[root@master hk4e-sdkserver_yaml]# kubectl get pvc -n genshin
+NAME                  STATUS   VOLUME               CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+hk4e-master-db-pvc    Bound    hk4e-master-db-pv    10G        RWX                           108m
+hk4e-mongodb-db-pvc   Bound    hk4e-mongodb-db-pv   10G        RWX                           16m
+hk4e-redis-db-pvc     Bound    hk4e-redis-db-pv     10G        RWX                           23m
+hk4e-sdkserver-pvc    Bound    hk4e-sdkserver-pv    10G        RWX                           15s
+hk4e-slave-db-pvc     Bound    hk4e-slave-db-pv     10G        RWX                           106m<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="2-修改sdk的config-json"><a href="#2-修改sdk的config-json" class="headerlink" title="2.修改sdk的config,json"></a>2.修改<code>sdk</code>的<code>config,json</code></h3><blockquote>
+<p><strong>前往<code>NFS</code>修改</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@nfs hk4e_data]# vim sdkserver&#x2F;config.json
+
+&quot;dispatch&quot;: &#123;
+      &quot;regions&quot;: [
+        &#123;
+          &quot;Name&quot;: &quot;os_usa&quot;,
+          &quot;Title&quot;: &quot;Grasscutter&quot;,
+          &quot;type&quot;: &quot;DEV_PUBLIC&quot;,
+          &quot;DispatchUrl&quot;: &quot;http:&#x2F;&#x2F;192.168.31.203:20001&#x2F;query_cur_region&quot;	#这个IP是后端node02节点的物理机IP，稍后我将把gameserver调度到node02身上
+        &#125;
+      ],
+      &quot;logRequests&quot;: &quot;NONE&quot;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-创建sdkserver的pod"><a href="#3-创建sdkserver的pod" class="headerlink" title="3.创建sdkserver的pod"></a>3.创建<code>sdkserver</code>的<code>pod</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-sdkserver_yaml]# vim hk4e-sdkserver.yml
+
+apiVersion: apps&#x2F;v1
+kind: Deployment     
+metadata:
+    name: hk4e-sdkserver
+    namespace: genshin
+spec:   
+    replicas: 1
+    selector:
+        matchLabels:
+            app: hk4e-sdkserver 
+    template:
+        metadata:
+            labels:
+                app: hk4e-sdkserver
+        spec:  
+            nodeName: node02	#指定调度到哪个节点上
+            containers:
+            - name: hk4e-sdkserver
+              image: hk4e-sdkserver-ubuntu:v0.2	#指定镜像
+              imagePullPolicy: IfNotPresent
+              # tty: true
+              ports:
+              - containerPort: 2888
+              resources:   
+                requests:	#做资源限制
+                  memory: &quot;1G&quot;
+                  cpu: &quot;1&quot;
+                limits:
+                  memory: &quot;1G&quot;
+                  cpu: &quot;1&quot;
+              volumeMounts:
+                  - name: hk4e-sdkserver-data
+                    mountPath: &#x2F;sdkserver
+            volumes:
+              - name: hk4e-sdkserver-data
+                persistentVolumeClaim:
+                  claimName: hk4e-sdkserver-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: hk4e-sdkserver
+    namespace: genshin
+spec:
+    ports:
+    - port: 2888
+    selector:
+      app: hk4e-sdkserver<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-sdkserver_yaml]# kubectl create -f hk4e-sdkserver.yml
+deployment.apps&#x2F;hk4e-sdkserver created
+service&#x2F;hk4e-sdkserver created
+[root@master hk4e-sdkserver_yaml]# kubectl get pod -n genshin
+NAME                              READY   STATUS    RESTARTS   AGE
+hk4e-master-mysql-0               1&#x2F;1     Running   0          88m
+hk4e-mongodb-5d7fc87d9-b4ql5      1&#x2F;1     Running   0          12m
+hk4e-redis-0                      1&#x2F;1     Running   0          23m
+hk4e-sdkserver-6dbb86f5cc-kv2lg   1&#x2F;1     Running   0          28s
+hk4e-slave-mysql-0                1&#x2F;1     Running   0          88m<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-sdkserver_yaml]# kubectl logs hk4e-sdkserver-6dbb86f5cc-kv2lg -n genshin
+05:44:37 &lt;ERROR:Crypto&gt; An error occurred while loading keys.
+java.lang.NullPointerException: Cannot invoke &quot;java.util.List.iterator()&quot; because the return value of &quot;org.nofs.utils.FileUtils.getPathsFromResource(String)&quot; is null
+	at org.nofs.utils.Crypto.loadKeys(Crypto.java:40)
+	at org.nofs.Grasscutter.main(Grasscutter.java:92)
+05:44:37 &lt;INFO:Grasscutter&gt; Starting Grasscutter...
+05:44:37 &lt;INFO:Grasscutter&gt; Game version: 3.2.0
+05:44:37 &lt;INFO:Grasscutter&gt; Grasscutter version: 3.2.0-dev-01ce6a9
+05:44:38 &lt;INFO:HttpServer&gt; [Dispatch] Dispatch server started at hk4e-sdkserver:2888<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-创建Ingress服务，发布2888端口"><a href="#4-创建Ingress服务，发布2888端口" class="headerlink" title="4.创建Ingress服务，发布2888端口"></a>4.创建<code>Ingress</code>服务，发布<code>2888</code>端口</h3><pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-sdkserver_yaml]# vim hk4e-sdkserver-ingress.yml
+
+apiVersion: extensions&#x2F;v1beta1
+kind: Ingress 
+metadata:
+  name: hk4e-sdkserver-ingress
+  namespace: genshin
+  annotations:
+    kubernetes.io&#x2F;ingress.class: &quot;nginx&quot;
+spec:
+  rules: 
+  - host: sdk.linux.com	#发布到哪个域名上
+    http:
+      paths: 
+      - path:  
+        backend: 
+          serviceName: hk4e-sdkserver	#指定要发布服务的服务名
+          servicePort: 2888	#被发布的端口<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-sdkserver_yaml]# kubectl create -f hk4e-sdkserver-ingress.yml 
+Warning: extensions&#x2F;v1beta1 Ingress is deprecated in v1.14+, unavailable in v1.22+; use networking.k8s.io&#x2F;v1 Ingress
+ingress.extensions&#x2F;hk4e-sdkserver-ingress created
+[root@master hk4e-sdkserver_yaml]# kubectl get ingress -n genshin
+NAME                     CLASS    HOSTS           ADDRESS   PORTS   AGE
+hk4e-sdkserver-ingress   &lt;none&gt;   sdk.linux.com             80      14s<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="查看ingress跑在哪台node节点上"><a href="#查看ingress跑在哪台node节点上" class="headerlink" title="查看ingress跑在哪台node节点上"></a>查看<code>ingress</code>跑在哪台<code>node</code>节点上</h4><blockquote>
+<p><strong>如果是真实的服务器，直接域名解析到相应的公网<code>IP</code>上即可</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-sdkserver_yaml]# kubectl get pod -A -o wide
+NAMESPACE       NAME                                        READY   STATUS      RESTARTS   AGE     IP                NODE     NOMINATED NODE   READINESS GATES
+genshin         hk4e-master-mysql-0                         1&#x2F;1     Running     0          95m     192.168.196.129   node01   &lt;none&gt;           &lt;none&gt;
+genshin         hk4e-mongodb-5d7fc87d9-b4ql5                1&#x2F;1     Running     0          19m     192.168.140.71    node02   &lt;none&gt;           &lt;none&gt;
+genshin         hk4e-redis-0                                1&#x2F;1     Running     0          31m     192.168.196.131   node01   &lt;none&gt;           &lt;none&gt;
+genshin         hk4e-sdkserver-6dbb86f5cc-kv2lg             1&#x2F;1     Running     0          7m56s   192.168.140.72    node02   &lt;none&gt;           &lt;none&gt;
+genshin         hk4e-slave-mysql-0                          1&#x2F;1     Running     0          95m     192.168.196.130   node01   &lt;none&gt;           &lt;none&gt;
+ingress-nginx   ingress-nginx-controller-64ff7cd7cf-hz6ps   1&#x2F;1     Running     0          162m    192.168.31.203    node02   &lt;none&gt;           &lt;none&gt;
+#我这里跑在node02身上<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="修改hosts文件-如果公网有域名，不用修改"><a href="#修改hosts文件-如果公网有域名，不用修改" class="headerlink" title="修改hosts文件(如果公网有域名，不用修改)"></a>修改hosts文件(如果公网有域名，不用修改)</h4><blockquote>
+<p><code>C:\Windows\System32\drivers\etc\hosts</code></p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/k8s-hk4e08.png" alt="k8s-hk4e08"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/k8s-hk4e09.png" alt="k8s-hk4e09"></p>
+<h2 id="七、部署hk4e的gameserver"><a href="#七、部署hk4e的gameserver" class="headerlink" title="七、部署hk4e的gameserver"></a>七、部署<code>hk4e</code>的<code>gameserver</code></h2><h3 id="1-准备gameserver的PV和PVC"><a href="#1-准备gameserver的PV和PVC" class="headerlink" title="1.准备gameserver的PV和PVC"></a>1.准备<code>gameserver</code>的<code>PV</code>和<code>PVC</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-gameserver_yaml]# vim hk4e-gameserver-pv-pvc.yml
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+   name: hk4e-gameserver-pv
+   namespace: genshin
+spec:
+  capacity:
+      storage: 50G
+  accessModes:
+       - ReadWriteMany
+  persistentVolumeReclaimPolicy: Recycle
+  nfs:
+      server: 192.168.31.202
+      path: &#x2F;hk4e_data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+     name: hk4e-gameserver-pvc
+     namespace: genshin
+spec:
+     accessModes:
+        - ReadWriteMany
+     resources:
+        requests:
+            storage: 50G<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-gameserver_yaml]# kubectl create -f hk4e-gameserver-pv-pvc.yml 
+persistentvolume&#x2F;hk4e-gameserver-pv created
+persistentvolumeclaim&#x2F;hk4e-gameserver-pvc created
+
+[root@master hk4e-gameserver_yaml]# kubectl get pv
+NAME                 CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                         STORAGECLASS   REASON   AGE
+hk4e-gameserver-pv   50G        RWX            Recycle          Bound    genshin&#x2F;hk4e-gameserver-pvc                           7s
+hk4e-master-db-pv    10G        RWX            Recycle          Bound    genshin&#x2F;hk4e-master-db-pvc                            128m
+hk4e-mongodb-db-pv   10G        RWX            Recycle          Bound    genshin&#x2F;hk4e-mongodb-db-pvc                           36m
+hk4e-redis-db-pv     10G        RWX            Recycle          Bound    genshin&#x2F;hk4e-redis-db-pvc                             43m
+hk4e-sdkserver-pv    10G        RWX            Recycle          Bound    genshin&#x2F;hk4e-sdkserver-pvc                            19m
+hk4e-slave-db-pv     10G        RWX            Recycle          Bound    genshin&#x2F;hk4e-slave-db-pvc                             125m
+[root@master hk4e-gameserver_yaml]# kubectl get pvc -n genshin
+NAME                  STATUS   VOLUME               CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+hk4e-gameserver-pvc   Bound    hk4e-gameserver-pv   50G        RWX                           13s
+hk4e-master-db-pvc    Bound    hk4e-master-db-pv    10G        RWX                           128m
+hk4e-mongodb-db-pvc   Bound    hk4e-mongodb-db-pv   10G        RWX                           36m
+hk4e-redis-db-pvc     Bound    hk4e-redis-db-pv     10G        RWX                           43m
+hk4e-sdkserver-pvc    Bound    hk4e-sdkserver-pv    10G        RWX                           20m
+hk4e-slave-db-pvc     Bound    hk4e-slave-db-pv     10G        RWX                           126m<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="2-修改hk4e的运行地址"><a href="#2-修改hk4e的运行地址" class="headerlink" title="2.修改hk4e的运行地址"></a>2.修改<code>hk4e</code>的运行地址</h3><blockquote>
+<p><strong>前往<code>NFS</code>服务器上<code>hk4e_data</code>目录操作</strong><br><strong>如果是内网游玩，<code>IP</code>地址都填写写本机<code>IP</code>的内网地址即可</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">find .&#x2F; -name &quot;*.xml&quot;  -exec sed -i &quot;s&#x2F;REPLACE_IT_TO_YOUR_DEVICE_IP&#x2F;你的内网IP&#x2F;g&quot; &#123;&#125; \;
+
+find . -name &quot;*.xml&quot;  -exec sed -i &quot;s&#x2F;REPLACE_IT_TO_YOUR_ACCESS_IP&#x2F;你的公网IP&#x2F;g&quot; &#123;&#125; \;
+
+find . -name &quot;*.php&quot;  -exec sed -i &quot;s&#x2F;123.123.123.123&#x2F;你的公网IP&#x2F;g&quot; &#123;&#125; \;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-部署gameserver的pod"><a href="#3-部署gameserver的pod" class="headerlink" title="3.部署gameserver的pod"></a>3.部署<code>gameserver</code>的<code>pod</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-gameserver_yaml]# vim hk4e-gameserver.yml
+
+apiVersion: apps&#x2F;v1
+kind: Deployment     
+metadata:
+    name: hk4e-gameserver
+    namespace: genshin
+spec:   
+    replicas: 1
+    selector:
+        matchLabels:
+            app: hk4e-gameserver 
+    template:
+        metadata:
+            labels:
+                app: hk4e-gameserver
+        spec:  
+            nodeName: node02	#指定调度到哪个节点上
+            # hostNetwork: true
+            containers:
+            - name: hk4e-gameserver
+              image: hk4e-gameserver-ubuntu:v0.2	#自定义镜像
+              imagePullPolicy: IfNotPresent
+              # tty: true
+              command:	#启动容器的命令
+                - &quot;&#x2F;bin&#x2F;sh&quot;
+                - &quot;-c&quot;
+                - &quot;&#x2F;gameserver&#x2F;startserver.sh&quot;
+              resources:   #配置资源限制
+                requests:
+                  memory: &quot;16G&quot;
+                  cpu: &quot;8&quot;
+                limits:
+                  memory: &quot;20G&quot;
+                  cpu: &quot;12&quot;
+              volumeMounts:
+                  - name: hk4e-gameserver-data
+                    mountPath: &#x2F;gameserver
+            volumes:
+              - name: hk4e-gameserver-data
+                persistentVolumeClaim:
+                  claimName: hk4e-gameserver-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: hk4e-gameserver
+    namespace: genshin
+spec:
+    type: NodePort	#用于发布宿主机身上的端口
+    ports:
+    - name: port-0-tcp
+      port: 20001
+      protocol: TCP
+      nodePort: 20001
+    - name: port-0-udp
+      port: 20001
+      protocol: UDP
+      nodePort: 20001
+    - name: port-1-tcp
+      port: 20011
+      protocol: TCP
+      nodePort: 20011
+    - name: port-1-udp
+      port: 20011
+      protocol: UDP
+      nodePort: 20011
+    - name: port-2-tcp
+      port: 20021
+      protocol: TCP
+      nodePort: 20021
+    - name: port-2-udp
+      port: 20021
+      protocol: UDP
+      nodePort: 20021
+    - name: port-3-tcp
+      port: 20031
+      protocol: TCP
+      nodePort: 20031
+    - name: port-3-udp
+      port: 20031
+      protocol: UDP
+      nodePort: 20031
+    - name: port-4-tcp
+      port: 20041
+      protocol: TCP
+      nodePort: 20041
+    - name: port-4-udp
+      port: 20041
+      protocol: UDP
+      nodePort: 20041
+    - name: port-5-tcp
+      port: 20051
+      protocol: TCP
+      nodePort: 20051
+    - name: port-5-udp
+      port: 20051
+      protocol: UDP
+      nodePort: 20051
+    - name: port-6-tcp
+      port: 20061
+      protocol: TCP
+      nodePort: 20061
+    - name: port-6-udp
+      port: 20061
+      protocol: UDP
+      nodePort: 20061
+    - name: port-7-tcp
+      port: 20071
+      protocol: TCP
+      nodePort: 20071
+    - name: port-7-udp
+      port: 20071
+      protocol: UDP
+      nodePort: 20071
+    - name: port-8-tcp
+      port: 20081
+      protocol: TCP
+      nodePort: 20081
+    - name: port-8-udp
+      port: 20081
+      protocol: UDP
+      nodePort: 20081
+    selector:
+      app: hk4e-gameserver<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-gameserver_yaml]# kubectl create -f hk4e-gameserver.yml
+
+[root@master hk4e-gameserver_yaml]# kubectl get pods -n genshin
+NAME                              READY   STATUS    RESTARTS   AGE
+hk4e-gameserver-8dcdd6b47-j9wnt   1&#x2F;1     Running   0          26s
+hk4e-master-mysql-0               1&#x2F;1     Running   0          110m
+hk4e-mongodb-5d7fc87d9-b4ql5      1&#x2F;1     Running   0          34m
+hk4e-redis-0                      1&#x2F;1     Running   0          46m
+hk4e-sdkserver-6dbb86f5cc-kv2lg   1&#x2F;1     Running   0          22m
+hk4e-slave-mysql-0                1&#x2F;1     Running   0          110m<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-查看服务"><a href="#4-查看服务" class="headerlink" title="4.查看服务"></a>4.查看服务</h3><pre class="line-numbers language-none"><code class="language-none">[root@master hk4e-gameserver_yaml]# kubectl get svc -n genshin
+NAME                TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                                                                                                                                                                                                                                                                                           AGE
+hk4e-gameserver     NodePort    172.16.133.113   &lt;none&gt;        20001:20001&#x2F;TCP,20001:20001&#x2F;UDP,20011:20011&#x2F;TCP,20011:20011&#x2F;UDP,20021:20021&#x2F;TCP,20021:20021&#x2F;UDP,20031:20031&#x2F;TCP,20031:20031&#x2F;UDP,20041:20041&#x2F;TCP,20041:20041&#x2F;UDP,20051:20051&#x2F;TCP,20051:20051&#x2F;UDP,20061:20061&#x2F;TCP,20061:20061&#x2F;UDP,20071:20071&#x2F;TCP,20071:20071&#x2F;UDP,20081:20081&#x2F;TCP,20081:20081&#x2F;UDP   5m50s
+hk4e-master-mysql   ClusterIP   172.16.242.133   &lt;none&gt;        3306&#x2F;TCP                                                                                                                                                                                                                                                                                          114m
+hk4e-mongodb        ClusterIP   172.16.153.180   &lt;none&gt;        27017&#x2F;TCP                                                                                                                                                                                                                                                                                         40m
+hk4e-redis          ClusterIP   172.16.177.173   &lt;none&gt;        6379&#x2F;TCP                                                                                                                                                                                                                                                                                          49m
+hk4e-sdkserver      ClusterIP   172.16.29.198    &lt;none&gt;        2888&#x2F;TCP                                                                                                                                                                                                                                                                                          26m
+hk4e-slave-mysql    ClusterIP   172.16.186.228   &lt;none&gt;        3306&#x2F;TCP                                                                                                                                                                                                                                                                                          113m<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="八、登录游戏测试"><a href="#八、登录游戏测试" class="headerlink" title="八、登录游戏测试"></a>八、登录游戏测试</h2><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/k8s-hk4e10.png" alt="k8s-hk4e10"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/k8s-hk4e11.png" alt="k8s-hk4e11"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work">网笙久久</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work/2023/06/24/hk4e/">https://blog.wangshengjj.work/2023/06/24/hk4e/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.wangshengjj.work" target="_blank">WangShengJJのblog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/k8s/">k8s</a><a class="post-meta__tags" href="/tags/kubernetes/">kubernetes</a><a class="post-meta__tags" href="/tags/%E5%8E%9F%E7%A5%9E/">原神</a><a class="post-meta__tags" href="/tags/%E5%8E%9F%E7%A5%9E%E7%A7%81%E6%9C%8D/">原神私服</a><a class="post-meta__tags" href="/tags/hk4e/">hk4e</a><a class="post-meta__tags" href="/tags/%E5%8E%9F%E7%A5%9E%E7%9C%9F%E7%AB%AF/">原神真端</a></div><div class="post_share"><div class="social-share" data-image="https://www.dmoe.cc/random.php" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2023/06/22/156/" title="【Python学习笔记】集合和Bytes"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【Python学习笔记】集合和Bytes</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/06/09/138/" title="【容器应用系列教程】Kubernetes集群部署(Centos7)"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-09</div><div class="title">【容器应用系列教程】Kubernetes集群部署(Centos7)</div></div></a></div><div><a href="/2023/06/12/139/" title="【容器应用系列教程】Kubernetes的命名空间Namespace"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-12</div><div class="title">【容器应用系列教程】Kubernetes的命名空间Namespace</div></div></a></div><div><a href="/2023/06/12/140/" title="【容器应用系列教程】Kubernetes的Pod管理"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-12</div><div class="title">【容器应用系列教程】Kubernetes的Pod管理</div></div></a></div><div><a href="/2023/06/12/141/" title="【容器应用系列教程】kubernetes无状态负载deployment"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-12</div><div class="title">【容器应用系列教程】kubernetes无状态负载deployment</div></div></a></div><div><a href="/2023/06/13/142/" title="【容器应用系列教程】Kubernetes的Job管理"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-13</div><div class="title">【容器应用系列教程】Kubernetes的Job管理</div></div></a></div><div><a href="/2023/06/13/143/" title="【容器应用系列教程】Kubernetes服务管理Service"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-13</div><div class="title">【容器应用系列教程】Kubernetes服务管理Service</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">网笙久久</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">167</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">218</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">303</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wangshengjj"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wangshengjj" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:wangshengjj@wangshengjj.work" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.wangshengjj.work" target="_blank" title="Blog"><i class="fa fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到网笙久久的博客</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8EKubernetes%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BAhk4e%E5%8E%9F%E7%A5%9E%E7%9C%9F%E7%AB%AF%E6%95%99%E7%A8%8B"><span class="toc-number">1.</span> <span class="toc-text">基于Kubernetes环境搭建hk4e原神真端教程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E7%8E%AF%E5%A2%83%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.1.</span> <span class="toc-text">一、环境介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E9%83%A8%E7%BD%B2Kubernetes%E7%8E%AF%E5%A2%83"><span class="toc-number">1.2.</span> <span class="toc-text">二、部署Kubernetes环境</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%BF%AE%E6%94%B9Kube-apiserver%E7%9A%84%E7%AB%AF%E5%8F%A3%E8%8C%83%E5%9B%B4"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.修改Kube-apiserver的端口范围</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%83%A8%E7%BD%B2nginx-ingress%E6%8F%92%E4%BB%B6"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.部署nginx-ingress插件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%87%86%E5%A4%87yml%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.2.1.</span> <span class="toc-text">准备yml文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%87%86%E5%A4%87%E9%95%9C%E5%83%8F"><span class="toc-number">1.2.2.2.</span> <span class="toc-text">准备镜像</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9E%E5%88%B0master%E8%8A%82%E7%82%B9%EF%BC%8C%E9%83%A8%E7%BD%B2nginx-ingress"><span class="toc-number">1.2.2.3.</span> <span class="toc-text">回到master节点，部署nginx-ingress</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2%E5%AE%8C%EF%BC%8C%E5%8F%AF%E6%9F%A5%E7%9C%8B%E6%89%80%E6%9C%89Pod%E7%8A%B6%E6%80%81"><span class="toc-number">1.2.2.4.</span> <span class="toc-text">部署完，可查看所有Pod状态</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%87%86%E5%A4%87NFS%E7%BD%91%E7%BB%9C%E5%AD%98%E5%82%A8%E5%85%B1%E4%BA%AB"><span class="toc-number">1.3.</span> <span class="toc-text">三、准备NFS网络存储共享</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%87%86%E5%A4%87%E6%95%B0%E6%8D%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.3.1.</span> <span class="toc-text">1.准备数据文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%87%86%E5%A4%87%E6%90%AD%E5%BB%BA%E7%94%A8%E7%9A%84%E9%95%9C%E5%83%8F"><span class="toc-number">1.4.</span> <span class="toc-text">四、准备搭建用的镜像</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%AF%BC%E5%85%A5%E9%95%9C%E5%83%8F"><span class="toc-number">1.4.1.</span> <span class="toc-text">1.导入镜像</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%85%B3%E4%BA%8Ehk4e-sdkserver-ubuntu%E9%95%9C%E5%83%8F%E5%92%8Chk4e-gameserver-ubuntu%E9%95%9C%E5%83%8F-%E5%8F%AF%E9%80%89%E7%9A%84"><span class="toc-number">1.4.2.</span> <span class="toc-text">2.关于hk4e-sdkserver-ubuntu镜像和hk4e-gameserver-ubuntu镜像(可选的)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E9%83%A8%E7%BD%B2hk4e%E7%9C%9F%E7%AB%AF%E7%9A%84%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">1.5.</span> <span class="toc-text">五、部署hk4e真端的数据库</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%88%9B%E5%BB%BA%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4-%E9%87%8D%E8%A6%81"><span class="toc-number">1.5.1.</span> <span class="toc-text">1.创建命名空间(重要)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%83%A8%E7%BD%B2%E4%B8%BB%E4%BB%8EMySQL%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">1.5.2.</span> <span class="toc-text">2.部署主从MySQL数据库</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E5%87%86%E5%A4%87%E4%B8%BB%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84PV%E5%92%8CPVC"><span class="toc-number">1.5.2.1.</span> <span class="toc-text">A.准备主数据库的PV和PVC</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E5%87%86%E5%A4%87%E4%BB%8E%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84PV%E5%92%8CPVC"><span class="toc-number">1.5.2.2.</span> <span class="toc-text">B.准备从数据库的PV和PVC</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8BPV%E5%92%8CPVC"><span class="toc-number">1.5.2.2.1.</span> <span class="toc-text">查看PV和PVC</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#C-%E5%88%9B%E5%BB%BA%E4%B8%BB%E5%BA%93%E7%94%A8%E5%88%B0%E7%9A%84ConfigMap"><span class="toc-number">1.5.2.3.</span> <span class="toc-text">C.创建主库用到的ConfigMap</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#D-%E5%88%9B%E5%BB%BA%E4%BB%8E%E5%BA%93%E7%94%A8%E5%88%B0%E7%9A%84ConfigMap"><span class="toc-number">1.5.2.4.</span> <span class="toc-text">D.创建从库用到的ConfigMap</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E6%89%80%E6%9C%89ConfigMap"><span class="toc-number">1.5.2.4.1.</span> <span class="toc-text">查看所有ConfigMap</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#E-%E5%88%9B%E5%BB%BA%E4%B8%BB%E5%BA%93Pod"><span class="toc-number">1.5.2.5.</span> <span class="toc-text">E.创建主库Pod</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#F-%E5%88%9B%E5%BB%BA%E4%BB%8E%E5%BA%93Pod"><span class="toc-number">1.5.2.6.</span> <span class="toc-text">F.创建从库Pod</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E6%95%B0%E6%8D%AE%E5%BA%93Pod"><span class="toc-number">1.5.2.6.1.</span> <span class="toc-text">查看数据库Pod</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8BNFS%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E7%9A%84%E6%95%B0%E6%8D%AE%E7%9B%AE%E5%BD%95"><span class="toc-number">1.5.2.6.2.</span> <span class="toc-text">查看NFS服务器上的数据目录</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#G-%E8%BF%9B%E5%85%A5%E4%B8%BB%E5%BA%93%EF%BC%8C%E9%85%8D%E7%BD%AE%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E7%9A%84%E7%94%A8%E6%88%B7%E5%92%8Chk4e%E7%9A%84%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">1.5.2.7.</span> <span class="toc-text">G.进入主库，配置主从复制的用户和hk4e的数据库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#H-%E5%88%9B%E5%BB%BAhk4e%E7%94%A8%E5%88%B0%E7%9A%84%E5%BA%93%EF%BC%8C%E5%92%8C%E5%AF%BC%E5%85%A5%E6%95%B0%E6%8D%AE"><span class="toc-number">1.5.2.8.</span> <span class="toc-text">H.创建hk4e用到的库，和导入数据</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%85%88%E6%8A%8A%E7%94%A8%E5%88%B0%E7%9A%84%E6%95%B0%E6%8D%AE%E5%AF%BC%E5%85%A5%E5%88%B0NFS%E4%B8%8A"><span class="toc-number">1.5.2.8.1.</span> <span class="toc-text">先把用到的数据导入到NFS上</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%9B%9E%E5%88%B0%E5%AE%B9%E5%99%A8%E5%86%85%E9%83%A8%E6%89%A7%E8%A1%8C%E8%84%9A%E6%9C%AC%EF%BC%8C%E4%B8%80%E9%94%AE%E5%AF%BC%E5%85%A5%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">1.5.2.8.2.</span> <span class="toc-text">回到容器内部执行脚本，一键导入数据库</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#I-%E8%BF%9B%E5%85%A5%E4%BB%8E%E5%BA%93%EF%BC%8C%E9%85%8D%E7%BD%AE%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E7%8E%AF%E5%A2%83"><span class="toc-number">1.5.2.9.</span> <span class="toc-text">I.进入从库，配置主从复制环境</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E7%8A%B6%E6%80%81"><span class="toc-number">1.5.2.9.1.</span> <span class="toc-text">查看主从复制状态</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E9%83%A8%E7%BD%B2redis"><span class="toc-number">1.5.3.</span> <span class="toc-text">3.部署redis</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E5%88%9B%E5%BB%BAredis%E7%9A%84PV%E5%92%8CPVC"><span class="toc-number">1.5.3.1.</span> <span class="toc-text">A.创建redis的PV和PVC</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E9%83%A8%E7%BD%B2redis%E7%94%A8%E5%88%B0%E7%9A%84ConfigMap"><span class="toc-number">1.5.3.2.</span> <span class="toc-text">B.部署redis用到的ConfigMap</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#C-%E9%83%A8%E7%BD%B2Redis%E7%9A%84Pod"><span class="toc-number">1.5.3.3.</span> <span class="toc-text">C.部署Redis的Pod</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E9%83%A8%E7%BD%B2MongoDB"><span class="toc-number">1.5.4.</span> <span class="toc-text">4.部署MongoDB</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E5%87%86%E5%A4%87MongoDB%E7%9A%84PV%E5%92%8CPVC"><span class="toc-number">1.5.4.1.</span> <span class="toc-text">A.准备MongoDB的PV和PVC</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E5%88%9B%E5%BB%BAMongoDB%E7%9A%84Pod"><span class="toc-number">1.5.4.2.</span> <span class="toc-text">B.创建MongoDB的Pod</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E9%83%A8%E7%BD%B2hk4e%E7%9A%84sdkserver"><span class="toc-number">1.6.</span> <span class="toc-text">六、部署hk4e的sdkserver</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%87%86%E5%A4%87sdkserver%E7%9A%84PV%E5%92%8CPVC"><span class="toc-number">1.6.1.</span> <span class="toc-text">1.准备sdkserver的PV和PVC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E4%BF%AE%E6%94%B9sdk%E7%9A%84config-json"><span class="toc-number">1.6.2.</span> <span class="toc-text">2.修改sdk的config,json</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%88%9B%E5%BB%BAsdkserver%E7%9A%84pod"><span class="toc-number">1.6.3.</span> <span class="toc-text">3.创建sdkserver的pod</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%88%9B%E5%BB%BAIngress%E6%9C%8D%E5%8A%A1%EF%BC%8C%E5%8F%91%E5%B8%832888%E7%AB%AF%E5%8F%A3"><span class="toc-number">1.6.4.</span> <span class="toc-text">4.创建Ingress服务，发布2888端口</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8Bingress%E8%B7%91%E5%9C%A8%E5%93%AA%E5%8F%B0node%E8%8A%82%E7%82%B9%E4%B8%8A"><span class="toc-number">1.6.4.1.</span> <span class="toc-text">查看ingress跑在哪台node节点上</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9hosts%E6%96%87%E4%BB%B6-%E5%A6%82%E6%9E%9C%E5%85%AC%E7%BD%91%E6%9C%89%E5%9F%9F%E5%90%8D%EF%BC%8C%E4%B8%8D%E7%94%A8%E4%BF%AE%E6%94%B9"><span class="toc-number">1.6.4.2.</span> <span class="toc-text">修改hosts文件(如果公网有域名，不用修改)</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E9%83%A8%E7%BD%B2hk4e%E7%9A%84gameserver"><span class="toc-number">1.7.</span> <span class="toc-text">七、部署hk4e的gameserver</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%87%86%E5%A4%87gameserver%E7%9A%84PV%E5%92%8CPVC"><span class="toc-number">1.7.1.</span> <span class="toc-text">1.准备gameserver的PV和PVC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E4%BF%AE%E6%94%B9hk4e%E7%9A%84%E8%BF%90%E8%A1%8C%E5%9C%B0%E5%9D%80"><span class="toc-number">1.7.2.</span> <span class="toc-text">2.修改hk4e的运行地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E9%83%A8%E7%BD%B2gameserver%E7%9A%84pod"><span class="toc-number">1.7.3.</span> <span class="toc-text">3.部署gameserver的pod</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%9F%A5%E7%9C%8B%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.7.4.</span> <span class="toc-text">4.查看服务</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E7%99%BB%E5%BD%95%E6%B8%B8%E6%88%8F%E6%B5%8B%E8%AF%95"><span class="toc-number">1.8.</span> <span class="toc-text">八、登录游戏测试</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/06/24/hk4e/" title="基于Kubernetes环境搭建hk4e原神真端教程"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="基于Kubernetes环境搭建hk4e原神真端教程"/></a><div class="content"><a class="title" href="/2023/06/24/hk4e/" title="基于Kubernetes环境搭建hk4e原神真端教程">基于Kubernetes环境搭建hk4e原神真端教程</a><time datetime="2023-06-24T02:12:50.108Z" title="发表于 2023-06-24 10:12:50">2023-06-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/22/156/" title="【Python学习笔记】集合和Bytes"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】集合和Bytes"/></a><div class="content"><a class="title" href="/2023/06/22/156/" title="【Python学习笔记】集合和Bytes">【Python学习笔记】集合和Bytes</a><time datetime="2023-06-22T04:57:12.047Z" title="发表于 2023-06-22 12:57:12">2023-06-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/22/155/" title="【Python学习笔记】字典的管理操作"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】字典的管理操作"/></a><div class="content"><a class="title" href="/2023/06/22/155/" title="【Python学习笔记】字典的管理操作">【Python学习笔记】字典的管理操作</a><time datetime="2023-06-22T03:51:28.495Z" title="发表于 2023-06-22 11:51:28">2023-06-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/21/154/" title="【Python学习笔记】列表及元组"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】列表及元组"/></a><div class="content"><a class="title" href="/2023/06/21/154/" title="【Python学习笔记】列表及元组">【Python学习笔记】列表及元组</a><time datetime="2023-06-21T12:49:12.830Z" title="发表于 2023-06-21 20:49:12">2023-06-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/20/153/" title="【Python学习笔记】字符串管理操作"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】字符串管理操作"/></a><div class="content"><a class="title" href="/2023/06/20/153/" title="【Python学习笔记】字符串管理操作">【Python学习笔记】字符串管理操作</a><time datetime="2023-06-20T13:12:05.306Z" title="发表于 2023-06-20 21:12:05">2023-06-20</time></div></div></div></div></div></div></main><footer id="footer" style="background: flase"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By 网笙久久</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><div class="js-pjax"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js"></script><script>(() => {
+  document.querySelectorAll('#article-container span.katex-display').forEach(item => {
+    btf.wrap(item, 'div', { class: 'katex-wrap'})
+  })
+})()</script></div><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div><script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(n){n.imageLazyLoadSetting.processImages=i;var e=n.imageLazyLoadSetting.isSPA,r=(n.imageLazyLoadSetting.preloadRatio,Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));function i(){e&&(r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));for(var t,a=0;a<r.length;a++)0<=(t=(t=r[a]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(n.innerHeight+240||document.documentElement.clientHeight+240)&&function(){var t,e,n,i,o=r[a];t=o,e=function(){r=r.filter(function(t){return o!==t})},n=new Image,i=t.getAttribute("data-original"),n.onload=function(){t.src=i,e&&e()},t.src!==i&&(n.src=i)}()}i(),n.addEventListener("scroll",function(){var t,e;t=i,e=n,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(e)},500)})}(this);</script></body></html>

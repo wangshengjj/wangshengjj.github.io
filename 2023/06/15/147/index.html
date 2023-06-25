@@ -1,0 +1,913 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>【容器应用系列教程】Kubernetes部署WordPress博客 | WangShengJJのblog</title><meta name="author" content="网笙久久"><meta name="copyright" content="网笙久久"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="【容器应用系列教程】Kubernetes部署WordPress博客一、准备阶段   主机名 IP 安装的软件    k8s-master.linux.com 192.168.140.10 kubernetes、NFS   k8s-node01.linux.com 192.168.140.11 kubernetes、NFS   k8s-node02.linux.com 192.168.140.12">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【容器应用系列教程】Kubernetes部署WordPress博客">
+<meta property="og:url" content="https://blog.wangshengjj.work/2023/06/15/147/index.html">
+<meta property="og:site_name" content="WangShengJJのblog">
+<meta property="og:description" content="【容器应用系列教程】Kubernetes部署WordPress博客一、准备阶段   主机名 IP 安装的软件    k8s-master.linux.com 192.168.140.10 kubernetes、NFS   k8s-node01.linux.com 192.168.140.11 kubernetes、NFS   k8s-node02.linux.com 192.168.140.12">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://api.ghser.com/random/api.php">
+<meta property="article:published_time" content="2023-06-15T13:40:32.633Z">
+<meta property="article:modified_time" content="2023-06-22T07:05:24.737Z">
+<meta property="article:author" content="网笙久久">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="centos7">
+<meta property="article:tag" content="容器">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="kubernetes">
+<meta property="article:tag" content="容器编排工具">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://api.ghser.com/random/api.php"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://blog.wangshengjj.work/2023/06/15/147/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"prismjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【容器应用系列教程】Kubernetes部署WordPress博客',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-06-22 15:05:24'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><meting-js server="netease" type="playlist" id="7386208265" lrc-type="0" volume="0.5" fixed="true" mini="true" order="random" loop="all" autoplay="true" preload="auto" list-folded="true"></meting-js><script src="https://fastly.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/autoload.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script><meta name="generator" content="Hexo 6.1.0"></head><body><link rel="stylesheet" href="/css/barber-shop.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">167</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">218</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">303</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://api.ghser.com/random/api.php')"><nav id="nav"><span id="blog-info"><a href="/" title="WangShengJJのblog"><span class="site-name">WangShengJJのblog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【容器应用系列教程】Kubernetes部署WordPress博客</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-06-15T13:40:32.633Z" title="发表于 2023-06-15 21:40:32">2023-06-15</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-06-22T07:05:24.737Z" title="更新于 2023-06-22 15:05:24">2023-06-22</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/">k8s</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/%E7%AC%94%E8%AE%B0/">笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/%E7%AC%94%E8%AE%B0/wordpress/">wordpress</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/%E7%AC%94%E8%AE%B0/wordpress/%E9%9B%86%E7%BE%A4/">集群</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/%E7%AC%94%E8%AE%B0/wordpress/%E9%9B%86%E7%BE%A4/%E5%AE%B9%E5%99%A8/">容器</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/%E7%AC%94%E8%AE%B0/wordpress/%E9%9B%86%E7%BE%A4/%E5%AE%B9%E5%99%A8/%E5%BA%94%E7%94%A8/">应用</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/%E7%AC%94%E8%AE%B0/wordpress/%E9%9B%86%E7%BE%A4/%E5%AE%B9%E5%99%A8/%E5%BA%94%E7%94%A8/%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4/">命名空间</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/%E7%AC%94%E8%AE%B0/wordpress/%E9%9B%86%E7%BE%A4/%E5%AE%B9%E5%99%A8/%E5%BA%94%E7%94%A8/%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4/Pod/">Pod</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/%E7%AC%94%E8%AE%B0/wordpress/%E9%9B%86%E7%BE%A4/%E5%AE%B9%E5%99%A8/%E5%BA%94%E7%94%A8/%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4/Pod/%E6%9C%8D%E5%8A%A1/">服务</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/%E7%AC%94%E8%AE%B0/wordpress/%E9%9B%86%E7%BE%A4/%E5%AE%B9%E5%99%A8/%E5%BA%94%E7%94%A8/%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4/Pod/%E6%9C%8D%E5%8A%A1/%E6%95%B0%E6%8D%AE%E5%8D%B7/">数据卷</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/%E7%AC%94%E8%AE%B0/wordpress/%E9%9B%86%E7%BE%A4/%E5%AE%B9%E5%99%A8/%E5%BA%94%E7%94%A8/%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4/Pod/%E6%9C%8D%E5%8A%A1/%E6%95%B0%E6%8D%AE%E5%8D%B7/%E6%9C%89%E7%8A%B6%E6%80%81%E8%B4%9F%E8%BD%BD/">有状态负载</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/%E7%AC%94%E8%AE%B0/wordpress/%E9%9B%86%E7%BE%A4/%E5%AE%B9%E5%99%A8/%E5%BA%94%E7%94%A8/%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4/Pod/%E6%9C%8D%E5%8A%A1/%E6%95%B0%E6%8D%AE%E5%8D%B7/%E6%9C%89%E7%8A%B6%E6%80%81%E8%B4%9F%E8%BD%BD/ConfigMap/">ConfigMap</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">3.2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>17分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="【容器应用系列教程】Kubernetes部署WordPress博客"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="【容器应用系列教程】Kubernetes部署WordPress博客"><a href="#【容器应用系列教程】Kubernetes部署WordPress博客" class="headerlink" title="【容器应用系列教程】Kubernetes部署WordPress博客"></a>【容器应用系列教程】Kubernetes部署WordPress博客</h1><h2 id="一、准备阶段"><a href="#一、准备阶段" class="headerlink" title="一、准备阶段"></a>一、准备阶段</h2><table>
+<thead>
+<tr>
+<th>主机名</th>
+<th>IP</th>
+<th>安装的软件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>k8s-master.linux.com</td>
+<td>192.168.140.10</td>
+<td>kubernetes、NFS</td>
+</tr>
+<tr>
+<td>k8s-node01.linux.com</td>
+<td>192.168.140.11</td>
+<td>kubernetes、NFS</td>
+</tr>
+<tr>
+<td>k8s-node02.linux.com</td>
+<td>192.168.140.12</td>
+<td>kubernetes、NFS</td>
+</tr>
+<tr>
+<td>k8s-nfs.linux.com</td>
+<td>192.168.140.13</td>
+<td>NFS</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>关于<code>Kubernetes</code>集群部署教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/138">https://www.wsjj.top/archives/138</a></strong></p>
+</blockquote>
+<h2 id="二、配置NFS服务器"><a href="#二、配置NFS服务器" class="headerlink" title="二、配置NFS服务器"></a>二、配置<code>NFS</code>服务器</h2><blockquote>
+<p><strong>搭建过程省略</strong><br><strong>关于<code>NFS</code>搭建教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/62">https://www.wsjj.top/archives/62</a></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-nfs ~]# exportfs -arv
+exporting *:&#x2F;slave_db
+exporting *:&#x2F;master_db<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="所有k8s节点安装NFS依赖"><a href="#所有k8s节点安装NFS依赖" class="headerlink" title="所有k8s节点安装NFS依赖"></a>所有<code>k8s</code>节点安装<code>NFS</code>依赖</h3><blockquote>
+<p><strong>后面需要挂载<code>NFS</code>远程存储，需要用到依赖</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# yum install -y nfs-utils
+[root@k8s-node01 ~]# yum install -y nfs-utils
+[root@k8s-node02 ~]# yum install -y nfs-utils<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="三、创建命名空间"><a href="#三、创建命名空间" class="headerlink" title="三、创建命名空间"></a>三、创建命名空间</h2><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# mkdir wordpress
+[root@k8s-master ~]# cd wordpress&#x2F;
+[root@k8s-master wordpress]# vim wp-ns.yml
+
+apiVersion: v1
+kind: Namespace
+metadata:
+    name: wordpress<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl create -f wp-ns.yml
+
+[root@k8s-master wordpress]# kubectl get ns
+NAME              STATUS   AGE
+default           Active   6d4h
+kube-node-lease   Active   6d4h
+kube-public       Active   6d4h
+kube-system       Active   6d4h
+wordpress         Active   4h39m<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="四、创建PV和PVC"><a href="#四、创建PV和PVC" class="headerlink" title="四、创建PV和PVC"></a>四、创建<code>PV</code>和<code>PVC</code></h2><blockquote>
+<p><strong>关于<code>Kubernetes</code>创建<code>PV</code>和<code>PVC</code>的教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/144">https://www.wsjj.top/archives/144</a></strong></p>
+</blockquote>
+<h3 id="1-创建Master库用到的PV和PVC"><a href="#1-创建Master库用到的PV和PVC" class="headerlink" title="1.创建Master库用到的PV和PVC"></a>1.创建<code>Master</code>库用到的<code>PV</code>和<code>PVC</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# vim master-pv-pvc.yml
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+   name: master-db-pv
+   namespace: wordpress
+spec:
+  capacity:
+      storage: 9G
+  accessModes:
+       - ReadWriteMany
+  persistentVolumeReclaimPolicy: Recycle
+  nfs:
+      server: 192.168.140.13	#NFS服务器地址
+      path: &#x2F;master_db	#NFS共享的目录
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+     name: master-db-pvc
+     namespace: wordpress
+spec:
+     accessModes:
+        - ReadWriteMany
+     resources:
+        requests:
+            storage: 9G<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl create -f master-pv-pvc.yml 
+persistentvolume&#x2F;master-db-pv created
+persistentvolumeclaim&#x2F;master-db-pvc created
+
+[root@k8s-master wordpress]# kubectl get pvc -n wordpress
+NAME            STATUS   VOLUME         CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+master-db-pvc   Bound    master-db-pv   9G         RWX                           10s
+
+[root@k8s-master wordpress]# kubectl get pv -n wordpress
+NAME           CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                     STORAGECLASS   REASON   AGE
+master-db-pv   9G         RWX            Recycle          Bound    wordpress&#x2F;master-db-pvc                           75s<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="2-创建Slave库用到的PV和PVC"><a href="#2-创建Slave库用到的PV和PVC" class="headerlink" title="2.创建Slave库用到的PV和PVC"></a>2.创建<code>Slave</code>库用到的<code>PV</code>和<code>PVC</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# vim slave-pv-pvc.yml
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+   name: slave-db-pv
+   namespace: wordpress
+spec:
+  capacity:
+      storage: 10G
+  accessModes:
+       - ReadWriteMany
+  persistentVolumeReclaimPolicy: Recycle
+  nfs:
+      server: 192.168.140.13
+      path: &#x2F;slave_db
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+     name: slave-db-pvc
+     namespace: wordpress
+spec:
+     accessModes:
+        - ReadWriteMany
+     resources:
+        requests:
+            storage: 10G<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl create -f slave-pv-pvc.yml 
+persistentvolume&#x2F;slave-db-pv created
+persistentvolumeclaim&#x2F;slave-db-pvc created
+
+[root@k8s-master wordpress]# kubectl get pv -n wordpress
+NAME           CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                     STORAGECLASS   REASON   AGE
+master-db-pv   9G         RWX            Recycle          Bound    wordpress&#x2F;master-db-pvc                           5m37s
+slave-db-pv    10G        RWX            Recycle          Bound    wordpress&#x2F;slave-db-pvc                            9s
+
+[root@k8s-master wordpress]# kubectl get pvc -n wordpress
+NAME            STATUS   VOLUME         CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+master-db-pvc   Bound    master-db-pv   9G         RWX                           5m40s
+slave-db-pvc    Bound    salve-db-pv    10G        RWX                           12s<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="五、准备ConfigMap"><a href="#五、准备ConfigMap" class="headerlink" title="五、准备ConfigMap"></a>五、准备<code>ConfigMap</code></h2><blockquote>
+<p><strong>关于<code>Kubernetes</code>配置映射<code>ConfigMap</code>教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/146">https://www.wsjj.top/archives/146</a></strong></p>
+</blockquote>
+<h3 id="1-准备主库配置文件"><a href="#1-准备主库配置文件" class="headerlink" title="1.准备主库配置文件"></a>1.准备主库配置文件</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# vim master-db-config.yml
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: master-db-config
+    namespace: wordpress
+data:
+    my.cnf: |
+        [mysqld]
+        server_id&#x3D;10
+        log_bin&#x3D;master
+        gtid_mode&#x3D;on
+        enforce_gtid_consistency&#x3D;true
+        collation-server &#x3D; utf8_general_ci
+        character-set-server &#x3D; utf8<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl create -f master-db-config.yml 
+configmap&#x2F;master-db-config created
+
+[root@k8s-master wordpress]# kubectl get cm -n wordpress
+NAME               DATA   AGE
+kube-root-ca.crt   1      5h4m
+master-db-config   1      15s<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="2-准备从库配置文件"><a href="#2-准备从库配置文件" class="headerlink" title="2.准备从库配置文件"></a>2.准备从库配置文件</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# vim slave-db-config.yml
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: slave-db-config
+    namespace: wordpress
+data:
+    my.cnf: |
+        [mysqld]
+        server_id&#x3D;11
+        log_bin&#x3D;slave
+        gtid_mode&#x3D;on
+        enforce_gtid_consistency&#x3D;true
+        collation-server &#x3D; utf8_general_ci
+        character-set-server &#x3D; utf8<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl create -f slave-db-config.yml 
+configmap&#x2F;slave-db-config created
+[root@k8s-master wordpress]# kubectl get cm -n wordpress
+NAME               DATA   AGE
+kube-root-ca.crt   1      5h6m
+master-db-config   1      2m28s
+slave-db-config    1      9s<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="六、配置主从复制数据库"><a href="#六、配置主从复制数据库" class="headerlink" title="六、配置主从复制数据库"></a>六、配置主从复制数据库</h2><blockquote>
+<p><strong>关于<code>Kubernetes</code>有状态负载<code>StatefulSet</code>教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/145">https://www.wsjj.top/archives/145</a></strong></p>
+</blockquote>
+<h3 id="1-创建主库Pod和Service"><a href="#1-创建主库Pod和Service" class="headerlink" title="1.创建主库Pod和Service"></a>1.创建主库<code>Pod</code>和<code>Service</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# vim wp-master-mysql.yml
+
+apiVersion: apps&#x2F;v1
+kind: StatefulSet	#类型有状态负载
+metadata:
+    name: wp-master-mysql
+    namespace: wordpress
+spec:	#控制副本集
+    replicas: 1
+    selector:
+        matchLabels:
+            app: wp-master-mysql	#对应下面的自定义标签
+    serviceName: &quot;wp-master-mysql&quot;	#此处名字应该对应下面的service名字
+    template:
+        metadata:
+            labels:
+                app: wp-master-mysql	#我们自定义个标签(重要)
+        spec:	#控制Pod
+            containers:
+            - name: wp-master-mysql
+              image: mysql:5.7
+              imagePullPolicy: IfNotPresent
+              ports:
+              - containerPort: 3306
+              env:
+              - name: MYSQL_ROOT_PASSWORD
+                value: &quot;WWW.1.com&quot;
+              - name: MYSQL_DATABASE
+                value: &quot;wordpress&quot;
+              - name: MYSQL_USER
+                value: &quot;wpuser&quot;
+              - name: MYSQL_PASSWORD
+                value: &quot;redhat&quot;
+              resources:	#配置资源限制
+                requests:
+                  memory: &quot;1G&quot;
+                  cpu: &quot;1&quot;
+                limits:
+                  memory: &quot;2G&quot;
+                  cpu: &quot;2&quot;
+              volumeMounts:
+                  - name: mysql-data-volume
+                    mountPath: &#x2F;var&#x2F;lib&#x2F;mysql
+                  - name: mysql-config-volume
+                    mountPath: &#x2F;etc&#x2F;mysql&#x2F;conf.d
+                    readOnly: true
+            volumes:	#配置挂载
+                - name: mysql-data-volume
+                  persistentVolumeClaim:
+                    claimName: master-db-pvc	#指定数据目录持久挂载
+                - name: mysql-config-volume
+                  projected:
+                    sources:
+                    - configMap:
+                        name: master-db-config	#挂载自定义master配置文件
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: wp-master-mysql
+    namespace: wordpress
+spec:
+    ports:
+    - port: 3306
+    selector:
+      app: wp-master-mysql	#此处的标签应该对应上面创建的<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl create -f wp-master-mysql.yml 
+statefulset.apps&#x2F;wp-master-mysql created
+service&#x2F;wp-master-mysql created<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="查看Pod"><a href="#查看Pod" class="headerlink" title="查看Pod"></a>查看<code>Pod</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl get pods -n wordpress
+NAME                READY   STATUS    RESTARTS   AGE
+wp-master-mysql-0   1&#x2F;1     Running   0          3m47s<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="创建主从复制用到的用户"><a href="#创建主从复制用到的用户" class="headerlink" title="创建主从复制用到的用户"></a>创建主从复制用到的用户</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl exec -it wp-master-mysql-0 -n wordpress -- bash
+bash-4.2# mysql -uroot -pWWW.1.com
+mysql&gt; grant replication slave on *.* to &#39;repluser&#39;@&#39;%&#39; identified by &#39;WWW.1.com&#39;;
+Query OK, 0 rows affected, 1 warning (0.00 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="2-创建从库Pod和Service"><a href="#2-创建从库Pod和Service" class="headerlink" title="2.创建从库Pod和Service"></a>2.创建从库<code>Pod</code>和<code>Service</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# vim wp-slave-mysql.yml
+
+apiVersion: apps&#x2F;v1
+kind: StatefulSet
+metadata:
+    name: wp-slave-mysql
+    namespace: wordpress
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: wp-slave-mysql
+    serviceName: &quot;wp-slave-mysql&quot;
+    template:
+        metadata:
+            labels:
+                app: wp-slave-mysql
+        spec:
+            containers:
+            - name: wp-slave-mysql
+              image: mysql:5.7
+              imagePullPolicy: IfNotPresent
+              ports:
+              - containerPort: 3306
+              env:
+              - name: MYSQL_ROOT_PASSWORD
+                value: &quot;WWW.1.com&quot;
+              resources:
+                requests:
+                  memory: &quot;1G&quot;
+                  cpu: &quot;1&quot;
+                limits:
+                  memory: &quot;2G&quot;
+                  cpu: &quot;2&quot;
+              volumeMounts:
+                  - name: mysql-data-volume
+                    mountPath: &#x2F;var&#x2F;lib&#x2F;mysql
+                  - name: mysql-config-volume
+                    mountPath: &#x2F;etc&#x2F;mysql&#x2F;conf.d
+                    readOnly: true
+            volumes:
+                - name: mysql-data-volume
+                  persistentVolumeClaim:
+                    claimName: slave-db-pvc	#挂载从库持久数据
+                - name: mysql-config-volume
+                  projected:
+                    sources:
+                    - configMap:
+                        name: slave-db-config	#挂载从库配置文件
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: wp-slave-mysql
+    namespace: wordpress
+spec:
+    ports:
+    - port: 3306
+    selector:
+      app: wp-slave-mysql<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl create -f wp-slave-mysql.yml 
+statefulset.apps&#x2F;wp-slave-mysql created
+service&#x2F;wp-slave-mysql created<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl get pods -n wordpress
+NAME                READY   STATUS    RESTARTS   AGE
+wp-master-mysql-0   1&#x2F;1     Running   0          38m
+wp-slave-mysql-0    1&#x2F;1     Running   0          2m19s<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-配置主从复制"><a href="#3-配置主从复制" class="headerlink" title="3.配置主从复制"></a>3.配置主从复制</h3><blockquote>
+<p><strong>因为从库和主库都在同一个<code>wordpress</code>命名空间内，又因为<code>k8s</code>有<code>cronDNS</code>做<code>service</code>解析，所以填写服务名即可，如果不在同一个命名空间，可能需要填写全名。</strong><br><strong>更多关于<code>Service</code>和<code>服务名</code>的详情，请查看这期教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/143">【容器应用系列教程】Kubernetes服务管理Service</a></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl exec -it wp-slave-mysql-0 -n wordpress -- bash
+bash-4.2# mysql -uroot -pWWW.1.com
+
+mysql&gt; change master to
+    -&gt; master_host&#x3D;&quot;wp-master-mysql&quot;,	#数据库地址为master容器的服务名
+    -&gt; master_user&#x3D;&quot;repluser&quot;,
+    -&gt; master_password&#x3D;&quot;WWW.1.com&quot;,
+    -&gt; master_auto_position&#x3D;1;
+Query OK, 0 rows affected, 2 warnings (0.04 sec)
+
+mysql&gt; start slave;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql&gt; show slave status\G;
+*************************** 1. row ***************************
+               Slave_IO_State: Waiting for master to send event
+                  Master_Host: wp-master-mysql
+                  Master_User: repluser
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: master.000003
+          Read_Master_Log_Pos: 481
+               Relay_Log_File: wp-slave-mysql-0-relay-bin.000003
+                Relay_Log_Pos: 688
+        Relay_Master_Log_File: master.000003
+             Slave_IO_Running: Yes
+            Slave_SQL_Running: Yes<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="七、部署WordPress"><a href="#七、部署WordPress" class="headerlink" title="七、部署WordPress"></a>七、部署<code>WordPress</code></h2><h3 id="1-安装Ingress-nginx插件"><a href="#1-安装Ingress-nginx插件" class="headerlink" title="1.安装Ingress-nginx插件"></a>1.安装<code>Ingress-nginx</code>插件</h3><blockquote>
+<p><strong><code>Ingress-nginx</code>负责基于服务名发布服务</strong><br><strong>关于<code>Ingress-nginx</code>部署文件下载地址：<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1l9cF-AShYicLk1arwVboEw?pwd=jge3">https://pan.baidu.com/s/1l9cF-AShYicLk1arwVboEw?pwd=jge3</a></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl create -f ingress-nginx-deploy_v1.3.1.yaml
+
+namespace&#x2F;ingress-nginx created
+serviceaccount&#x2F;ingress-nginx created
+serviceaccount&#x2F;ingress-nginx-admission created
+role.rbac.authorization.k8s.io&#x2F;ingress-nginx created
+role.rbac.authorization.k8s.io&#x2F;ingress-nginx-admission created
+clusterrole.rbac.authorization.k8s.io&#x2F;ingress-nginx created
+clusterrole.rbac.authorization.k8s.io&#x2F;ingress-nginx-admission created
+rolebinding.rbac.authorization.k8s.io&#x2F;ingress-nginx created
+rolebinding.rbac.authorization.k8s.io&#x2F;ingress-nginx-admission created
+clusterrolebinding.rbac.authorization.k8s.io&#x2F;ingress-nginx created
+clusterrolebinding.rbac.authorization.k8s.io&#x2F;ingress-nginx-admission created
+configmap&#x2F;ingress-nginx-controller created
+service&#x2F;ingress-nginx-controller created
+service&#x2F;ingress-nginx-controller-admission created
+deployment.apps&#x2F;ingress-nginx-controller created
+job.batch&#x2F;ingress-nginx-admission-create created
+job.batch&#x2F;ingress-nginx-admission-patch created
+ingressclass.networking.k8s.io&#x2F;nginx created
+validatingwebhookconfiguration.admissionregistration.k8s.io&#x2F;ingress-nginx-admission created<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl get pods -n ingress-nginx
+NAME                                        READY   STATUS      RESTARTS   AGE
+ingress-nginx-admission-create-ct2hs        0&#x2F;1     Completed   0          68s
+ingress-nginx-admission-patch-dshpv         0&#x2F;1     Completed   0          68s
+ingress-nginx-controller-64ff7cd7cf-sm4sx   1&#x2F;1     Running     0          68s	#controller插件正常运行<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="2-配置NFS"><a href="#2-配置NFS" class="headerlink" title="2.配置NFS"></a>2.配置<code>NFS</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-nfs ~]# exportfs -arv
+exporting *:&#x2F;wordpress
+exporting *:&#x2F;slave_db
+exporting *:&#x2F;master_db<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-创建WordPress的Pod和Service"><a href="#3-创建WordPress的Pod和Service" class="headerlink" title="3.创建WordPress的Pod和Service"></a>3.创建<code>WordPress</code>的<code>Pod</code>和<code>Service</code></h3><blockquote>
+<p><strong>关于<code>Kubernetes</code>无状态负载<code>Deployment</code>教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/141">https://www.wsjj.top/archives/141</a></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# vim wordpress.yml
+
+apiVersion: apps&#x2F;v1
+kind: Deployment	#类型无状态负载
+metadata:
+    name: wordpress
+    namespace: wordpress
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: wordpress
+    strategy:	#滚动更新策略
+        type: RollingUpdate
+        rollingUpdate:
+            maxSurge: 1
+            maxUnavailable: 0
+    template:
+        metadata:
+            labels:
+                app: wordpress
+        spec:
+            containers:
+            - name: wordpress
+              image: wordpress
+              imagePullPolicy: IfNotPresent
+              ports:
+              - containerPort: 80
+              env:
+              - name: WORDPRESS_DB_HOST
+                value: &quot;wp-master-mysql&quot;	#数据库连接地址同样是服务名
+              - name: WORDPRESS_DB_USER
+                value: &quot;wpuser&quot;
+              - name: WORDPRESS_DB_PASSWORD
+                value: &quot;redhat&quot;
+              - name: WORDPRESS_DB_NAME
+                value: &quot;wordpress&quot;
+              - name: WORDPRESS_TABLE_PREFIX
+                value: &quot;wp_&quot;
+              resources:
+                requests:
+                  memory: &quot;1G&quot;
+                  cpu: &quot;1&quot;
+                limits:
+                  memory: &quot;2G&quot;
+                  cpu: &quot;2&quot;
+              volumeMounts:
+                - name: wordpress-data-volumes
+                  mountPath: &#x2F;var&#x2F;www&#x2F;html	#挂载到wordpress数据目录
+            volumes:
+              - name: wordpress-data-volumes
+                nfs:
+                  server: &quot;192.168.140.13&quot;	#挂载NFS共享目录
+                  path: &#x2F;wordpress
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: wordpress
+    namespace: wordpress
+spec:	#服务类型是ClusterIP
+    ports:
+    - port: 80
+    selector:
+      app: wordpress<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl create -f wordpress.yml 
+deployment.apps&#x2F;wordpress created
+service&#x2F;wordpress created<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl get pods -n wordpress
+NAME                         READY   STATUS    RESTARTS   AGE
+wordpress-7c79b77f77-j26nk   1&#x2F;1     Running   0          5m31s
+wp-master-mysql-0            1&#x2F;1     Running   0          64m
+wp-slave-mysql-0             1&#x2F;1     Running   0          28m<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-创建Ingress服务发布WordPress"><a href="#4-创建Ingress服务发布WordPress" class="headerlink" title="4.创建Ingress服务发布WordPress"></a>4.创建<code>Ingress</code>服务发布<code>WordPress</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# vim wp-ingress.yml
+
+apiVersion: extensions&#x2F;v1beta1
+kind: Ingress 
+metadata:
+  name: wp-ingress
+  namespace: wordpress
+  annotations:
+    kubernetes.io&#x2F;ingress.class: &quot;nginx&quot;
+spec:
+  rules: 
+  - host: wp.linux.com
+    http:
+      paths: 
+      - path:  
+        backend: 
+          serviceName: wordpress
+          servicePort: 80<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl create -f wp-ingress.yml
+
+Warning: extensions&#x2F;v1beta1 Ingress is deprecated in v1.14+, unavailable in v1.22+; use networking.k8s.io&#x2F;v1 Ingress
+ingress.extensions&#x2F;wp-ingress created<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="5-修改Windows上的hosts文件"><a href="#5-修改Windows上的hosts文件" class="headerlink" title="5.修改Windows上的hosts文件"></a>5.修改<code>Windows</code>上的<code>hosts</code>文件</h3><blockquote>
+<p><strong>路径：<code>C:\Windows\System32\drivers\etc\hosts</code></strong><br><strong>解析的<code>IP</code>地址，取决于您的<code>ingress</code>的<code>controller</code>跑在哪个物理机上，我这里跑在<code>node01</code>上</strong></p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes12.png" alt="kubernetes12"></p>
+<h3 id="6-测试访问"><a href="#6-测试访问" class="headerlink" title="6.测试访问"></a>6.测试访问</h3><blockquote>
+<p><strong>安装配置过程省略</strong></p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes13.png" alt="kubernetes13"></p>
+<blockquote>
+<p><strong>如果你跟到了这一步，那么恭喜你，最基本的<code>wordpress</code>已经部署好啦！</strong></p>
+</blockquote>
+<h2 id="八、部署Redis"><a href="#八、部署Redis" class="headerlink" title="八、部署Redis"></a>八、部署<code>Redis</code></h2><h3 id="1-配置NFS共享"><a href="#1-配置NFS共享" class="headerlink" title="1.配置NFS共享"></a>1.配置<code>NFS</code>共享</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-nfs ~]# exportfs -arv
+exporting *:&#x2F;wp_redis
+exporting *:&#x2F;wordpress
+exporting *:&#x2F;slave_db
+exporting *:&#x2F;master_db<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="2-创建redis用到的PV和PVC"><a href="#2-创建redis用到的PV和PVC" class="headerlink" title="2.创建redis用到的PV和PVC"></a>2.创建<code>redis</code>用到的<code>PV</code>和<code>PVC</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# vim redis-pv-pvc.yml
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+   name: redis-db-pv
+   namespace: wordpress
+spec:
+  capacity:
+      storage: 10G
+  accessModes:
+       - ReadWriteMany
+  persistentVolumeReclaimPolicy: Recycle
+  nfs:
+      server: 192.168.140.13
+      path: &#x2F;wp_redis
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+     name: redis-db-pvc
+     namespace: wordpress
+spec:
+     accessModes:
+        - ReadWriteMany
+     resources:
+        requests:
+            storage: 10G<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl create -f redis-pv-pvc.yml 
+persistentvolume&#x2F;redis-db-pv created
+persistentvolumeclaim&#x2F;redis-db-pvc created
+
+[root@k8s-master wordpress]# kubectl get pvc -n wordpress
+NAME            STATUS   VOLUME         CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+master-db-pvc   Bound    master-db-pv   9G         RWX                           165m
+redis-db-pvc    Bound    redis-db-pv    10G        RWX                           10s
+slave-db-pvc    Bound    slave-db-pv    10G        RWX                           86m
+
+[root@k8s-master wordpress]# kubectl get pv -n wordpress
+NAME           CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                     STORAGECLASS   REASON   AGE
+master-db-pv   9G         RWX            Recycle          Bound    wordpress&#x2F;master-db-pvc                           166m
+redis-db-pv    10G        RWX            Recycle          Bound    wordpress&#x2F;redis-db-pvc                            46s
+slave-db-pv    10G        RWX            Recycle          Bound    wordpress&#x2F;slave-db-pvc                            87m<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-创建Redis的ConfigMap"><a href="#3-创建Redis的ConfigMap" class="headerlink" title="3.创建Redis的ConfigMap"></a>3.创建<code>Redis</code>的<code>ConfigMap</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# vim redis-config.yml
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: redis-config
+    namespace: wordpress
+data:
+    redis.conf: |
+        dir &#x2F;srv
+        port 6379
+        bind 0.0.0.0
+        appendonly yes	#开启数据持久化
+        daemonize no
+        protected-mode no
+        pidfile &#x2F;srv&#x2F;redis-6379.pid<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl create -f redis-config.yml 
+configmap&#x2F;redis-config created
+
+[root@k8s-master wordpress]# kubectl get cm -n wordpress
+NAME               DATA   AGE
+kube-root-ca.crt   1      7h43m
+master-db-config   1      159m
+redis-config       1      17s
+slave-db-config    1      105m<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-创建Redis的Pod和Service"><a href="#4-创建Redis的Pod和Service" class="headerlink" title="4.创建Redis的Pod和Service"></a>4.创建Redis的<code>Pod</code>和<code>Service</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# vim wp-redis.yml
+
+apiVersion: apps&#x2F;v1
+kind: StatefulSet	#有状态负载
+metadata:
+  name: redis
+  namespace: wordpress
+  labels:
+    app: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  serviceName: &quot;redis&quot;
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:3.0.7
+        command:
+          - &quot;sh&quot;
+          - &quot;-c&quot;
+          - &quot;redis-server &#x2F;usr&#x2F;local&#x2F;redis&#x2F;redis.conf&quot;
+        ports:
+        - containerPort: 6379
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 1024Mi
+          requests:
+            cpu: 1000m
+            memory: 1024Mi
+        livenessProbe:
+          tcpSocket:
+            port: 6379
+          initialDelaySeconds: 300
+          timeoutSeconds: 1
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          tcpSocket:
+            port: 6379
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        volumeMounts:
+        - name: wp-redis-config
+          mountPath:  &#x2F;usr&#x2F;local&#x2F;redis&#x2F;redis.conf	#配置文件挂载到容器内
+          subPath: redis.conf
+        - name: wp-redis-data-volume
+          mountPath: &#x2F;srv	#配置文件里指定的数据目录
+      volumes:
+      - name: wp-redis-config
+        configMap:
+          name: redis-config	#挂载配置文件
+      - name: wp-redis-data-volume
+        persistentVolumeClaim:
+            claimName: redis-db-pvc	#挂载PVC
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: wordpress
+  labels:
+    app: redis
+spec:
+  ports:
+    - name: tcp
+      port: 6379
+  selector:
+    app: redis<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl create -f wp-redis.yml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="5-在WordPress插件库安装Redis插件"><a href="#5-在WordPress插件库安装Redis插件" class="headerlink" title="5.在WordPress插件库安装Redis插件"></a>5.在<code>WordPress</code>插件库安装<code>Redis</code>插件</h3><blockquote>
+<p><strong>下载完暂时不要启用插件！！！</strong></p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes14.png" alt="kubernetes14"></p>
+<h3 id="6-修改插件配置文件"><a href="#6-修改插件配置文件" class="headerlink" title="6.修改插件配置文件"></a>6.修改插件配置文件</h3><h4 id="A-编辑配置文件"><a href="#A-编辑配置文件" class="headerlink" title="A.编辑配置文件"></a>A.编辑配置文件</h4><blockquote>
+<p><strong>前往<code>NFS</code>服务器修改配置文件</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-nfs ~]# vim &#x2F;wordpress&#x2F;wp-config.php
+#在配置文件底部增加以下内容
+define(&#39;WP_REDIS_HOST&#39;, &#39;redis&#39;);	#这里的名字，对应redis中的service名字
+define(&#39;WP_REDIS_PORT&#39;, &#39;6379&#39;);
+define(&#39;WP_REDIS_DATABASE&#39;, &#39;0&#39;);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="B-修改插件的配置文件"><a href="#B-修改插件的配置文件" class="headerlink" title="B.修改插件的配置文件"></a>B.修改插件的配置文件</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-nfs ~]# vim &#x2F;wordpress&#x2F;wp-content&#x2F;plugins&#x2F;redis-cache&#x2F;includes&#x2F;object-cache.php
+
+protected function build_parameters() &#123;
+        $parameters &#x3D; [
+            &#39;scheme&#39; &#x3D;&gt; &#39;tcp&#39;,
+            &#39;host&#39; &#x3D;&gt; &#39;redis&#39;,	#修改redis连接地址为服务名
+            &#39;port&#39; &#x3D;&gt; 6379,
+            &#39;database&#39; &#x3D;&gt; 0,
+            &#39;timeout&#39; &#x3D;&gt; 1,
+            &#39;read_timeout&#39; &#x3D;&gt; 1,
+            &#39;retry_interval&#39; &#x3D;&gt; null,
+            &#39;persistent&#39; &#x3D;&gt; false,
+        ];<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="C-启动Reids插件测试"><a href="#C-启动Reids插件测试" class="headerlink" title="C.启动Reids插件测试"></a>C.启动<code>Reids</code>插件测试</h4><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes15.png" alt="kubernetes15"></p>
+<blockquote>
+<p><strong>如果您的<code>Redis</code>启动失败，请检查连接地址是否正确</strong><br><strong>优先检查<code>redis</code>和<code>wordpress</code>服务是否在同一个命名空间内，如果不是，请把连接地址改成完整名字！</strong><br><strong>完整名字参考：<code>redis.wordpress.svc.cluster.local</code> <code>服务名.命名空间名.svc.集群域名</code></strong></p>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work">网笙久久</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work/2023/06/15/147/">https://blog.wangshengjj.work/2023/06/15/147/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.wangshengjj.work" target="_blank">WangShengJJのblog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/wordpress/">wordpress</a><a class="post-meta__tags" href="/tags/centos7/">centos7</a><a class="post-meta__tags" href="/tags/%E5%AE%B9%E5%99%A8/">容器</a><a class="post-meta__tags" href="/tags/k8s/">k8s</a><a class="post-meta__tags" href="/tags/kubernetes/">kubernetes</a><a class="post-meta__tags" href="/tags/%E5%AE%B9%E5%99%A8%E7%BC%96%E6%8E%92%E5%B7%A5%E5%85%B7/">容器编排工具</a></div><div class="post_share"><div class="social-share" data-image="https://api.ghser.com/random/api.php" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/06/16/148/" title="【容器应用系列教程】Kubernetes调度系统"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【容器应用系列教程】Kubernetes调度系统</div></div></a></div><div class="next-post pull-right"><a href="/2023/06/15/146/" title="【容器应用系列教程】Kubernetes配置映射ConfigMap"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【容器应用系列教程】Kubernetes配置映射ConfigMap</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/06/14/144/" title="【容器应用系列教程】Kubernetes数据卷Volume管理"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-14</div><div class="title">【容器应用系列教程】Kubernetes数据卷Volume管理</div></div></a></div><div><a href="/2023/06/16/148/" title="【容器应用系列教程】Kubernetes调度系统"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-16</div><div class="title">【容器应用系列教程】Kubernetes调度系统</div></div></a></div><div><a href="/2023/06/16/149/" title="【容器监控系列教程】Prometheus普罗米修斯监控Kubernetes"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-16</div><div class="title">【容器监控系列教程】Prometheus普罗米修斯监控Kubernetes</div></div></a></div><div><a href="/2023/06/19/150/" title="【容器应用系列教程】Kubernetes插件helm包管理器"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-19</div><div class="title">【容器应用系列教程】Kubernetes插件helm包管理器</div></div></a></div><div><a href="/2023/06/09/138/" title="【容器应用系列教程】Kubernetes集群部署(Centos7)"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-09</div><div class="title">【容器应用系列教程】Kubernetes集群部署(Centos7)</div></div></a></div><div><a href="/2023/06/12/140/" title="【容器应用系列教程】Kubernetes的Pod管理"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-12</div><div class="title">【容器应用系列教程】Kubernetes的Pod管理</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">网笙久久</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">167</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">218</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">303</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wangshengjj"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wangshengjj" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:wangshengjj@wangshengjj.work" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.wangshengjj.work" target="_blank" title="Blog"><i class="fa fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到网笙久久的博客</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E3%80%90%E5%AE%B9%E5%99%A8%E5%BA%94%E7%94%A8%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%E3%80%91Kubernetes%E9%83%A8%E7%BD%B2WordPress%E5%8D%9A%E5%AE%A2"><span class="toc-number">1.</span> <span class="toc-text">【容器应用系列教程】Kubernetes部署WordPress博客</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%87%86%E5%A4%87%E9%98%B6%E6%AE%B5"><span class="toc-number">1.1.</span> <span class="toc-text">一、准备阶段</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E9%85%8D%E7%BD%AENFS%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">1.2.</span> <span class="toc-text">二、配置NFS服务器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%80%E6%9C%89k8s%E8%8A%82%E7%82%B9%E5%AE%89%E8%A3%85NFS%E4%BE%9D%E8%B5%96"><span class="toc-number">1.2.1.</span> <span class="toc-text">所有k8s节点安装NFS依赖</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%88%9B%E5%BB%BA%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4"><span class="toc-number">1.3.</span> <span class="toc-text">三、创建命名空间</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%88%9B%E5%BB%BAPV%E5%92%8CPVC"><span class="toc-number">1.4.</span> <span class="toc-text">四、创建PV和PVC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%88%9B%E5%BB%BAMaster%E5%BA%93%E7%94%A8%E5%88%B0%E7%9A%84PV%E5%92%8CPVC"><span class="toc-number">1.4.1.</span> <span class="toc-text">1.创建Master库用到的PV和PVC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%88%9B%E5%BB%BASlave%E5%BA%93%E7%94%A8%E5%88%B0%E7%9A%84PV%E5%92%8CPVC"><span class="toc-number">1.4.2.</span> <span class="toc-text">2.创建Slave库用到的PV和PVC</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%87%86%E5%A4%87ConfigMap"><span class="toc-number">1.5.</span> <span class="toc-text">五、准备ConfigMap</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%87%86%E5%A4%87%E4%B8%BB%E5%BA%93%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.5.1.</span> <span class="toc-text">1.准备主库配置文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%87%86%E5%A4%87%E4%BB%8E%E5%BA%93%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.5.2.</span> <span class="toc-text">2.准备从库配置文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E9%85%8D%E7%BD%AE%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">1.6.</span> <span class="toc-text">六、配置主从复制数据库</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%88%9B%E5%BB%BA%E4%B8%BB%E5%BA%93Pod%E5%92%8CService"><span class="toc-number">1.6.1.</span> <span class="toc-text">1.创建主库Pod和Service</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8BPod"><span class="toc-number">1.6.1.1.</span> <span class="toc-text">查看Pod</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E7%94%A8%E5%88%B0%E7%9A%84%E7%94%A8%E6%88%B7"><span class="toc-number">1.6.1.2.</span> <span class="toc-text">创建主从复制用到的用户</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%88%9B%E5%BB%BA%E4%BB%8E%E5%BA%93Pod%E5%92%8CService"><span class="toc-number">1.6.2.</span> <span class="toc-text">2.创建从库Pod和Service</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E9%85%8D%E7%BD%AE%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6"><span class="toc-number">1.6.3.</span> <span class="toc-text">3.配置主从复制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E9%83%A8%E7%BD%B2WordPress"><span class="toc-number">1.7.</span> <span class="toc-text">七、部署WordPress</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%AE%89%E8%A3%85Ingress-nginx%E6%8F%92%E4%BB%B6"><span class="toc-number">1.7.1.</span> <span class="toc-text">1.安装Ingress-nginx插件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%85%8D%E7%BD%AENFS"><span class="toc-number">1.7.2.</span> <span class="toc-text">2.配置NFS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%88%9B%E5%BB%BAWordPress%E7%9A%84Pod%E5%92%8CService"><span class="toc-number">1.7.3.</span> <span class="toc-text">3.创建WordPress的Pod和Service</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%88%9B%E5%BB%BAIngress%E6%9C%8D%E5%8A%A1%E5%8F%91%E5%B8%83WordPress"><span class="toc-number">1.7.4.</span> <span class="toc-text">4.创建Ingress服务发布WordPress</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E4%BF%AE%E6%94%B9Windows%E4%B8%8A%E7%9A%84hosts%E6%96%87%E4%BB%B6"><span class="toc-number">1.7.5.</span> <span class="toc-text">5.修改Windows上的hosts文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E6%B5%8B%E8%AF%95%E8%AE%BF%E9%97%AE"><span class="toc-number">1.7.6.</span> <span class="toc-text">6.测试访问</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E9%83%A8%E7%BD%B2Redis"><span class="toc-number">1.8.</span> <span class="toc-text">八、部署Redis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E9%85%8D%E7%BD%AENFS%E5%85%B1%E4%BA%AB"><span class="toc-number">1.8.1.</span> <span class="toc-text">1.配置NFS共享</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%88%9B%E5%BB%BAredis%E7%94%A8%E5%88%B0%E7%9A%84PV%E5%92%8CPVC"><span class="toc-number">1.8.2.</span> <span class="toc-text">2.创建redis用到的PV和PVC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%88%9B%E5%BB%BARedis%E7%9A%84ConfigMap"><span class="toc-number">1.8.3.</span> <span class="toc-text">3.创建Redis的ConfigMap</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%88%9B%E5%BB%BARedis%E7%9A%84Pod%E5%92%8CService"><span class="toc-number">1.8.4.</span> <span class="toc-text">4.创建Redis的Pod和Service</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%9C%A8WordPress%E6%8F%92%E4%BB%B6%E5%BA%93%E5%AE%89%E8%A3%85Redis%E6%8F%92%E4%BB%B6"><span class="toc-number">1.8.5.</span> <span class="toc-text">5.在WordPress插件库安装Redis插件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E4%BF%AE%E6%94%B9%E6%8F%92%E4%BB%B6%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.8.6.</span> <span class="toc-text">6.修改插件配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#A-%E7%BC%96%E8%BE%91%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.8.6.1.</span> <span class="toc-text">A.编辑配置文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-%E4%BF%AE%E6%94%B9%E6%8F%92%E4%BB%B6%E7%9A%84%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.8.6.2.</span> <span class="toc-text">B.修改插件的配置文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#C-%E5%90%AF%E5%8A%A8Reids%E6%8F%92%E4%BB%B6%E6%B5%8B%E8%AF%95"><span class="toc-number">1.8.6.3.</span> <span class="toc-text">C.启动Reids插件测试</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/06/24/hk4e/" title="基于Kubernetes环境搭建hk4e原神真端教程"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="基于Kubernetes环境搭建hk4e原神真端教程"/></a><div class="content"><a class="title" href="/2023/06/24/hk4e/" title="基于Kubernetes环境搭建hk4e原神真端教程">基于Kubernetes环境搭建hk4e原神真端教程</a><time datetime="2023-06-24T02:12:50.108Z" title="发表于 2023-06-24 10:12:50">2023-06-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/22/156/" title="【Python学习笔记】集合和Bytes"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】集合和Bytes"/></a><div class="content"><a class="title" href="/2023/06/22/156/" title="【Python学习笔记】集合和Bytes">【Python学习笔记】集合和Bytes</a><time datetime="2023-06-22T04:57:12.047Z" title="发表于 2023-06-22 12:57:12">2023-06-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/22/155/" title="【Python学习笔记】字典的管理操作"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】字典的管理操作"/></a><div class="content"><a class="title" href="/2023/06/22/155/" title="【Python学习笔记】字典的管理操作">【Python学习笔记】字典的管理操作</a><time datetime="2023-06-22T03:51:28.495Z" title="发表于 2023-06-22 11:51:28">2023-06-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/21/154/" title="【Python学习笔记】列表及元组"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】列表及元组"/></a><div class="content"><a class="title" href="/2023/06/21/154/" title="【Python学习笔记】列表及元组">【Python学习笔记】列表及元组</a><time datetime="2023-06-21T12:49:12.830Z" title="发表于 2023-06-21 20:49:12">2023-06-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/20/153/" title="【Python学习笔记】字符串管理操作"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】字符串管理操作"/></a><div class="content"><a class="title" href="/2023/06/20/153/" title="【Python学习笔记】字符串管理操作">【Python学习笔记】字符串管理操作</a><time datetime="2023-06-20T13:12:05.306Z" title="发表于 2023-06-20 21:12:05">2023-06-20</time></div></div></div></div></div></div></main><footer id="footer" style="background: flase"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By 网笙久久</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><div class="js-pjax"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js"></script><script>(() => {
+  document.querySelectorAll('#article-container span.katex-display').forEach(item => {
+    btf.wrap(item, 'div', { class: 'katex-wrap'})
+  })
+})()</script></div><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div><script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(n){n.imageLazyLoadSetting.processImages=i;var e=n.imageLazyLoadSetting.isSPA,r=(n.imageLazyLoadSetting.preloadRatio,Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));function i(){e&&(r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));for(var t,a=0;a<r.length;a++)0<=(t=(t=r[a]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(n.innerHeight+240||document.documentElement.clientHeight+240)&&function(){var t,e,n,i,o=r[a];t=o,e=function(){r=r.filter(function(t){return o!==t})},n=new Image,i=t.getAttribute("data-original"),n.onload=function(){t.src=i,e&&e()},t.src!==i&&(n.src=i)}()}i(),n.addEventListener("scroll",function(){var t,e;t=i,e=n,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(e)},500)})}(this);</script></body></html>

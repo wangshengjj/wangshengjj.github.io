@@ -1,0 +1,532 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>【容器应用系列教程】Kubernetes数据卷Volume管理 | WangShengJJのblog</title><meta name="author" content="网笙久久"><meta name="copyright" content="网笙久久"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="【容器应用系列教程】Kubernetes数据卷Volume管理一、关于Volume 用于实现数据的持久化存储  Kubernetes支持多种类型的卷，例如EmptyDir、HostPath、nfs、glusterfs、ceph等   关于NFS搭建教程：https:&#x2F;&#x2F;www.wsjj.top&#x2F;archives&#x2F;62关于glusterFS搭建教程：https:&#x2F;&#x2F;www.wsjj.top&#x2F;arch">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【容器应用系列教程】Kubernetes数据卷Volume管理">
+<meta property="og:url" content="https://blog.wangshengjj.work/2023/06/14/144/index.html">
+<meta property="og:site_name" content="WangShengJJのblog">
+<meta property="og:description" content="【容器应用系列教程】Kubernetes数据卷Volume管理一、关于Volume 用于实现数据的持久化存储  Kubernetes支持多种类型的卷，例如EmptyDir、HostPath、nfs、glusterfs、ceph等   关于NFS搭建教程：https:&#x2F;&#x2F;www.wsjj.top&#x2F;archives&#x2F;62关于glusterFS搭建教程：https:&#x2F;&#x2F;www.wsjj.top&#x2F;arch">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.dmoe.cc/random.php">
+<meta property="article:published_time" content="2023-06-14T06:47:12.282Z">
+<meta property="article:modified_time" content="2023-06-14T12:38:20.403Z">
+<meta property="article:author" content="网笙久久">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="centos7">
+<meta property="article:tag" content="容器">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="kubernetes">
+<meta property="article:tag" content="容器编排工具">
+<meta property="article:tag" content="volume">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.dmoe.cc/random.php"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://blog.wangshengjj.work/2023/06/14/144/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"prismjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【容器应用系列教程】Kubernetes数据卷Volume管理',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-06-14 20:38:20'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><meting-js server="netease" type="playlist" id="7386208265" lrc-type="0" volume="0.5" fixed="true" mini="true" order="random" loop="all" autoplay="true" preload="auto" list-folded="true"></meting-js><script src="https://fastly.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/autoload.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script><meta name="generator" content="Hexo 6.1.0"></head><body><link rel="stylesheet" href="/css/barber-shop.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">167</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">218</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">303</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://www.dmoe.cc/random.php')"><nav id="nav"><span id="blog-info"><a href="/" title="WangShengJJのblog"><span class="site-name">WangShengJJのblog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【容器应用系列教程】Kubernetes数据卷Volume管理</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-06-14T06:47:12.282Z" title="发表于 2023-06-14 14:47:12">2023-06-14</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-06-14T12:38:20.403Z" title="更新于 2023-06-14 20:38:20">2023-06-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/">k8s</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/%E7%AC%94%E8%AE%B0/">笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/%E7%AC%94%E8%AE%B0/%E5%AE%B9%E5%99%A8/">容器</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/%E7%AC%94%E8%AE%B0/%E5%AE%B9%E5%99%A8/%E6%95%B0%E6%8D%AE%E5%8D%B7/">数据卷</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">2.3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>10分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="【容器应用系列教程】Kubernetes数据卷Volume管理"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="【容器应用系列教程】Kubernetes数据卷Volume管理"><a href="#【容器应用系列教程】Kubernetes数据卷Volume管理" class="headerlink" title="【容器应用系列教程】Kubernetes数据卷Volume管理"></a>【容器应用系列教程】Kubernetes数据卷Volume管理</h1><h2 id="一、关于Volume"><a href="#一、关于Volume" class="headerlink" title="一、关于Volume"></a>一、关于<code>Volume</code></h2><ul>
+<li>用于实现数据的持久化存储 </li>
+<li><code>Kubernetes</code>支持多种类型的卷，例如<code>EmptyDir</code>、<code>HostPath</code>、<code>nfs</code>、<code>glusterfs</code>、<code>ceph</code>等</li>
+</ul>
+<blockquote>
+<p><strong>关于<code>NFS</code>搭建教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/62">https://www.wsjj.top/archives/62</a></strong><br><strong>关于<code>glusterFS</code>搭建教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/103">https://www.wsjj.top/archives/103</a></strong><br><strong>关于<code>ceph</code>搭建教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/105">https://www.wsjj.top/archives/105</a></strong></p>
+</blockquote>
+<h2 id="二、EmptyDir临时卷"><a href="#二、EmptyDir临时卷" class="headerlink" title="二、EmptyDir临时卷"></a>二、EmptyDir临时卷</h2><ul>
+<li>创建<code>Pod</code>时，<code>Pod</code>运行的<code>node</code>节点会创建临时卷，并将卷挂载到<code>Pod</code>指定的目录中</li>
+<li>临时卷存放目录<ul>
+<li><code>/var/lib/kubelet/pods/&lt;pod id&gt;/volumes/kubernetes.io~empty-dir/自定义的卷名称</code></li>
+</ul>
+</li>
+<li><code>Pod</code>宕机销毁后，该临时卷中的数据会随之被删除</li>
+</ul>
+<h3 id="1-创建基于EmptyDir临时卷的Pod"><a href="#1-创建基于EmptyDir临时卷的Pod" class="headerlink" title="1.创建基于EmptyDir临时卷的Pod"></a>1.创建基于<code>EmptyDir</code>临时卷的<code>Pod</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# vim vo-centos.yml
+
+apiVersion: apps&#x2F;v1
+kind: Deployment
+metadata:
+    name: test1
+    labels:
+        app: test1
+spec:
+    replicas: 1
+    selector:
+         matchLabels:
+             app: test1
+    template:
+       metadata:
+           labels:
+              app: test1
+       spec:
+           containers:
+           - name: test1
+             image: centos:7
+             imagePullPolicy: IfNotPresent
+             tty: true
+             volumeMounts:
+               - name: test1-volume	#要挂载到哪个数据卷上
+                 mountPath: &#x2F;data	#容器内部data目录
+           volumes:
+             - name: test1-volume	#创个数据卷名
+               emptyDir: &#123;&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl create -f vo-centos.yml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="测试读写数据"><a href="#测试读写数据" class="headerlink" title="测试读写数据"></a>测试读写数据</h4><blockquote>
+<p><strong>注意：创建<code>Pod</code>的时候没有指定命名空间，所以默认使用<code>default</code></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl get pods
+NAME                     READY   STATUS    RESTARTS   AGE
+test1-77fbb8dbbc-cnp52   1&#x2F;1     Running   0          3m36s
+
+[root@k8s-master wordpress]# kubectl exec -it test1-77fbb8dbbc-cnp52 -- bash
+[root@test1-77fbb8dbbc-cnp52 &#x2F;]# touch &#x2F;data&#x2F;&#123;1..10&#125;.mp3
+[root@test1-77fbb8dbbc-cnp52 &#x2F;]# ls &#x2F;data
+1.mp3  10.mp3  2.mp3  3.mp3  4.mp3  5.mp3  6.mp3  7.mp3  8.mp3  9.mp3<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="查看Pod跑在哪个机器上"><a href="#查看Pod跑在哪个机器上" class="headerlink" title="查看Pod跑在哪个机器上"></a>查看<code>Pod</code>跑在哪个机器上</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl get pods -o wide
+NAME                     READY   STATUS    RESTARTS   AGE     IP                NODE                   NOMINATED NODE   READINESS GATES
+test1-77fbb8dbbc-cnp52   1&#x2F;1     Running   0          5m58s   192.168.242.167   k8s-node02.linux.com   &lt;none&gt;           &lt;none&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="查看临时卷"><a href="#查看临时卷" class="headerlink" title="查看临时卷"></a>查看临时卷</h4><blockquote>
+<p><strong>前往<code>node02</code>操作</strong><br><strong>可以看到，这些是我们在容器内部创建的几个测试文件</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-node02 ~]# ls &#x2F;var&#x2F;lib&#x2F;kubelet&#x2F;pods&#x2F;0c1cbb4c-d6ce-4603-84c9-48c25c4aedc3&#x2F;volumes&#x2F;kubernetes.io~empty-dir&#x2F;test1-volume&#x2F;
+10.mp3  1.mp3  2.mp3  3.mp3  4.mp3  5.mp3  6.mp3  7.mp3  8.mp3  9.mp3<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="删除Pod"><a href="#删除Pod" class="headerlink" title="删除Pod"></a>删除<code>Pod</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl delete -f vo-centos.yml
+deployment.apps &quot;test1&quot; deleted<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h5 id="再次查看，发现数据自动被删掉了"><a href="#再次查看，发现数据自动被删掉了" class="headerlink" title="再次查看，发现数据自动被删掉了"></a>再次查看，发现数据自动被删掉了</h5><pre class="line-numbers language-none"><code class="language-none">[root@k8s-node02 ~]# ls &#x2F;var&#x2F;lib&#x2F;kubelet&#x2F;pods&#x2F;0c1cbb4c-d6ce-4603-84c9-48c25c4aedc3&#x2F;volumes&#x2F;kubernetes.io~empty-dir&#x2F;test1-volume&#x2F;
+ls: 无法访问&#x2F;var&#x2F;lib&#x2F;kubelet&#x2F;pods&#x2F;0c1cbb4c-d6ce-4603-84c9-48c25c4aedc3&#x2F;volumes&#x2F;kubernetes.io~empty-dir&#x2F;test1-volume&#x2F;: 没有那个文件或目录<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h2 id="三、hostPath永久卷"><a href="#三、hostPath永久卷" class="headerlink" title="三、hostPath永久卷"></a>三、hostPath永久卷</h2><ul>
+<li>创建<code>Pod</code>时，<code>Pod</code>运行的<code>node</code>节点会在本地创建目录，并该目录挂载到<code>Pod</code>中</li>
+<li><code>Pod</code>宕机后，宿主机对应目录中的文件不会消失</li>
+</ul>
+<h3 id="1-创建基于hostPath的Pod"><a href="#1-创建基于hostPath的Pod" class="headerlink" title="1.创建基于hostPath的Pod"></a>1.创建基于<code>hostPath</code>的<code>Pod</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# vim vo-centos.yml
+
+apiVersion: apps&#x2F;v1
+kind: Deployment
+metadata:
+    name: test2
+    labels:
+        app: test2
+spec:
+    replicas: 1
+    selector:
+         matchLabels:
+             app: test2
+    template:
+       metadata:
+           labels:
+              app: test2
+       spec:
+           containers:
+           - name: test2
+             image: centos:7
+             imagePullPolicy: IfNotPresent
+             tty: true
+             volumeMounts:
+               - name: test2-volume
+                 mountPath: &#x2F;data	#挂载到容器内&#x2F;data目录
+           volumes:
+             - name: test2-volume
+               hostPath:
+                 path: &#x2F;test2	#指定物理机上的&#x2F;test2为数据目录<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p><strong><code>kubernetes</code>有一点和<code>Docker</code>不同，当<code>Docker</code>想要通过<code>-v</code>永久挂载的话，物理机必须存在被挂载的目录，但是<code>kubernetes</code>会自动创建不存在的目录</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl create -f vo-centos.yml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="进入容器测试数据永久挂载"><a href="#进入容器测试数据永久挂载" class="headerlink" title="进入容器测试数据永久挂载"></a>进入容器测试数据永久挂载</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl exec -it test2-645897fbd8-67plx -- bash
+[root@test2-645897fbd8-67plx &#x2F;]# touch &#x2F;data&#x2F;&#123;1..20&#125;.jpg
+[root@test2-645897fbd8-67plx &#x2F;]# ls &#x2F;data
+1.jpg   12.jpg  15.jpg  18.jpg  20.jpg  5.jpg  8.jpg
+10.jpg  13.jpg  16.jpg  19.jpg  3.jpg   6.jpg  9.jpg
+11.jpg  14.jpg  17.jpg  2.jpg   4.jpg   7.jpg<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="查看Pod跑在哪个node节点上"><a href="#查看Pod跑在哪个node节点上" class="headerlink" title="查看Pod跑在哪个node节点上"></a>查看<code>Pod</code>跑在哪个<code>node</code>节点上</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl get pods -o wide
+NAME                     READY   STATUS    RESTARTS   AGE   IP                NODE                   NOMINATED NODE   READINESS GATES
+test2-645897fbd8-67plx   1&#x2F;1     Running   0          86s   192.168.242.168   k8s-node02.linux.com   &lt;none&gt;           &lt;none&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="查看node2节点上的test2目录"><a href="#查看node2节点上的test2目录" class="headerlink" title="查看node2节点上的test2目录"></a>查看<code>node2</code>节点上的<code>test2</code>目录</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-node02 ~]# ls &#x2F;test2
+10.jpg  12.jpg  14.jpg  16.jpg  18.jpg  1.jpg   2.jpg  4.jpg  6.jpg  8.jpg
+11.jpg  13.jpg  15.jpg  17.jpg  19.jpg  20.jpg  3.jpg  5.jpg  7.jpg  9.jpg<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h5 id="删除Pod测试"><a href="#删除Pod测试" class="headerlink" title="删除Pod测试"></a>删除<code>Pod</code>测试</h5><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl delete -f vo-centos.yml 
+deployment.apps &quot;test2&quot; deleted<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h5 id="可以看到Pod被删了，数据还在"><a href="#可以看到Pod被删了，数据还在" class="headerlink" title="可以看到Pod被删了，数据还在"></a>可以看到<code>Pod</code>被删了，数据还在</h5><pre class="line-numbers language-none"><code class="language-none">[root@k8s-node02 ~]# ls &#x2F;test2
+10.jpg  12.jpg  14.jpg  16.jpg  18.jpg  1.jpg   2.jpg  4.jpg  6.jpg  8.jpg
+11.jpg  13.jpg  15.jpg  17.jpg  19.jpg  20.jpg  3.jpg  5.jpg  7.jpg  9.jpg<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="四、基于NFS的网络卷"><a href="#四、基于NFS的网络卷" class="headerlink" title="四、基于NFS的网络卷"></a>四、基于NFS的网络卷</h2><h3 id="1-准备阶段"><a href="#1-准备阶段" class="headerlink" title="1.准备阶段"></a>1.准备阶段</h3><blockquote>
+<p><strong>新开一台虚拟机作为<code>NFS</code>服务器</strong><br><strong>所有<code>k8s-node</code>节点安装<code>NFS</code>依赖，负责让<code>node</code>节点可以识别<code>NFS</code>文件系统</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-node01 ~]# yum install -y nfs-utils
+[root@k8s-node02 ~]# yum install -y nfs-utils<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h3 id="2-配置NFS服务器"><a href="#2-配置NFS服务器" class="headerlink" title="2.配置NFS服务器"></a>2.配置<code>NFS</code>服务器</h3><blockquote>
+<p><strong>过程省略</strong><br><strong>关于<code>NFS</code>安装配置教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/62">https://www.wsjj.top/archives/62</a></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# vim vo-centos.yml
+
+apiVersion: apps&#x2F;v1
+kind: Deployment
+metadata:
+    name: test3
+    labels:
+        app: test3
+spec:
+    replicas: 1
+    selector:
+         matchLabels:
+             app: test3
+    template:
+       metadata:
+           labels:
+              app: test3
+       spec:
+           containers:
+           - name: test3
+             image: centos:7
+             imagePullPolicy: IfNotPresent
+             tty: true
+             volumeMounts:
+               - name: test3-volume	#挂载自定义卷
+                 mountPath: &#x2F;data	#挂载到容器&#x2F;data目录
+           volumes:
+             - name: test3-volume	#自定义卷名
+               nfs:
+                 server: &quot;192.168.140.13&quot;	#NFS服务器地址
+                 path: &#x2F;test3	#NFS共享的路径<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl create -f vo-centos.yml 
+deployment.apps&#x2F;test3 created<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="测试数据挂载"><a href="#测试数据挂载" class="headerlink" title="测试数据挂载"></a>测试数据挂载</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl exec -it test3-68c44c86b7-25dp2 -- bash
+[root@test3-68c44c86b7-25dp2 &#x2F;]# touch &#x2F;data&#x2F;&#123;1..5&#125;.iso
+[root@test3-68c44c86b7-25dp2 &#x2F;]# ls &#x2F;data
+1.iso  2.iso  3.iso  4.iso  5.iso<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="查看NFS服务器上的共享目录"><a href="#查看NFS服务器上的共享目录" class="headerlink" title="查看NFS服务器上的共享目录"></a>查看<code>NFS</code>服务器上的共享目录</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-nfs ~]# ls &#x2F;test3
+1.iso  2.iso  3.iso  4.iso  5.iso<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p><strong>可以看到，我们的数据被存到了远程<code>NFS</code>服务器身上</strong></p>
+</blockquote>
+<h2 id="五、PV与PVC持久卷"><a href="#五、PV与PVC持久卷" class="headerlink" title="五、PV与PVC持久卷"></a>五、PV与PVC持久卷</h2><h3 id="1-PV和PVC的介绍"><a href="#1-PV和PVC的介绍" class="headerlink" title="1.PV和PVC的介绍"></a>1.<code>PV</code>和<code>PVC</code>的介绍</h3><ul>
+<li><code>PV</code>全称<code>PersistentVolume</code><ul>
+<li>用于后端真实存储空间的映射</li>
+</ul>
+</li>
+<li><code>PVC</code>全称<code>PersistentVolumeClain</code><ul>
+<li><code>Pod</code>使用存储空间的申请</li>
+</ul>
+</li>
+<li>使用流程<ul>
+<li>创建<code>PV</code>标识真实的存储空间</li>
+<li>创建<code>PVC</code>发送申请存储空间的请求，<code>K8S</code>集群会自动在<code>PV</code>、<code>PVC</code>间建立映射关系 <ul>
+<li>建立映射关系：<ul>
+<li>依靠存储空间的大小 </li>
+<li>依靠<code>PV</code>的访问模式</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>创建<code>POD</code>时绑定<code>PVC</code>，实现持久化</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-准备NFS服务器"><a href="#2-准备NFS服务器" class="headerlink" title="2.准备NFS服务器"></a>2.准备<code>NFS</code>服务器</h3><blockquote>
+<p><strong>过程省略</strong><br><strong>关于<code>NFS</code>安装配置教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/62">https://www.wsjj.top/archives/62</a></strong></p>
+</blockquote>
+<h3 id="3-创建PV"><a href="#3-创建PV" class="headerlink" title="3.创建PV"></a>3.创建<code>PV</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# vim pv1.yml
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv1
+spec:
+  capacity:
+    storage: 1.9G	#卷大小
+  accessModes:	#指定访问模式
+    - ReadWriteMany	#可以被多个节点以读写模式挂载
+  persistentVolumeReclaimPolicy: Recycle	#自动回收策略
+  nfs:
+    server: 192.168.140.13	#远程NFS服务器地址
+    path: &#x2F;data1	#NFS共享的目录<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li><code>accessModes：</code>用于指定PV的访问模式，共有三种 <ul>
+<li><code>ReadWriteOnce</code>被单个节点以读写模式挂载</li>
+<li><code>ReadWriteMany</code>被多个节点以读写模式挂载 </li>
+<li><code>ReadOnlyMany</code>被多个节点以只读模式挂载</li>
+</ul>
+</li>
+<li><code>persistentVolumeReclaimPolicy: Recycle</code><ul>
+<li>指定回收模式是自动回收，当空间被释放时，K8S自动清理，然后可以继续被绑定使用</li>
+</ul>
+</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# vim pv2.yml
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv2
+spec:
+  capacity:
+    storage: 4G
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Recycle
+  nfs:
+    server: 192.168.140.13
+    path: &#x2F;data2<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl create -f pv1.yml 
+persistentvolume&#x2F;nfs-pv1 created
+[root@k8s-master wordpress]# kubectl create -f pv2.yml 
+persistentvolume&#x2F;nfs-pv2 created<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="查看PV"><a href="#查看PV" class="headerlink" title="查看PV"></a>查看<code>PV</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl get pv -n default
+NAME      CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS      CLAIM   STORAGECLASS   REASON   AGE
+nfs-pv1   1900M      RWX            Recycle          Available                                   6m55s
+nfs-pv2   4G         RWX            Recycle          Available                                   91s<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-创建PVC"><a href="#4-创建PVC" class="headerlink" title="4.创建PVC"></a>4.创建<code>PVC</code></h3><blockquote>
+<p><strong><code>PVC</code>会自动寻找和关联符合要求的<code>PV</code></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# vim pvc.yml
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: test-pvc
+spec:
+  accessModes:
+    - ReadWriteMany	#寻找符合多个节点以读写模式挂载条件的
+  resources:
+    requests:
+      storage: 4G	#寻找容量4G<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl create -f pvc.yml 
+persistentvolumeclaim&#x2F;test-pvc created<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="查看PVC"><a href="#查看PVC" class="headerlink" title="查看PVC"></a>查看<code>PVC</code></h4><blockquote>
+<p><strong>可以看到<code>STATUS</code>为<code>Bound</code>绑定状态，这就说明<code>PVC</code>已经找到符合条件的<code>PV</code>，并且自动绑定好了</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl get pvc -n default
+NAME       STATUS   VOLUME    CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+test-pvc   Bound    nfs-pv2   4G         RWX                           61s<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="再次查看PV"><a href="#再次查看PV" class="headerlink" title="再次查看PV"></a>再次查看<code>PV</code></h4><blockquote>
+<p><strong>可以看到<code>nfs-pv2</code>的状态变成的<code>Bound</code>绑定状态</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl get pv -n default
+NAME      CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS      CLAIM              STORAGECLASS   REASON   AGE
+nfs-pv1   1900M      RWX            Recycle          Available                                              35m
+nfs-pv2   4G         RWX            Recycle          Bound       default&#x2F;test-pvc                           29m<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="5-创建Pod绑定PVC"><a href="#5-创建Pod绑定PVC" class="headerlink" title="5.创建Pod绑定PVC"></a>5.创建<code>Pod</code>绑定<code>PVC</code></h3><pre class="line-numbers language-none"><code class="language-none">apiVersion: apps&#x2F;v1
+kind: Deployment
+metadata:
+    name: test4	#注意命名空间问题，我这里没有指定，使用默认的default，PV和PVC同样都在default命名空间内
+    labels:
+        app: test4
+spec:
+    replicas: 1
+    selector:
+         matchLabels:
+             app: test4
+    template:
+       metadata:
+           labels:
+              app: test4
+       spec:
+           containers:
+           - name: test4
+             image: centos:7
+             imagePullPolicy: IfNotPresent
+             tty: true
+             volumeMounts:
+               - name: test4-volume
+                 mountPath: &#x2F;data
+           volumes:
+             - name: test4-volume
+               persistentVolumeClaim:	#指定为PVC的方式
+                    claimName: test-pvc	#刚刚创建的PVC的名字<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl create -f vo-centos.yml 
+deployment.apps&#x2F;test4 created<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="进入容器测试数据"><a href="#进入容器测试数据" class="headerlink" title="进入容器测试数据"></a>进入容器测试数据</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master wordpress]# kubectl exec -it test4-75b7f4458d-swjcs -- bash
+[root@test4-75b7f4458d-swjcs &#x2F;]# touch &#x2F;data&#x2F;&#123;1..10&#125;.pdf
+[root@test4-75b7f4458d-swjcs &#x2F;]# touch &#x2F;data&#x2F;&#123;1..10&#125;.mp4
+[root@test4-75b7f4458d-swjcs &#x2F;]# ls &#x2F;data
+1.mp4  10.mp4  2.mp4  3.mp4  4.mp4  5.mp4  6.mp4  7.mp4  8.mp4  9.mp4
+1.pdf  10.pdf  2.pdf  3.pdf  4.pdf  5.pdf  6.pdf  7.pdf  8.pdf  9.pdf<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="查看NFS服务器上是否有数据"><a href="#查看NFS服务器上是否有数据" class="headerlink" title="查看NFS服务器上是否有数据"></a>查看<code>NFS</code>服务器上是否有数据</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-nfs ~]# ls &#x2F;data2
+10.mp4  1.mp4  2.mp4  3.mp4  4.mp4  5.mp4  6.mp4  7.mp4  8.mp4  9.mp4
+10.pdf  1.pdf  2.pdf  3.pdf  4.pdf  5.pdf  6.pdf  7.pdf  8.pdf  9.pdf<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work">网笙久久</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work/2023/06/14/144/">https://blog.wangshengjj.work/2023/06/14/144/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.wangshengjj.work" target="_blank">WangShengJJのblog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/linux/">linux</a><a class="post-meta__tags" href="/tags/centos7/">centos7</a><a class="post-meta__tags" href="/tags/%E5%AE%B9%E5%99%A8/">容器</a><a class="post-meta__tags" href="/tags/k8s/">k8s</a><a class="post-meta__tags" href="/tags/kubernetes/">kubernetes</a><a class="post-meta__tags" href="/tags/%E5%AE%B9%E5%99%A8%E7%BC%96%E6%8E%92%E5%B7%A5%E5%85%B7/">容器编排工具</a><a class="post-meta__tags" href="/tags/volume/">volume</a></div><div class="post_share"><div class="social-share" data-image="https://www.dmoe.cc/random.php" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/06/15/145/" title="【容器应用系列教程】Kubernetes有状态负载StatefulSet"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【容器应用系列教程】Kubernetes有状态负载StatefulSet</div></div></a></div><div class="next-post pull-right"><a href="/2023/06/13/143/" title="【容器应用系列教程】Kubernetes服务管理Service"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【容器应用系列教程】Kubernetes服务管理Service</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/06/12/141/" title="【容器应用系列教程】kubernetes无状态负载deployment"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-12</div><div class="title">【容器应用系列教程】kubernetes无状态负载deployment</div></div></a></div><div><a href="/2023/06/13/142/" title="【容器应用系列教程】Kubernetes的Job管理"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-13</div><div class="title">【容器应用系列教程】Kubernetes的Job管理</div></div></a></div><div><a href="/2023/06/13/143/" title="【容器应用系列教程】Kubernetes服务管理Service"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-13</div><div class="title">【容器应用系列教程】Kubernetes服务管理Service</div></div></a></div><div><a href="/2023/06/15/145/" title="【容器应用系列教程】Kubernetes有状态负载StatefulSet"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-15</div><div class="title">【容器应用系列教程】Kubernetes有状态负载StatefulSet</div></div></a></div><div><a href="/2023/06/15/147/" title="【容器应用系列教程】Kubernetes部署WordPress博客"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-15</div><div class="title">【容器应用系列教程】Kubernetes部署WordPress博客</div></div></a></div><div><a href="/2023/06/16/148/" title="【容器应用系列教程】Kubernetes调度系统"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-16</div><div class="title">【容器应用系列教程】Kubernetes调度系统</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">网笙久久</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">167</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">218</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">303</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wangshengjj"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wangshengjj" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:wangshengjj@wangshengjj.work" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.wangshengjj.work" target="_blank" title="Blog"><i class="fa fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到网笙久久的博客</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E3%80%90%E5%AE%B9%E5%99%A8%E5%BA%94%E7%94%A8%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%E3%80%91Kubernetes%E6%95%B0%E6%8D%AE%E5%8D%B7Volume%E7%AE%A1%E7%90%86"><span class="toc-number">1.</span> <span class="toc-text">【容器应用系列教程】Kubernetes数据卷Volume管理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%85%B3%E4%BA%8EVolume"><span class="toc-number">1.1.</span> <span class="toc-text">一、关于Volume</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81EmptyDir%E4%B8%B4%E6%97%B6%E5%8D%B7"><span class="toc-number">1.2.</span> <span class="toc-text">二、EmptyDir临时卷</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%88%9B%E5%BB%BA%E5%9F%BA%E4%BA%8EEmptyDir%E4%B8%B4%E6%97%B6%E5%8D%B7%E7%9A%84Pod"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.创建基于EmptyDir临时卷的Pod</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95%E8%AF%BB%E5%86%99%E6%95%B0%E6%8D%AE"><span class="toc-number">1.2.1.1.</span> <span class="toc-text">测试读写数据</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8BPod%E8%B7%91%E5%9C%A8%E5%93%AA%E4%B8%AA%E6%9C%BA%E5%99%A8%E4%B8%8A"><span class="toc-number">1.2.1.2.</span> <span class="toc-text">查看Pod跑在哪个机器上</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E4%B8%B4%E6%97%B6%E5%8D%B7"><span class="toc-number">1.2.1.3.</span> <span class="toc-text">查看临时卷</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A0%E9%99%A4Pod"><span class="toc-number">1.2.1.4.</span> <span class="toc-text">删除Pod</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%86%8D%E6%AC%A1%E6%9F%A5%E7%9C%8B%EF%BC%8C%E5%8F%91%E7%8E%B0%E6%95%B0%E6%8D%AE%E8%87%AA%E5%8A%A8%E8%A2%AB%E5%88%A0%E6%8E%89%E4%BA%86"><span class="toc-number">1.2.1.4.1.</span> <span class="toc-text">再次查看，发现数据自动被删掉了</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81hostPath%E6%B0%B8%E4%B9%85%E5%8D%B7"><span class="toc-number">1.3.</span> <span class="toc-text">三、hostPath永久卷</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%88%9B%E5%BB%BA%E5%9F%BA%E4%BA%8EhostPath%E7%9A%84Pod"><span class="toc-number">1.3.1.</span> <span class="toc-text">1.创建基于hostPath的Pod</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%9B%E5%85%A5%E5%AE%B9%E5%99%A8%E6%B5%8B%E8%AF%95%E6%95%B0%E6%8D%AE%E6%B0%B8%E4%B9%85%E6%8C%82%E8%BD%BD"><span class="toc-number">1.3.1.1.</span> <span class="toc-text">进入容器测试数据永久挂载</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8BPod%E8%B7%91%E5%9C%A8%E5%93%AA%E4%B8%AAnode%E8%8A%82%E7%82%B9%E4%B8%8A"><span class="toc-number">1.3.1.2.</span> <span class="toc-text">查看Pod跑在哪个node节点上</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8Bnode2%E8%8A%82%E7%82%B9%E4%B8%8A%E7%9A%84test2%E7%9B%AE%E5%BD%95"><span class="toc-number">1.3.1.3.</span> <span class="toc-text">查看node2节点上的test2目录</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%88%A0%E9%99%A4Pod%E6%B5%8B%E8%AF%95"><span class="toc-number">1.3.1.3.1.</span> <span class="toc-text">删除Pod测试</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8F%AF%E4%BB%A5%E7%9C%8B%E5%88%B0Pod%E8%A2%AB%E5%88%A0%E4%BA%86%EF%BC%8C%E6%95%B0%E6%8D%AE%E8%BF%98%E5%9C%A8"><span class="toc-number">1.3.1.3.2.</span> <span class="toc-text">可以看到Pod被删了，数据还在</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%9F%BA%E4%BA%8ENFS%E7%9A%84%E7%BD%91%E7%BB%9C%E5%8D%B7"><span class="toc-number">1.4.</span> <span class="toc-text">四、基于NFS的网络卷</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%87%86%E5%A4%87%E9%98%B6%E6%AE%B5"><span class="toc-number">1.4.1.</span> <span class="toc-text">1.准备阶段</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%85%8D%E7%BD%AENFS%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">1.4.2.</span> <span class="toc-text">2.配置NFS服务器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95%E6%95%B0%E6%8D%AE%E6%8C%82%E8%BD%BD"><span class="toc-number">1.4.2.1.</span> <span class="toc-text">测试数据挂载</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8BNFS%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E7%9A%84%E5%85%B1%E4%BA%AB%E7%9B%AE%E5%BD%95"><span class="toc-number">1.4.2.2.</span> <span class="toc-text">查看NFS服务器上的共享目录</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81PV%E4%B8%8EPVC%E6%8C%81%E4%B9%85%E5%8D%B7"><span class="toc-number">1.5.</span> <span class="toc-text">五、PV与PVC持久卷</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-PV%E5%92%8CPVC%E7%9A%84%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.5.1.</span> <span class="toc-text">1.PV和PVC的介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%87%86%E5%A4%87NFS%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">1.5.2.</span> <span class="toc-text">2.准备NFS服务器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%88%9B%E5%BB%BAPV"><span class="toc-number">1.5.3.</span> <span class="toc-text">3.创建PV</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8BPV"><span class="toc-number">1.5.3.1.</span> <span class="toc-text">查看PV</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%88%9B%E5%BB%BAPVC"><span class="toc-number">1.5.4.</span> <span class="toc-text">4.创建PVC</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8BPVC"><span class="toc-number">1.5.4.1.</span> <span class="toc-text">查看PVC</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%86%8D%E6%AC%A1%E6%9F%A5%E7%9C%8BPV"><span class="toc-number">1.5.4.2.</span> <span class="toc-text">再次查看PV</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%88%9B%E5%BB%BAPod%E7%BB%91%E5%AE%9APVC"><span class="toc-number">1.5.5.</span> <span class="toc-text">5.创建Pod绑定PVC</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%9B%E5%85%A5%E5%AE%B9%E5%99%A8%E6%B5%8B%E8%AF%95%E6%95%B0%E6%8D%AE"><span class="toc-number">1.5.5.1.</span> <span class="toc-text">进入容器测试数据</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8BNFS%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E6%98%AF%E5%90%A6%E6%9C%89%E6%95%B0%E6%8D%AE"><span class="toc-number">1.5.5.2.</span> <span class="toc-text">查看NFS服务器上是否有数据</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/06/24/hk4e/" title="基于Kubernetes环境搭建hk4e原神真端教程"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="基于Kubernetes环境搭建hk4e原神真端教程"/></a><div class="content"><a class="title" href="/2023/06/24/hk4e/" title="基于Kubernetes环境搭建hk4e原神真端教程">基于Kubernetes环境搭建hk4e原神真端教程</a><time datetime="2023-06-24T02:12:50.108Z" title="发表于 2023-06-24 10:12:50">2023-06-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/22/156/" title="【Python学习笔记】集合和Bytes"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】集合和Bytes"/></a><div class="content"><a class="title" href="/2023/06/22/156/" title="【Python学习笔记】集合和Bytes">【Python学习笔记】集合和Bytes</a><time datetime="2023-06-22T04:57:12.047Z" title="发表于 2023-06-22 12:57:12">2023-06-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/22/155/" title="【Python学习笔记】字典的管理操作"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】字典的管理操作"/></a><div class="content"><a class="title" href="/2023/06/22/155/" title="【Python学习笔记】字典的管理操作">【Python学习笔记】字典的管理操作</a><time datetime="2023-06-22T03:51:28.495Z" title="发表于 2023-06-22 11:51:28">2023-06-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/21/154/" title="【Python学习笔记】列表及元组"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】列表及元组"/></a><div class="content"><a class="title" href="/2023/06/21/154/" title="【Python学习笔记】列表及元组">【Python学习笔记】列表及元组</a><time datetime="2023-06-21T12:49:12.830Z" title="发表于 2023-06-21 20:49:12">2023-06-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/20/153/" title="【Python学习笔记】字符串管理操作"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】字符串管理操作"/></a><div class="content"><a class="title" href="/2023/06/20/153/" title="【Python学习笔记】字符串管理操作">【Python学习笔记】字符串管理操作</a><time datetime="2023-06-20T13:12:05.306Z" title="发表于 2023-06-20 21:12:05">2023-06-20</time></div></div></div></div></div></div></main><footer id="footer" style="background: flase"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By 网笙久久</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><div class="js-pjax"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js"></script><script>(() => {
+  document.querySelectorAll('#article-container span.katex-display').forEach(item => {
+    btf.wrap(item, 'div', { class: 'katex-wrap'})
+  })
+})()</script></div><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div><script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(n){n.imageLazyLoadSetting.processImages=i;var e=n.imageLazyLoadSetting.isSPA,r=(n.imageLazyLoadSetting.preloadRatio,Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));function i(){e&&(r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));for(var t,a=0;a<r.length;a++)0<=(t=(t=r[a]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(n.innerHeight+240||document.documentElement.clientHeight+240)&&function(){var t,e,n,i,o=r[a];t=o,e=function(){r=r.filter(function(t){return o!==t})},n=new Image,i=t.getAttribute("data-original"),n.onload=function(){t.src=i,e&&e()},t.src!==i&&(n.src=i)}()}i(),n.addEventListener("scroll",function(){var t,e;t=i,e=n,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(e)},500)})}(this);</script></body></html>

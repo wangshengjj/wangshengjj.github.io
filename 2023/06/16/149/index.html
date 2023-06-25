@@ -1,0 +1,898 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>【容器监控系列教程】Prometheus普罗米修斯监控Kubernetes | WangShengJJのblog</title><meta name="author" content="网笙久久"><meta name="copyright" content="网笙久久"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="【容器监控系列教程】Prometheus普罗米修斯监控Kubernetes 本教程涉及到的所有文件下载地址：https:&#x2F;&#x2F;pan.baidu.com&#x2F;s&#x2F;1IOk6PMEleZY5O_hNg9agxw?pwd&#x3D;hng7关于文件中提供的tar包，是教程用到的image镜像文件，我已经打包好了，可以使用docker load把镜像快速上传到node节点上。更多关于Docker镜像操作教程：https">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【容器监控系列教程】Prometheus普罗米修斯监控Kubernetes">
+<meta property="og:url" content="https://blog.wangshengjj.work/2023/06/16/149/index.html">
+<meta property="og:site_name" content="WangShengJJのblog">
+<meta property="og:description" content="【容器监控系列教程】Prometheus普罗米修斯监控Kubernetes 本教程涉及到的所有文件下载地址：https:&#x2F;&#x2F;pan.baidu.com&#x2F;s&#x2F;1IOk6PMEleZY5O_hNg9agxw?pwd&#x3D;hng7关于文件中提供的tar包，是教程用到的image镜像文件，我已经打包好了，可以使用docker load把镜像快速上传到node节点上。更多关于Docker镜像操作教程：https">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.dmoe.cc/random.php">
+<meta property="article:published_time" content="2023-06-16T04:50:57.985Z">
+<meta property="article:modified_time" content="2023-06-16T11:42:50.390Z">
+<meta property="article:author" content="网笙久久">
+<meta property="article:tag" content="centos7">
+<meta property="article:tag" content="容器">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="kubernetes">
+<meta property="article:tag" content="容器编排工具">
+<meta property="article:tag" content="prometheus">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.dmoe.cc/random.php"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://blog.wangshengjj.work/2023/06/16/149/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"prismjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【容器监控系列教程】Prometheus普罗米修斯监控Kubernetes',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-06-16 19:42:50'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><meting-js server="netease" type="playlist" id="7386208265" lrc-type="0" volume="0.5" fixed="true" mini="true" order="random" loop="all" autoplay="true" preload="auto" list-folded="true"></meting-js><script src="https://fastly.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/autoload.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script><meta name="generator" content="Hexo 6.1.0"></head><body><link rel="stylesheet" href="/css/barber-shop.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">167</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">218</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">303</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://www.dmoe.cc/random.php')"><nav id="nav"><span id="blog-info"><a href="/" title="WangShengJJのblog"><span class="site-name">WangShengJJのblog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【容器监控系列教程】Prometheus普罗米修斯监控Kubernetes</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-06-16T04:50:57.985Z" title="发表于 2023-06-16 12:50:57">2023-06-16</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-06-16T11:42:50.390Z" title="更新于 2023-06-16 19:42:50">2023-06-16</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/">k8s</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/%E7%AC%94%E8%AE%B0/">笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/%E7%AC%94%E8%AE%B0/%E5%AE%B9%E5%99%A8/">容器</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/%E7%AC%94%E8%AE%B0/%E5%AE%B9%E5%99%A8/%E5%AE%B9%E5%99%A8%E7%9B%91%E6%8E%A7/">容器监控</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">3.7k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>19分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="【容器监控系列教程】Prometheus普罗米修斯监控Kubernetes"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="【容器监控系列教程】Prometheus普罗米修斯监控Kubernetes"><a href="#【容器监控系列教程】Prometheus普罗米修斯监控Kubernetes" class="headerlink" title="【容器监控系列教程】Prometheus普罗米修斯监控Kubernetes"></a>【容器监控系列教程】Prometheus普罗米修斯监控Kubernetes</h1><blockquote>
+<p><strong>本教程涉及到的所有文件下载地址：<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1IOk6PMEleZY5O_hNg9agxw?pwd=hng7">https://pan.baidu.com/s/1IOk6PMEleZY5O_hNg9agxw?pwd=hng7</a></strong><br><strong>关于文件中提供的<code>tar</code>包，是教程用到的<code>image</code>镜像文件，我已经打包好了，可以使用<code>docker load</code>把镜像快速上传到<code>node</code>节点上。</strong><br><strong>更多关于<code>Docker</code>镜像操作教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/134">https://www.wsjj.top/archives/134</a></strong></p>
+</blockquote>
+<h2 id="一、Prometheus普罗米修斯的介绍"><a href="#一、Prometheus普罗米修斯的介绍" class="headerlink" title="一、Prometheus普罗米修斯的介绍"></a>一、<code>Prometheus</code>普罗米修斯的介绍</h2><ul>
+<li><code>prometheus</code>是由谷歌研发的一款开源的监控软件，它通过安装在远程机器上的<code>exporter</code>，通过<code>HTTP</code>协议从远程的机器收集数据并存储在本地的时序数据库上</li>
+<li>同时<code>Prometheus</code>后端用<code>golang</code>语言开发，前端是<code>Grafana</code></li>
+<li><code>Prometheus</code>为了支持各种中间件以及第三方的监控提供了<code>exporter</code>，大家可以把它理解成监控适配器，将不同指标类型和格式的数据统一转化为<code>Prometheus</code>能够识别的指标类型。</li>
+<li>例如<code>Node exporter</code>主要通过读取<code>Linux</code>的<code>/proc</code>以及<code>/sys</code>目录下的系统文件获取操作系统运行状态，<code>reids exporter</code>通过<code>Reids</code>命令行获取指标，<code>mysql exporter</code>通过读取数据库监控表获取<code>MySQL</code>的性能数据。他们将这些异构的数据转化为标准的<code>Prometheus</code>格式，并提供<code>HTTP</code>查询接口。</li>
+</ul>
+<h2 id="二、部署Prometheus服务端"><a href="#二、部署Prometheus服务端" class="headerlink" title="二、部署Prometheus服务端"></a>二、部署<code>Prometheus</code>服务端</h2><h3 id="1-使用ConfigMap存储Prometheus配置文件"><a href="#1-使用ConfigMap存储Prometheus配置文件" class="headerlink" title="1.使用ConfigMap存储Prometheus配置文件"></a>1.使用<code>ConfigMap</code>存储<code>Prometheus</code>配置文件</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# vim prometheus-config.yaml
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: prometheus
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval:     15s
+      evaluation_interval: 15s
+    scrape_configs:
+      - job_name: &#39;prometheus&#39;
+        static_configs:
+        - targets: [&#39;localhost:9090&#39;]<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl create -f prometheus-config.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="2-部署Prometheus服务端"><a href="#2-部署Prometheus服务端" class="headerlink" title="2.部署Prometheus服务端"></a>2.部署<code>Prometheus</code>服务端</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# vim prometheus-deploy.yaml
+
+apiVersion: v1
+kind: &quot;Service&quot;
+metadata:
+  name: prometheus
+  namespace: prometheus
+  labels:
+    name: prometheus
+spec:
+  ports:
+  - name: prometheus
+    protocol: TCP
+    port: 9090
+    targetPort: 9090
+  selector:
+    app: prometheus
+  type: NodePort
+---
+apiVersion: apps&#x2F;v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: prometheus
+  labels:
+    name: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+      - name: prometheus
+        image: prom&#x2F;prometheus:v2.37.8
+        imagePullPolicy: IfNotPresent
+        command:
+        - &quot;&#x2F;bin&#x2F;prometheus&quot;
+        args:
+        - &quot;--config.file&#x3D;&#x2F;etc&#x2F;prometheus&#x2F;prometheus.yml&quot;
+        ports:
+        - containerPort: 9090
+          protocol: TCP
+        volumeMounts:
+        - mountPath: &quot;&#x2F;etc&#x2F;prometheus&quot;
+          name: prometheus-config
+      volumes:
+      - name: prometheus-config
+        configMap:
+          name: prometheus-config<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl create -f prometheus-deploy.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="查看服务和端口"><a href="#查看服务和端口" class="headerlink" title="查看服务和端口"></a>查看服务和端口</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl get svc -n prometheus
+NAME         TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+prometheus   NodePort   172.16.40.197   &lt;none&gt;        9090:30678&#x2F;TCP   3h16m<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl get pod -n prometheus -o wide
+NAME                          READY   STATUS    RESTARTS   AGE    IP                NODE                   NOMINATED NODE   READINESS GATES
+prometheus-5cdccb54f6-xnpf2   1&#x2F;1     Running   2          143m   192.168.201.213   k8s-node01.linux.com   &lt;none&gt;           &lt;none&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="浏览器访问测试"><a href="#浏览器访问测试" class="headerlink" title="浏览器访问测试"></a>浏览器访问测试</h4><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes16.png" alt="kubernetes16"></p>
+<h2 id="三、访问授权"><a href="#三、访问授权" class="headerlink" title="三、访问授权"></a>三、访问授权</h2><blockquote>
+<p><strong>为了让<code>prometheus</code>能够获取到<code>kubernetes</code>集群中的状态数据，需要为其创建用户并进行授权。<code>kubernets</code>基于<code>RBAC</code>机制实现认证授权，因此需要创建用户、角色，并将用户与角色进行关联。</strong></p>
+</blockquote>
+<h3 id="1-创建用户和角色"><a href="#1-创建用户和角色" class="headerlink" title="1.创建用户和角色"></a>1.创建用户和角色</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# vim prometheus-rbac.yaml
+
+apiVersion: rbac.authorization.k8s.io&#x2F;v1
+kind: ClusterRole
+metadata:
+  name: prometheus
+rules:
+- apiGroups: [&quot;&quot;]
+  resources:
+  - nodes
+  - nodes&#x2F;proxy
+  - services
+  - endpoints
+  - pods
+  verbs: [&quot;get&quot;, &quot;list&quot;, &quot;watch&quot;]
+- apiGroups:
+  - extensions
+  resources:
+  - ingresses
+  verbs: [&quot;get&quot;, &quot;list&quot;, &quot;watch&quot;]
+- nonResourceURLs: [&quot;&#x2F;metrics&quot;]
+  verbs: [&quot;get&quot;]
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus
+  namespace: prometheus
+---
+apiVersion: rbac.authorization.k8s.io&#x2F;v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus
+subjects:
+- kind: ServiceAccount
+  name: prometheus
+  namespace: prometheus<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li><code>ClusterRole</code>是属于全局的，不需要指定命名空间</li>
+<li><code>ServiceAccount</code>必须指定命名空间</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl create -f prometheus-rbac.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="2-配置Prometheus关联用户"><a href="#2-配置Prometheus关联用户" class="headerlink" title="2.配置Prometheus关联用户"></a>2.配置<code>Prometheus</code>关联用户</h3><blockquote>
+<p><strong>更新<code>prometheus-deploy.yaml</code>文件</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# vim prometheus-deploy.yaml
+#配置文件不完整，仅展示添加部分
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      serviceAccountName: prometheus	#关联刚刚创建的用户
+      containers:
+      - name: prometheus
+        image: prom&#x2F;prometheus:v2.37.8
+        imagePullPolicy: IfNotPresent<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="更新配置文件"><a href="#更新配置文件" class="headerlink" title="更新配置文件"></a>更新配置文件</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl apply -f prometheus-deploy.yaml
+
+[root@k8s-master prometheus]# kubectl get pod -n prometheus
+NAME                          READY   STATUS    RESTARTS   AGE
+prometheus-5cdccb54f6-xnpf2   1&#x2F;1     Running   2          154m<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="重启Pod"><a href="#重启Pod" class="headerlink" title="重启Pod"></a>重启<code>Pod</code></h4><blockquote>
+<p><strong>删除<code>Pod</code>等待自动创建</strong><br><strong>教程后面将默认不再赘述，遇到重启或者重建<code>Pod</code>步骤时，请自行删除<code>Pod</code></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl delete pod prometheus-5cdccb54f6-xnpf2 -n prometheus<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="检查容器内部证书"><a href="#检查容器内部证书" class="headerlink" title="检查容器内部证书"></a>检查容器内部证书</h4><blockquote>
+<p><strong>配置完用户后，会默认在<code>/var/run/secrets/kubernetes.io/serviceaccount/</code>目录下生成和<code>K8s</code>集群通信用的证书</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl exec -it prometheus-5cdccb54f6-xnpf2 -n prometheus -- ls &#x2F;var&#x2F;run&#x2F;secrets&#x2F;kubernetes.io&#x2F;serviceaccount&#x2F;
+ca.crt     namespace  token<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h2 id="四、配置服务发现"><a href="#四、配置服务发现" class="headerlink" title="四、配置服务发现"></a>四、配置服务发现</h2><h3 id="1-介绍"><a href="#1-介绍" class="headerlink" title="1.介绍"></a>1.介绍</h3><blockquote>
+<p><code>prometheus</code>与<code>kubernetes API</code>集成主要有<code>5</code>种方式，分别为<code>Node</code>, <code>Service</code>, <code>Pod</code>, <code>Endpoints</code>, <code>Ingress</code></p>
+</blockquote>
+<h3 id="2-为了让promethues能够获取到集群所有节点的信息，在prometheus-config-yaml配置文件中，添加如下job配置"><a href="#2-为了让promethues能够获取到集群所有节点的信息，在prometheus-config-yaml配置文件中，添加如下job配置" class="headerlink" title="2.为了让promethues能够获取到集群所有节点的信息，在prometheus-config.yaml配置文件中，添加如下job配置"></a>2.为了让<code>promethues</code>能够获取到集群所有节点的信息，在<code>prometheus-config.yaml</code>配置文件中，添加如下<code>job</code>配置</h3><blockquote>
+<p><strong>指定<code>kubernetes_sd_config</code>的模式为<code>node</code>，<code>Prometheus</code>会自动从<code>kubernetes</code>中发现所有<code>node</code>节点并且作为当前<code>Job</code>监控的<code>Target</code></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# vim prometheus-config.yaml
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: prometheus
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval:     15s
+      evaluation_interval: 15s
+    scrape_configs:
+      - job_name: &#39;prometheus&#39;
+        static_configs:
+        - targets: [&#39;localhost:9090&#39;]
+      - job_name: &#39;kubernetes-nodes&#39;
+        tls_config:
+          ca_file: &#x2F;var&#x2F;run&#x2F;secrets&#x2F;kubernetes.io&#x2F;serviceaccount&#x2F;ca.crt
+        bearer_token_file: &#x2F;var&#x2F;run&#x2F;secrets&#x2F;kubernetes.io&#x2F;serviceaccount&#x2F;token
+        kubernetes_sd_configs:
+        - role: node
+
+      - job_name: &#39;kubernetes-service&#39;
+        tls_config:
+          ca_file: &#x2F;var&#x2F;run&#x2F;secrets&#x2F;kubernetes.io&#x2F;serviceaccount&#x2F;ca.crt
+        bearer_token_file: &#x2F;var&#x2F;run&#x2F;secrets&#x2F;kubernetes.io&#x2F;serviceaccount&#x2F;token
+        kubernetes_sd_configs:
+        - role: service
+
+      - job_name: &#39;kubernetes-endpoints&#39;
+        tls_config:
+          ca_file: &#x2F;var&#x2F;run&#x2F;secrets&#x2F;kubernetes.io&#x2F;serviceaccount&#x2F;ca.crt
+        bearer_token_file: &#x2F;var&#x2F;run&#x2F;secrets&#x2F;kubernetes.io&#x2F;serviceaccount&#x2F;token
+        kubernetes_sd_configs:
+        - role: endpoints
+
+      - job_name: &#39;kubernetes-ingress&#39;
+        tls_config:
+          ca_file: &#x2F;var&#x2F;run&#x2F;secrets&#x2F;kubernetes.io&#x2F;serviceaccount&#x2F;ca.crt
+        bearer_token_file: &#x2F;var&#x2F;run&#x2F;secrets&#x2F;kubernetes.io&#x2F;serviceaccount&#x2F;token
+        kubernetes_sd_configs:
+        - role: ingress
+
+      - job_name: &#39;kubernetes-pods&#39;
+        tls_config:
+          ca_file: &#x2F;var&#x2F;run&#x2F;secrets&#x2F;kubernetes.io&#x2F;serviceaccount&#x2F;ca.crt
+        bearer_token_file: &#x2F;var&#x2F;run&#x2F;secrets&#x2F;kubernetes.io&#x2F;serviceaccount&#x2F;token
+        kubernetes_sd_configs:
+        - role: pod<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl apply -f prometheus-config.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="重建Prometheus的Pod"><a href="#重建Prometheus的Pod" class="headerlink" title="重建Prometheus的Pod"></a>重建<code>Prometheus</code>的<code>Pod</code></h4><blockquote>
+<p><strong>删除<code>Pod</code>等待自动创建</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl delete pod prometheus-5cdccb54f6-xnpf2 -n prometheus<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="浏览器访问查看"><a href="#浏览器访问查看" class="headerlink" title="浏览器访问查看"></a>浏览器访问查看</h4><blockquote>
+<p><strong>刷新访问<code>prometheus</code>页面，可以查看到发现的<code>K8S</code>集群中的资源</strong></p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes17.png" alt="kubernetes17"></p>
+<h2 id="五、配置监控Kubelet"><a href="#五、配置监控Kubelet" class="headerlink" title="五、配置监控Kubelet"></a>五、配置监控<code>Kubelet</code></h2><h3 id="1-修改prometheus-config-yaml文件，添加监控项"><a href="#1-修改prometheus-config-yaml文件，添加监控项" class="headerlink" title="1.修改prometheus-config.yaml文件，添加监控项"></a>1.修改<code>prometheus-config.yaml</code>文件，添加监控项</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# vim prometheus-config.yaml
+#在配置文件末尾添加以下内容
+
+      - job_name: &#39;kubernetes-kubelet&#39;
+        scheme: https
+        tls_config:
+          ca_file: &#x2F;var&#x2F;run&#x2F;secrets&#x2F;kubernetes.io&#x2F;serviceaccount&#x2F;ca.crt
+        bearer_token_file: &#x2F;var&#x2F;run&#x2F;secrets&#x2F;kubernetes.io&#x2F;serviceaccount&#x2F;token
+        kubernetes_sd_configs:
+        - role: node
+        relabel_configs:
+        - action: labelmap
+          regex: __meta_kubernetes_node_label_(.+)
+        - target_label: __address__
+          replacement: kubernetes.default.svc:443
+        - source_labels: [__meta_kubernetes_node_name]
+          regex: (.+)
+          target_label: __metrics_path__
+          replacement: &#x2F;api&#x2F;v1&#x2F;nodes&#x2F;$&#123;1&#125;&#x2F;proxy&#x2F;metrics<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="更新配置并重启容器"><a href="#更新配置并重启容器" class="headerlink" title="更新配置并重启容器"></a>更新配置并重启容器</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl apply -f prometheus-config.yaml
+configmap&#x2F;prometheus-config configured<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl get pods -n prometheus
+NAME                          READY   STATUS    RESTARTS   AGE
+prometheus-5cdccb54f6-xnpf2   1&#x2F;1     Running   2          3h1m
+[root@k8s-master prometheus]# kubectl delete pod prometheus-5cdccb54f6-xnpf2 -n prometheus
+pod &quot;prometheus-5cdccb54f6-xnpf2&quot; deleted<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="访问web端查看是否更新"><a href="#访问web端查看是否更新" class="headerlink" title="访问web端查看是否更新"></a>访问<code>web</code>端查看是否更新</h4><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes18.png" alt="kubernetes18"></p>
+<h2 id="六、通过cAdvisor监控节点容器资源使用情况"><a href="#六、通过cAdvisor监控节点容器资源使用情况" class="headerlink" title="六、通过cAdvisor监控节点容器资源使用情况"></a>六、通过cAdvisor监控节点容器资源使用情况</h2><h3 id="1-修改prometheus-config-yaml文件，添加监控项-1"><a href="#1-修改prometheus-config-yaml文件，添加监控项-1" class="headerlink" title="1.修改prometheus-config.yaml文件，添加监控项"></a>1.修改<code>prometheus-config.yaml</code>文件，添加监控项</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# vim prometheus-config.yaml
+#在配置文件末尾添加以下内容
+
+      - job_name: &#39;kubernetes-cadvisor&#39;
+        scheme: https
+        tls_config:
+          ca_file: &#x2F;var&#x2F;run&#x2F;secrets&#x2F;kubernetes.io&#x2F;serviceaccount&#x2F;ca.crt
+        bearer_token_file: &#x2F;var&#x2F;run&#x2F;secrets&#x2F;kubernetes.io&#x2F;serviceaccount&#x2F;token
+        kubernetes_sd_configs:
+        - role: node
+        relabel_configs:
+        - target_label: __address__
+          replacement: kubernetes.default.svc:443
+        - source_labels: [__meta_kubernetes_node_name]
+          regex: (.+)
+          target_label: __metrics_path__
+          replacement: &#x2F;api&#x2F;v1&#x2F;nodes&#x2F;$&#123;1&#125;&#x2F;proxy&#x2F;metrics&#x2F;cadvisor
+        - action: labelmap
+          regex: __meta_kubernetes_node_label_(.+)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="更新配置并重启容器-1"><a href="#更新配置并重启容器-1" class="headerlink" title="更新配置并重启容器"></a>更新配置并重启容器</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl apply -f prometheus-config.yaml
+configmap&#x2F;prometheus-config configured<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl get pods -n prometheus
+NAME                          READY   STATUS    RESTARTS   AGE
+prometheus-5cdccb54f6-rj4fc   1&#x2F;1     Running   0          5m19s
+[root@k8s-master prometheus]# kubectl delete pod prometheus-5cdccb54f6-rj4fc -n prometheus
+pod &quot;prometheus-5cdccb54f6-rj4fc&quot; deleted<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="访问web端查看是否更新-1"><a href="#访问web端查看是否更新-1" class="headerlink" title="访问web端查看是否更新"></a>访问<code>web</code>端查看是否更新</h4><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes19.png" alt="kubernetes19"></p>
+<h2 id="七、基于node-exporter监控集群资源使用情况"><a href="#七、基于node-exporter监控集群资源使用情况" class="headerlink" title="七、基于node-exporter监控集群资源使用情况"></a>七、基于<code>node-exporter</code>监控集群资源使用情况</h2><h3 id="1-使用DaemonSet类型部署node-exporter"><a href="#1-使用DaemonSet类型部署node-exporter" class="headerlink" title="1.使用DaemonSet类型部署node-exporter"></a>1.使用<code>DaemonSet</code>类型部署<code>node-exporter</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# vim node-exporter.yml
+
+apiVersion: apps&#x2F;v1
+kind: DaemonSet
+metadata:
+  name: node-exporter
+  namespace: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: node-exporter
+  template:
+    metadata:
+      annotations:
+        prometheus.io&#x2F;scrape: &#39;true&#39;
+        prometheus.io&#x2F;port: &#39;9100&#39;
+        prometheus.io&#x2F;path: &#39;metrics&#39;
+      labels:
+        app: node-exporter
+      name: node-exporter
+    spec:
+      containers:
+      - image: prom&#x2F;node-exporter
+        imagePullPolicy: IfNotPresent
+        name: node-exporter
+        ports:
+        - containerPort: 9100
+          hostPort: 9100
+          name: scrape
+      hostNetwork: true
+      hostPID: true	#node exporter要运行在物理机上，因此指定了hostNetwork和hostPID参数<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl create -f node-exporter.yml
+daemonset.apps&#x2F;node-exporter created<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl get pod -n prometheus -o wide
+NAME                          READY   STATUS    RESTARTS   AGE     IP                NODE                   NOMINATED NODE   READINESS GATES
+node-exporter-hvkdb           1&#x2F;1     Running   0          2m22s   192.168.140.12    k8s-node02.linux.com   &lt;none&gt;           &lt;none&gt;
+node-exporter-ktfm8           1&#x2F;1     Running   0          2m22s   192.168.140.11    k8s-node01.linux.com   &lt;none&gt;           &lt;none&gt;
+prometheus-5cdccb54f6-wprjh   1&#x2F;1     Running   0          23m     192.168.242.158   k8s-node02.linux.com   &lt;none&gt;           &lt;none&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="2-添加采集任务"><a href="#2-添加采集任务" class="headerlink" title="2.添加采集任务"></a>2.添加采集任务</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# vim prometheus-config.yaml
+#在配置文件末尾添加内容
+
+      - job_name: &#39;kubernetes-cadvisor&#39;
+        scheme: https
+        tls_config:
+          ca_file: &#x2F;var&#x2F;run&#x2F;secrets&#x2F;kubernetes.io&#x2F;serviceaccount&#x2F;ca.crt
+        bearer_token_file: &#x2F;var&#x2F;run&#x2F;secrets&#x2F;kubernetes.io&#x2F;serviceaccount&#x2F;token
+        kubernetes_sd_configs:
+        - role: node
+        relabel_configs:
+        - target_label: __address__
+          replacement: kubernetes.default.svc:443
+        - source_labels: [__meta_kubernetes_node_name]
+          regex: (.+)
+          target_label: __metrics_path__
+          replacement: &#x2F;api&#x2F;v1&#x2F;nodes&#x2F;$&#123;1&#125;&#x2F;proxy&#x2F;metrics&#x2F;cadvisor
+        - action: labelmap
+          regex: __meta_kubernetes_node_label_(.+)
+
+      - job_name: &#39;kubernetes-node-exporter&#39;
+        kubernetes_sd_configs:
+        - role: pod
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+          action: keep
+          regex: true
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+          action: replace
+          target_label: __metrics_path__
+          regex: (.+)
+        - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+          action: replace
+          regex: ([^:]+)(?::\d+)?;(\d+)
+          replacement: $1:$2
+          target_label: __address__
+        - action: labelmap
+          regex: __meta_kubernetes_pod_label_(.+)
+        - source_labels: [__meta_kubernetes_namespace]
+          action: replace
+          target_label: kubernetes_namespace
+        - source_labels: [__meta_kubernetes_pod_name]
+          action: replace
+          target_label: kubernetes_pod_name<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-更新配置文件"><a href="#3-更新配置文件" class="headerlink" title="3.更新配置文件"></a>3.更新配置文件</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl apply -f prometheus-config.yaml 
+configmap&#x2F;prometheus-config configured<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl get pods -n prometheus
+NAME                          READY   STATUS    RESTARTS   AGE
+node-exporter-hvkdb           1&#x2F;1     Running   0          6m1s
+node-exporter-ktfm8           1&#x2F;1     Running   0          6m1s
+prometheus-5cdccb54f6-wprjh   1&#x2F;1     Running   0          27m
+
+[root@k8s-master prometheus]# kubectl delete pod prometheus-5cdccb54f6-wprjh -n prometheus
+pod &quot;prometheus-5cdccb54f6-wprjh&quot; deleted<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-访问web端查看"><a href="#4-访问web端查看" class="headerlink" title="4.访问web端查看"></a>4.访问<code>web</code>端查看</h3><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes20.png" alt="kubernetes20"></p>
+<h2 id="八、配置从api-server获取监控指标"><a href="#八、配置从api-server获取监控指标" class="headerlink" title="八、配置从api-server获取监控指标"></a>八、配置从<code>api-server</code>获取监控指标</h2><h3 id="1-修改Prometheus-config添加监控项"><a href="#1-修改Prometheus-config添加监控项" class="headerlink" title="1.修改Prometheus-config添加监控项"></a>1.修改<code>Prometheus-config</code>添加监控项</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# vim prometheus-config.yaml
+#在文件末尾添加内容
+
+      - job_name: &#39;kubernetes-apiservers&#39;
+        kubernetes_sd_configs:
+        - role: endpoints
+        scheme: https
+        tls_config:
+          ca_file: &#x2F;var&#x2F;run&#x2F;secrets&#x2F;kubernetes.io&#x2F;serviceaccount&#x2F;ca.crt
+        bearer_token_file: &#x2F;var&#x2F;run&#x2F;secrets&#x2F;kubernetes.io&#x2F;serviceaccount&#x2F;token
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: default;kubernetes;https
+        - target_label: __address__
+          replacement: kubernetes.default.svc:443<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="2-更新配置文件，重启Pod"><a href="#2-更新配置文件，重启Pod" class="headerlink" title="2.更新配置文件，重启Pod"></a>2.更新配置文件，重启<code>Pod</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl apply -f prometheus-config.yaml
+configmap&#x2F;prometheus-config configured<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl get pods -n prometheus
+NAME                          READY   STATUS    RESTARTS   AGE
+node-exporter-hvkdb           1&#x2F;1     Running   0          16m
+node-exporter-ktfm8           1&#x2F;1     Running   0          16m
+prometheus-5cdccb54f6-vsw6m   1&#x2F;1     Running   0          9m47s
+
+[root@k8s-master prometheus]# kubectl delete pod prometheus-5cdccb54f6-vsw6m -n prometheus
+pod &quot;prometheus-5cdccb54f6-vsw6m&quot; deleted<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-访问web端查看"><a href="#3-访问web端查看" class="headerlink" title="3.访问web端查看"></a>3.访问<code>web</code>端查看</h3><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes21.png" alt="kubernetes21"></p>
+<h2 id="九、配置grafana图形化"><a href="#九、配置grafana图形化" class="headerlink" title="九、配置grafana图形化"></a>九、配置<code>grafana</code>图形化</h2><h3 id="1-部署grafana"><a href="#1-部署grafana" class="headerlink" title="1.部署grafana"></a>1.部署<code>grafana</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# vim grafana.yaml
+
+apiVersion: apps&#x2F;v1
+kind: Deployment
+metadata:
+  name: grafana-core
+  namespace: prometheus
+  labels:
+    app: grafana
+    component: core
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - image: grafana&#x2F;grafana:9.5.3
+        name: grafana-core
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        env:
+          - name: GF_AUTH_BASIC_ENABLED
+            value: &quot;true&quot;
+          - name: GF_AUTH_ANONYMOUS_ENABLED
+            value: &quot;false&quot;
+        readinessProbe:
+          httpGet:
+            path: &#x2F;login
+            port: 3000
+        volumeMounts:
+        - name: grafana-persistent-storage
+          mountPath: &#x2F;var&#x2F;lib&#x2F;grafana
+      volumes:
+      - name: grafana-persistent-storage
+        emptyDir: &#123;&#125;
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: prometheus
+  labels:
+    app: grafana
+spec:
+  type: NodePort
+  ports:
+    - port: 3000
+  selector:
+    app: grafana<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl create -f grafana.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="2-查看Pod"><a href="#2-查看Pod" class="headerlink" title="2.查看Pod"></a>2.查看<code>Pod</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl get pods -n prometheus -o wide
+NAME                            READY   STATUS    RESTARTS   AGE   IP                NODE                   NOMINATED NODE   READINESS GATES
+grafana-core-6497854f7b-z26nw   1&#x2F;1     Running   0          46s   192.168.201.215   k8s-node01.linux.com   &lt;none&gt;           &lt;none&gt;
+node-exporter-hvkdb             1&#x2F;1     Running   0          66m   192.168.140.12    k8s-node02.linux.com   &lt;none&gt;           &lt;none&gt;
+node-exporter-ktfm8             1&#x2F;1     Running   0          66m   192.168.140.11    k8s-node01.linux.com   &lt;none&gt;           &lt;none&gt;
+prometheus-5cdccb54f6-xgkk8     1&#x2F;1     Running   0          49m   192.168.242.159   k8s-node02.linux.com   &lt;none&gt;           &lt;none&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-查看svc"><a href="#3-查看svc" class="headerlink" title="3.查看svc"></a>3.查看<code>svc</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl get svc -n prometheus -o wide
+NAME         TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE     SELECTOR
+grafana      NodePort   172.16.34.121   &lt;none&gt;        3000:30916&#x2F;TCP   63s     app&#x3D;grafana
+prometheus   NodePort   172.16.40.197   &lt;none&gt;        9090:30678&#x2F;TCP   5h28m   app&#x3D;prometheus<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-登录web界面"><a href="#4-登录web界面" class="headerlink" title="4.登录web界面"></a>4.登录<code>web</code>界面</h3><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes22.png" alt="kubernetes22"></p>
+<h3 id="5-添加数据源"><a href="#5-添加数据源" class="headerlink" title="5.添加数据源"></a>5.添加数据源</h3><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes23.png" alt="kubernetes23"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes24.png" alt="kubernetes24"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes25.png" alt="kubernetes25"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes26.png" alt="kubernetes26"></p>
+<h3 id="6-导入模板"><a href="#6-导入模板" class="headerlink" title="6.导入模板"></a>6.导入模板</h3><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes27.png" alt="kubernetes27"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes28.png" alt="kubernetes28"></p>
+<blockquote>
+<p><strong>模板ID：<code>162</code></strong></p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes29.png" alt="kubernetes29"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes30.png" alt="kubernetes30"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes31.png" alt="kubernetes31"></p>
+<h3 id="7-显示内存、CPU、磁盘的使用情况"><a href="#7-显示内存、CPU、磁盘的使用情况" class="headerlink" title="7.显示内存、CPU、磁盘的使用情况"></a>7.显示内存、CPU、磁盘的使用情况</h3><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes32.png" alt="kubernetes32"></p>
+<h4 id="内存"><a href="#内存" class="headerlink" title="内存"></a>内存</h4><pre class="line-numbers language-none"><code class="language-none">(sum(node_memory_MemTotal_bytes) - sum(node_memory_MemFree_bytes+node_memory_Buffers_bytes+node_memory_Cached_bytes) ) &#x2F; sum(node_memory_MemTotal_bytes) * 100<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<blockquote>
+<p><strong>把上面的内容复制进去</strong></p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes33.png" alt="kubernetes33"></p>
+<h4 id="另外2个图形也是同样的操作，替换里面的内容"><a href="#另外2个图形也是同样的操作，替换里面的内容" class="headerlink" title="另外2个图形也是同样的操作，替换里面的内容"></a>另外<code>2</code>个图形也是同样的操作，替换里面的内容</h4><h4 id="CPU"><a href="#CPU" class="headerlink" title="CPU"></a>CPU</h4><pre class="line-numbers language-none"><code class="language-none">sum(sum by (name)( rate(container_cpu_usage_seconds_total&#123;image!&#x3D;&quot;&quot;&#125;[1m] ) )) &#x2F; count(node_cpu_seconds_total&#123;mode&#x3D;&quot;system&quot;&#125;) * 100<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="磁盘"><a href="#磁盘" class="headerlink" title="磁盘"></a>磁盘</h4><pre class="line-numbers language-none"><code class="language-none">(sum(node_filesystem_size_bytes&#123;device&#x3D;&quot;&#x2F;dev&#x2F;mapper&#x2F;centos-root&quot;&#125;) - sum(node_filesystem_free_bytes&#123;device&#x3D;&quot;&#x2F;dev&#x2F;mapper&#x2F;centos-root&quot;&#125;) ) &#x2F; sum(node_filesystem_size_bytes&#123;device&#x3D;&quot;&#x2F;dev&#x2F;mapper&#x2F;centos-root&quot;&#125;) * 100<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="效果图展示"><a href="#效果图展示" class="headerlink" title="效果图展示"></a>效果图展示</h4><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes34.png" alt="kubernetes34"></p>
+<h3 id="8-保存图形"><a href="#8-保存图形" class="headerlink" title="8.保存图形"></a>8.保存图形</h3><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes35.png" alt="kubernetes35"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes36.png" alt="kubernetes36"></p>
+<h3 id="9-主页面快速查看创建的图形"><a href="#9-主页面快速查看创建的图形" class="headerlink" title="9.主页面快速查看创建的图形"></a>9.主页面快速查看创建的图形</h3><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes37.png" alt="kubernetes37"></p>
+<h2 id="十、监控Mysql"><a href="#十、监控Mysql" class="headerlink" title="十、监控Mysql"></a>十、监控<code>Mysql</code></h2><h3 id="1-创建Mysql的Pod"><a href="#1-创建Mysql的Pod" class="headerlink" title="1.创建Mysql的Pod"></a>1.创建<code>Mysql</code>的<code>Pod</code></h3><blockquote>
+<p><strong>我这里使用上期教程部署<code>WordPress</code>用到的<code>Mysql</code></strong><br><strong>关于<code>Kubernetes</code>部署<code>WordPress</code>博客教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/147">https://www.wsjj.top/archives/147</a></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# vim &#x2F;root&#x2F;wordpress&#x2F;wp-master-mysql.yml
+
+apiVersion: apps&#x2F;v1
+kind: StatefulSet
+metadata:
+    name: wp-master-mysql
+    namespace: wordpress
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: wp-master-mysql
+    serviceName: &quot;wp-master-mysql&quot;
+    template:
+        metadata:
+            labels:
+                app: wp-master-mysql
+        spec:
+            containers:
+            - name: wp-master-mysql
+              image: mysql:5.7
+              imagePullPolicy: IfNotPresent
+              ports:
+              - containerPort: 3306
+              env:
+              - name: MYSQL_ROOT_PASSWORD
+                value: &quot;WWW.1.com&quot;
+              - name: MYSQL_DATABASE
+                value: &quot;wordpress&quot;
+              - name: MYSQL_USER
+                value: &quot;wpuser&quot;
+              - name: MYSQL_PASSWORD
+                value: &quot;redhat&quot;
+              resources:
+                requests:
+                  memory: &quot;1G&quot;
+                  cpu: &quot;1&quot;
+                limits:
+                  memory: &quot;2G&quot;
+                  cpu: &quot;2&quot;
+              volumeMounts:
+                  - name: mysql-data-volume
+                    mountPath: &#x2F;var&#x2F;lib&#x2F;mysql
+                  - name: mysql-config-volume
+                    mountPath: &#x2F;etc&#x2F;mysql&#x2F;conf.d
+                    readOnly: true
+            volumes:
+                - name: mysql-data-volume
+                  persistentVolumeClaim:
+                    claimName: master-db-pvc
+                - name: mysql-config-volume
+                  projected:
+                    sources:
+                    - configMap:
+                        name: master-db-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: wp-master-mysql
+    namespace: wordpress
+spec:
+    ports:
+    - port: 3306
+    selector:
+      app: wp-master-mysql<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl create -f &#x2F;root&#x2F;wordpress&#x2F;wp-master-mysql.yml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="2-登录Mysql创建监控需要的用户"><a href="#2-登录Mysql创建监控需要的用户" class="headerlink" title="2.登录Mysql创建监控需要的用户"></a>2.登录<code>Mysql</code>创建监控需要的用户</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl exec -it wp-master-mysql-0 -n wordpress -- bash
+bash-4.2# mysql -uroot -pWWW.1.com
+
+mysql&gt; GRANT PROCESS, REPLICATION CLIENT, SELECT ON *.* TO &#39;prometheus&#39;@&#39;%&#39; IDENTIFIED BY &#39;WWW.1.com&#39;;
+
+Query OK, 0 rows affected, 1 warning (0.05 sec)
+
+mysql&gt; flush privileges;
+Query OK, 0 rows affected (0.02 sec)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-部署Mysql-exporter"><a href="#3-部署Mysql-exporter" class="headerlink" title="3.部署Mysql-exporter"></a>3.部署<code>Mysql-exporter</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# vim mysql-exporter.yaml
+
+apiVersion: apps&#x2F;v1
+kind: Deployment
+metadata:
+  name: mysql-exporter
+  namespace: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-exporter
+  template:
+    metadata:
+      labels:
+        app: mysql-exporter
+    spec:
+      containers:
+      - name: mysql-exporter
+        image: prom&#x2F;mysqld-exporter:v0.14.0
+        env:
+        - name: DATA_SOURCE_NAME
+          value: &quot;prometheus:WWW.1.com@(wp-master-mysql.wordpress.svc.cluster.local:3306)&#x2F;&quot; 	#配置全名连接地址，和刚才创建的用户
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9104
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-exporter
+  namespace: prometheus
+spec:
+  type: ClusterIP
+  selector:
+    app: mysql-exporter
+  ports:
+  - name: api
+    port: 9104
+    protocol: TCP<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl create -f mysql-exporter.yaml
+deployment.apps&#x2F;mysql-exporter created
+service&#x2F;mysql-exporter created<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="查看Mysql-exporter"><a href="#查看Mysql-exporter" class="headerlink" title="查看Mysql-exporter"></a>查看<code>Mysql-exporter</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl get pods -n prometheus
+NAME                              READY   STATUS    RESTARTS   AGE
+grafana-core-6497854f7b-z26nw     1&#x2F;1     Running   0          85m
+mysql-exporter-856d6b9fd9-gh7kg   1&#x2F;1     Running   0          12s
+node-exporter-hvkdb               1&#x2F;1     Running   0          151m
+node-exporter-ktfm8               1&#x2F;1     Running   0          151m
+prometheus-5cdccb54f6-xgkk8       1&#x2F;1     Running   0          133m
+
+[root@k8s-master prometheus]# kubectl get svc -n prometheus
+NAME             TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+grafana          NodePort    172.16.34.121    &lt;none&gt;        3000:30916&#x2F;TCP   87m
+mysql-exporter   ClusterIP   172.16.228.238   &lt;none&gt;        9104&#x2F;TCP         101s
+prometheus       NodePort    172.16.40.197    &lt;none&gt;        9090:30678&#x2F;TCP   6h54m<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="更新prometheus-config-yaml文件"><a href="#更新prometheus-config-yaml文件" class="headerlink" title="更新prometheus-config.yaml文件"></a>更新<code>prometheus-config.yaml</code>文件</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# vim prometheus-config.yaml
+#在文件末尾添加以下内容
+
+      - job_name: &#39;mysql_monitor&#39;
+        static_configs:
+        - targets: [&#39;mysql-exporter:9104&#39;]	#服务连接地址<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl apply -f prometheus-config.yaml 
+configmap&#x2F;prometheus-config configured<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master prometheus]# kubectl get pod -n prometheus
+NAME                              READY   STATUS    RESTARTS   AGE
+grafana-core-6497854f7b-z26nw     1&#x2F;1     Running   0          91m
+mysql-exporter-856d6b9fd9-gh7kg   1&#x2F;1     Running   0          5m44s
+node-exporter-hvkdb               1&#x2F;1     Running   0          156m
+node-exporter-ktfm8               1&#x2F;1     Running   0          156m
+prometheus-5cdccb54f6-xgkk8       1&#x2F;1     Running   0          139m
+
+[root@k8s-master prometheus]# kubectl delete pod prometheus-5cdccb54f6-xgkk8 -n prometheus
+pod &quot;prometheus-5cdccb54f6-xgkk8&quot; deleted<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="访问Prometheus的web界面"><a href="#访问Prometheus的web界面" class="headerlink" title="访问Prometheus的web界面"></a>访问<code>Prometheus</code>的<code>web</code>界面</h4><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes38.png" alt="kubernetes38"></p>
+<h3 id="4-在Grafana添加数据源"><a href="#4-在Grafana添加数据源" class="headerlink" title="4.在Grafana添加数据源"></a>4.在<code>Grafana</code>添加数据源</h3><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes27.png" alt="kubernetes27"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes28.png" alt="kubernetes28"></p>
+<blockquote>
+<p><strong>模板ID：<code>7362</code></strong></p>
+</blockquote>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes39.png" alt="kubernetes39"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes40.png" alt="kubernetes40"></p>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/kubernetes41.png" alt="kubernetes41"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work">网笙久久</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work/2023/06/16/149/">https://blog.wangshengjj.work/2023/06/16/149/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.wangshengjj.work" target="_blank">WangShengJJのblog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/centos7/">centos7</a><a class="post-meta__tags" href="/tags/%E5%AE%B9%E5%99%A8/">容器</a><a class="post-meta__tags" href="/tags/k8s/">k8s</a><a class="post-meta__tags" href="/tags/kubernetes/">kubernetes</a><a class="post-meta__tags" href="/tags/%E5%AE%B9%E5%99%A8%E7%BC%96%E6%8E%92%E5%B7%A5%E5%85%B7/">容器编排工具</a><a class="post-meta__tags" href="/tags/prometheus/">prometheus</a></div><div class="post_share"><div class="social-share" data-image="https://www.dmoe.cc/random.php" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/06/19/150/" title="【容器应用系列教程】Kubernetes插件helm包管理器"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【容器应用系列教程】Kubernetes插件helm包管理器</div></div></a></div><div class="next-post pull-right"><a href="/2023/06/16/148/" title="【容器应用系列教程】Kubernetes调度系统"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【容器应用系列教程】Kubernetes调度系统</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/06/14/144/" title="【容器应用系列教程】Kubernetes数据卷Volume管理"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-14</div><div class="title">【容器应用系列教程】Kubernetes数据卷Volume管理</div></div></a></div><div><a href="/2023/06/15/147/" title="【容器应用系列教程】Kubernetes部署WordPress博客"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-15</div><div class="title">【容器应用系列教程】Kubernetes部署WordPress博客</div></div></a></div><div><a href="/2023/06/16/148/" title="【容器应用系列教程】Kubernetes调度系统"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-16</div><div class="title">【容器应用系列教程】Kubernetes调度系统</div></div></a></div><div><a href="/2023/06/19/150/" title="【容器应用系列教程】Kubernetes插件helm包管理器"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-19</div><div class="title">【容器应用系列教程】Kubernetes插件helm包管理器</div></div></a></div><div><a href="/2023/06/09/138/" title="【容器应用系列教程】Kubernetes集群部署(Centos7)"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-09</div><div class="title">【容器应用系列教程】Kubernetes集群部署(Centos7)</div></div></a></div><div><a href="/2023/06/12/140/" title="【容器应用系列教程】Kubernetes的Pod管理"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-12</div><div class="title">【容器应用系列教程】Kubernetes的Pod管理</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">网笙久久</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">167</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">218</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">303</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wangshengjj"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wangshengjj" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:wangshengjj@wangshengjj.work" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.wangshengjj.work" target="_blank" title="Blog"><i class="fa fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到网笙久久的博客</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E3%80%90%E5%AE%B9%E5%99%A8%E7%9B%91%E6%8E%A7%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%E3%80%91Prometheus%E6%99%AE%E7%BD%97%E7%B1%B3%E4%BF%AE%E6%96%AF%E7%9B%91%E6%8E%A7Kubernetes"><span class="toc-number">1.</span> <span class="toc-text">【容器监控系列教程】Prometheus普罗米修斯监控Kubernetes</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81Prometheus%E6%99%AE%E7%BD%97%E7%B1%B3%E4%BF%AE%E6%96%AF%E7%9A%84%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.1.</span> <span class="toc-text">一、Prometheus普罗米修斯的介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E9%83%A8%E7%BD%B2Prometheus%E6%9C%8D%E5%8A%A1%E7%AB%AF"><span class="toc-number">1.2.</span> <span class="toc-text">二、部署Prometheus服务端</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%BD%BF%E7%94%A8ConfigMap%E5%AD%98%E5%82%A8Prometheus%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.使用ConfigMap存储Prometheus配置文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%83%A8%E7%BD%B2Prometheus%E6%9C%8D%E5%8A%A1%E7%AB%AF"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.部署Prometheus服务端</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E6%9C%8D%E5%8A%A1%E5%92%8C%E7%AB%AF%E5%8F%A3"><span class="toc-number">1.2.2.1.</span> <span class="toc-text">查看服务和端口</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B5%8F%E8%A7%88%E5%99%A8%E8%AE%BF%E9%97%AE%E6%B5%8B%E8%AF%95"><span class="toc-number">1.2.2.2.</span> <span class="toc-text">浏览器访问测试</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E8%AE%BF%E9%97%AE%E6%8E%88%E6%9D%83"><span class="toc-number">1.3.</span> <span class="toc-text">三、访问授权</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%88%9B%E5%BB%BA%E7%94%A8%E6%88%B7%E5%92%8C%E8%A7%92%E8%89%B2"><span class="toc-number">1.3.1.</span> <span class="toc-text">1.创建用户和角色</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%85%8D%E7%BD%AEPrometheus%E5%85%B3%E8%81%94%E7%94%A8%E6%88%B7"><span class="toc-number">1.3.2.</span> <span class="toc-text">2.配置Prometheus关联用户</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9B%B4%E6%96%B0%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.3.2.1.</span> <span class="toc-text">更新配置文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%87%8D%E5%90%AFPod"><span class="toc-number">1.3.2.2.</span> <span class="toc-text">重启Pod</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A3%80%E6%9F%A5%E5%AE%B9%E5%99%A8%E5%86%85%E9%83%A8%E8%AF%81%E4%B9%A6"><span class="toc-number">1.3.2.3.</span> <span class="toc-text">检查容器内部证书</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E9%85%8D%E7%BD%AE%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0"><span class="toc-number">1.4.</span> <span class="toc-text">四、配置服务发现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.4.1.</span> <span class="toc-text">1.介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E4%B8%BA%E4%BA%86%E8%AE%A9promethues%E8%83%BD%E5%A4%9F%E8%8E%B7%E5%8F%96%E5%88%B0%E9%9B%86%E7%BE%A4%E6%89%80%E6%9C%89%E8%8A%82%E7%82%B9%E7%9A%84%E4%BF%A1%E6%81%AF%EF%BC%8C%E5%9C%A8prometheus-config-yaml%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E4%B8%AD%EF%BC%8C%E6%B7%BB%E5%8A%A0%E5%A6%82%E4%B8%8Bjob%E9%85%8D%E7%BD%AE"><span class="toc-number">1.4.2.</span> <span class="toc-text">2.为了让promethues能够获取到集群所有节点的信息，在prometheus-config.yaml配置文件中，添加如下job配置</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%87%8D%E5%BB%BAPrometheus%E7%9A%84Pod"><span class="toc-number">1.4.2.1.</span> <span class="toc-text">重建Prometheus的Pod</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B5%8F%E8%A7%88%E5%99%A8%E8%AE%BF%E9%97%AE%E6%9F%A5%E7%9C%8B"><span class="toc-number">1.4.2.2.</span> <span class="toc-text">浏览器访问查看</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E9%85%8D%E7%BD%AE%E7%9B%91%E6%8E%A7Kubelet"><span class="toc-number">1.5.</span> <span class="toc-text">五、配置监控Kubelet</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%BF%AE%E6%94%B9prometheus-config-yaml%E6%96%87%E4%BB%B6%EF%BC%8C%E6%B7%BB%E5%8A%A0%E7%9B%91%E6%8E%A7%E9%A1%B9"><span class="toc-number">1.5.1.</span> <span class="toc-text">1.修改prometheus-config.yaml文件，添加监控项</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9B%B4%E6%96%B0%E9%85%8D%E7%BD%AE%E5%B9%B6%E9%87%8D%E5%90%AF%E5%AE%B9%E5%99%A8"><span class="toc-number">1.5.1.1.</span> <span class="toc-text">更新配置并重启容器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%BF%E9%97%AEweb%E7%AB%AF%E6%9F%A5%E7%9C%8B%E6%98%AF%E5%90%A6%E6%9B%B4%E6%96%B0"><span class="toc-number">1.5.1.2.</span> <span class="toc-text">访问web端查看是否更新</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E9%80%9A%E8%BF%87cAdvisor%E7%9B%91%E6%8E%A7%E8%8A%82%E7%82%B9%E5%AE%B9%E5%99%A8%E8%B5%84%E6%BA%90%E4%BD%BF%E7%94%A8%E6%83%85%E5%86%B5"><span class="toc-number">1.6.</span> <span class="toc-text">六、通过cAdvisor监控节点容器资源使用情况</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%BF%AE%E6%94%B9prometheus-config-yaml%E6%96%87%E4%BB%B6%EF%BC%8C%E6%B7%BB%E5%8A%A0%E7%9B%91%E6%8E%A7%E9%A1%B9-1"><span class="toc-number">1.6.1.</span> <span class="toc-text">1.修改prometheus-config.yaml文件，添加监控项</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9B%B4%E6%96%B0%E9%85%8D%E7%BD%AE%E5%B9%B6%E9%87%8D%E5%90%AF%E5%AE%B9%E5%99%A8-1"><span class="toc-number">1.6.1.1.</span> <span class="toc-text">更新配置并重启容器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%BF%E9%97%AEweb%E7%AB%AF%E6%9F%A5%E7%9C%8B%E6%98%AF%E5%90%A6%E6%9B%B4%E6%96%B0-1"><span class="toc-number">1.6.1.2.</span> <span class="toc-text">访问web端查看是否更新</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%9F%BA%E4%BA%8Enode-exporter%E7%9B%91%E6%8E%A7%E9%9B%86%E7%BE%A4%E8%B5%84%E6%BA%90%E4%BD%BF%E7%94%A8%E6%83%85%E5%86%B5"><span class="toc-number">1.7.</span> <span class="toc-text">七、基于node-exporter监控集群资源使用情况</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%BD%BF%E7%94%A8DaemonSet%E7%B1%BB%E5%9E%8B%E9%83%A8%E7%BD%B2node-exporter"><span class="toc-number">1.7.1.</span> <span class="toc-text">1.使用DaemonSet类型部署node-exporter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%B7%BB%E5%8A%A0%E9%87%87%E9%9B%86%E4%BB%BB%E5%8A%A1"><span class="toc-number">1.7.2.</span> <span class="toc-text">2.添加采集任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%9B%B4%E6%96%B0%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.7.3.</span> <span class="toc-text">3.更新配置文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E8%AE%BF%E9%97%AEweb%E7%AB%AF%E6%9F%A5%E7%9C%8B"><span class="toc-number">1.7.4.</span> <span class="toc-text">4.访问web端查看</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E9%85%8D%E7%BD%AE%E4%BB%8Eapi-server%E8%8E%B7%E5%8F%96%E7%9B%91%E6%8E%A7%E6%8C%87%E6%A0%87"><span class="toc-number">1.8.</span> <span class="toc-text">八、配置从api-server获取监控指标</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%BF%AE%E6%94%B9Prometheus-config%E6%B7%BB%E5%8A%A0%E7%9B%91%E6%8E%A7%E9%A1%B9"><span class="toc-number">1.8.1.</span> <span class="toc-text">1.修改Prometheus-config添加监控项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%9B%B4%E6%96%B0%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%EF%BC%8C%E9%87%8D%E5%90%AFPod"><span class="toc-number">1.8.2.</span> <span class="toc-text">2.更新配置文件，重启Pod</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E8%AE%BF%E9%97%AEweb%E7%AB%AF%E6%9F%A5%E7%9C%8B"><span class="toc-number">1.8.3.</span> <span class="toc-text">3.访问web端查看</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E9%85%8D%E7%BD%AEgrafana%E5%9B%BE%E5%BD%A2%E5%8C%96"><span class="toc-number">1.9.</span> <span class="toc-text">九、配置grafana图形化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E9%83%A8%E7%BD%B2grafana"><span class="toc-number">1.9.1.</span> <span class="toc-text">1.部署grafana</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%9F%A5%E7%9C%8BPod"><span class="toc-number">1.9.2.</span> <span class="toc-text">2.查看Pod</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%9F%A5%E7%9C%8Bsvc"><span class="toc-number">1.9.3.</span> <span class="toc-text">3.查看svc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E7%99%BB%E5%BD%95web%E7%95%8C%E9%9D%A2"><span class="toc-number">1.9.4.</span> <span class="toc-text">4.登录web界面</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E6%B7%BB%E5%8A%A0%E6%95%B0%E6%8D%AE%E6%BA%90"><span class="toc-number">1.9.5.</span> <span class="toc-text">5.添加数据源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E5%AF%BC%E5%85%A5%E6%A8%A1%E6%9D%BF"><span class="toc-number">1.9.6.</span> <span class="toc-text">6.导入模板</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E6%98%BE%E7%A4%BA%E5%86%85%E5%AD%98%E3%80%81CPU%E3%80%81%E7%A3%81%E7%9B%98%E7%9A%84%E4%BD%BF%E7%94%A8%E6%83%85%E5%86%B5"><span class="toc-number">1.9.7.</span> <span class="toc-text">7.显示内存、CPU、磁盘的使用情况</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%86%85%E5%AD%98"><span class="toc-number">1.9.7.1.</span> <span class="toc-text">内存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%A6%E5%A4%962%E4%B8%AA%E5%9B%BE%E5%BD%A2%E4%B9%9F%E6%98%AF%E5%90%8C%E6%A0%B7%E7%9A%84%E6%93%8D%E4%BD%9C%EF%BC%8C%E6%9B%BF%E6%8D%A2%E9%87%8C%E9%9D%A2%E7%9A%84%E5%86%85%E5%AE%B9"><span class="toc-number">1.9.7.2.</span> <span class="toc-text">另外2个图形也是同样的操作，替换里面的内容</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CPU"><span class="toc-number">1.9.7.3.</span> <span class="toc-text">CPU</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A3%81%E7%9B%98"><span class="toc-number">1.9.7.4.</span> <span class="toc-text">磁盘</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%88%E6%9E%9C%E5%9B%BE%E5%B1%95%E7%A4%BA"><span class="toc-number">1.9.7.5.</span> <span class="toc-text">效果图展示</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-%E4%BF%9D%E5%AD%98%E5%9B%BE%E5%BD%A2"><span class="toc-number">1.9.8.</span> <span class="toc-text">8.保存图形</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-%E4%B8%BB%E9%A1%B5%E9%9D%A2%E5%BF%AB%E9%80%9F%E6%9F%A5%E7%9C%8B%E5%88%9B%E5%BB%BA%E7%9A%84%E5%9B%BE%E5%BD%A2"><span class="toc-number">1.9.9.</span> <span class="toc-text">9.主页面快速查看创建的图形</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E7%9B%91%E6%8E%A7Mysql"><span class="toc-number">1.10.</span> <span class="toc-text">十、监控Mysql</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%88%9B%E5%BB%BAMysql%E7%9A%84Pod"><span class="toc-number">1.10.1.</span> <span class="toc-text">1.创建Mysql的Pod</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E7%99%BB%E5%BD%95Mysql%E5%88%9B%E5%BB%BA%E7%9B%91%E6%8E%A7%E9%9C%80%E8%A6%81%E7%9A%84%E7%94%A8%E6%88%B7"><span class="toc-number">1.10.2.</span> <span class="toc-text">2.登录Mysql创建监控需要的用户</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E9%83%A8%E7%BD%B2Mysql-exporter"><span class="toc-number">1.10.3.</span> <span class="toc-text">3.部署Mysql-exporter</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8BMysql-exporter"><span class="toc-number">1.10.3.1.</span> <span class="toc-text">查看Mysql-exporter</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9B%B4%E6%96%B0prometheus-config-yaml%E6%96%87%E4%BB%B6"><span class="toc-number">1.10.3.2.</span> <span class="toc-text">更新prometheus-config.yaml文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%BF%E9%97%AEPrometheus%E7%9A%84web%E7%95%8C%E9%9D%A2"><span class="toc-number">1.10.3.3.</span> <span class="toc-text">访问Prometheus的web界面</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%9C%A8Grafana%E6%B7%BB%E5%8A%A0%E6%95%B0%E6%8D%AE%E6%BA%90"><span class="toc-number">1.10.4.</span> <span class="toc-text">4.在Grafana添加数据源</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/06/24/hk4e/" title="基于Kubernetes环境搭建hk4e原神真端教程"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="基于Kubernetes环境搭建hk4e原神真端教程"/></a><div class="content"><a class="title" href="/2023/06/24/hk4e/" title="基于Kubernetes环境搭建hk4e原神真端教程">基于Kubernetes环境搭建hk4e原神真端教程</a><time datetime="2023-06-24T02:12:50.108Z" title="发表于 2023-06-24 10:12:50">2023-06-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/22/156/" title="【Python学习笔记】集合和Bytes"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】集合和Bytes"/></a><div class="content"><a class="title" href="/2023/06/22/156/" title="【Python学习笔记】集合和Bytes">【Python学习笔记】集合和Bytes</a><time datetime="2023-06-22T04:57:12.047Z" title="发表于 2023-06-22 12:57:12">2023-06-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/22/155/" title="【Python学习笔记】字典的管理操作"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】字典的管理操作"/></a><div class="content"><a class="title" href="/2023/06/22/155/" title="【Python学习笔记】字典的管理操作">【Python学习笔记】字典的管理操作</a><time datetime="2023-06-22T03:51:28.495Z" title="发表于 2023-06-22 11:51:28">2023-06-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/21/154/" title="【Python学习笔记】列表及元组"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】列表及元组"/></a><div class="content"><a class="title" href="/2023/06/21/154/" title="【Python学习笔记】列表及元组">【Python学习笔记】列表及元组</a><time datetime="2023-06-21T12:49:12.830Z" title="发表于 2023-06-21 20:49:12">2023-06-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/20/153/" title="【Python学习笔记】字符串管理操作"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】字符串管理操作"/></a><div class="content"><a class="title" href="/2023/06/20/153/" title="【Python学习笔记】字符串管理操作">【Python学习笔记】字符串管理操作</a><time datetime="2023-06-20T13:12:05.306Z" title="发表于 2023-06-20 21:12:05">2023-06-20</time></div></div></div></div></div></div></main><footer id="footer" style="background: flase"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By 网笙久久</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><div class="js-pjax"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js"></script><script>(() => {
+  document.querySelectorAll('#article-container span.katex-display').forEach(item => {
+    btf.wrap(item, 'div', { class: 'katex-wrap'})
+  })
+})()</script></div><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div><script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(n){n.imageLazyLoadSetting.processImages=i;var e=n.imageLazyLoadSetting.isSPA,r=(n.imageLazyLoadSetting.preloadRatio,Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));function i(){e&&(r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));for(var t,a=0;a<r.length;a++)0<=(t=(t=r[a]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(n.innerHeight+240||document.documentElement.clientHeight+240)&&function(){var t,e,n,i,o=r[a];t=o,e=function(){r=r.filter(function(t){return o!==t})},n=new Image,i=t.getAttribute("data-original"),n.onload=function(){t.src=i,e&&e()},t.src!==i&&(n.src=i)}()}i(),n.addEventListener("scroll",function(){var t,e;t=i,e=n,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(e)},500)})}(this);</script></body></html>

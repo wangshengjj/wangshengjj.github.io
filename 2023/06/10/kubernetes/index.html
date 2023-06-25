@@ -1,0 +1,1034 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>【容器应用系列教程】基于Kubernetes1.20.7部署高可用集群(Centos7) | WangShengJJのblog</title><meta name="author" content="网笙久久"><meta name="copyright" content="网笙久久"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="【容器应用系列教程】基于Kubernetes1.20.7部署高可用集群(Centos7) 关于单Master节点Kubernetes集群教程：https:&#x2F;&#x2F;www.wsjj.top&#x2F;archives&#x2F;138  一、环境描述1.主机规划   主机名 IP地址 VIP 安装的软件 系统版本 配置    k8s-master01.linux.com 192.168.140.10 192.168.140">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【容器应用系列教程】基于Kubernetes1.20.7部署高可用集群(Centos7)">
+<meta property="og:url" content="https://blog.wangshengjj.work/2023/06/10/kubernetes/index.html">
+<meta property="og:site_name" content="WangShengJJのblog">
+<meta property="og:description" content="【容器应用系列教程】基于Kubernetes1.20.7部署高可用集群(Centos7) 关于单Master节点Kubernetes集群教程：https:&#x2F;&#x2F;www.wsjj.top&#x2F;archives&#x2F;138  一、环境描述1.主机规划   主机名 IP地址 VIP 安装的软件 系统版本 配置    k8s-master01.linux.com 192.168.140.10 192.168.140">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://api.ghser.com/random/api.php">
+<meta property="article:published_time" content="2023-06-10T08:16:48.303Z">
+<meta property="article:modified_time" content="2023-06-18T08:12:54.756Z">
+<meta property="article:author" content="网笙久久">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="高可用集群">
+<meta property="article:tag" content="centos7">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="kubernetes">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://api.ghser.com/random/api.php"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://blog.wangshengjj.work/2023/06/10/kubernetes/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"prismjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【容器应用系列教程】基于Kubernetes1.20.7部署高可用集群(Centos7)',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-06-18 16:12:54'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><meting-js server="netease" type="playlist" id="7386208265" lrc-type="0" volume="0.5" fixed="true" mini="true" order="random" loop="all" autoplay="true" preload="auto" list-folded="true"></meting-js><script src="https://fastly.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/autoload.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script><meta name="generator" content="Hexo 6.1.0"></head><body><link rel="stylesheet" href="/css/barber-shop.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">167</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">218</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">303</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://api.ghser.com/random/api.php')"><nav id="nav"><span id="blog-info"><a href="/" title="WangShengJJのblog"><span class="site-name">WangShengJJのblog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【容器应用系列教程】基于Kubernetes1.20.7部署高可用集群(Centos7)</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-06-10T08:16:48.303Z" title="发表于 2023-06-10 16:16:48">2023-06-10</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-06-18T08:12:54.756Z" title="更新于 2023-06-18 16:12:54">2023-06-18</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/">k8s</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/%E7%AC%94%E8%AE%B0/">笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/%E7%AC%94%E8%AE%B0/%E9%9B%86%E7%BE%A4/">集群</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/%E7%AC%94%E8%AE%B0/%E9%9B%86%E7%BE%A4/keepalived/">keepalived</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/%E7%AC%94%E8%AE%B0/%E9%9B%86%E7%BE%A4/keepalived/haproxy/">haproxy</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/%E7%AC%94%E8%AE%B0/%E9%9B%86%E7%BE%A4/keepalived/haproxy/%E5%AE%B9%E5%99%A8/">容器</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">5.9k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>32分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="【容器应用系列教程】基于Kubernetes1.20.7部署高可用集群(Centos7)"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="【容器应用系列教程】基于Kubernetes1-20-7部署高可用集群-Centos7"><a href="#【容器应用系列教程】基于Kubernetes1-20-7部署高可用集群-Centos7" class="headerlink" title="【容器应用系列教程】基于Kubernetes1.20.7部署高可用集群(Centos7)"></a>【容器应用系列教程】基于Kubernetes1.20.7部署高可用集群(Centos7)</h1><blockquote>
+<p><strong>关于单<code>Master</code>节点<code>Kubernetes</code>集群教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/138">https://www.wsjj.top/archives/138</a></strong></p>
+</blockquote>
+<h2 id="一、环境描述"><a href="#一、环境描述" class="headerlink" title="一、环境描述"></a>一、环境描述</h2><h3 id="1-主机规划"><a href="#1-主机规划" class="headerlink" title="1.主机规划"></a>1.主机规划</h3><table>
+<thead>
+<tr>
+<th>主机名</th>
+<th>IP地址</th>
+<th>VIP</th>
+<th>安装的软件</th>
+<th>系统版本</th>
+<th>配置</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>k8s-master01.linux.com</td>
+<td>192.168.140.10</td>
+<td>192.168.140.100</td>
+<td>Docker、Kubernetes、LVS、HAproxy、Keepalived</td>
+<td>Centos7.9</td>
+<td>最低2c2g</td>
+</tr>
+<tr>
+<td>k8s-master02.linux.com</td>
+<td>192.168.140.11</td>
+<td>192.168.140.100</td>
+<td>Docker、Kubernetes、LVS、HAproxy、Keepalived</td>
+<td>Centos7.9</td>
+<td>最低2c2g</td>
+</tr>
+<tr>
+<td>k8s-master03.linux.com</td>
+<td>192.168.140.12</td>
+<td>192.168.140.100</td>
+<td>Docker、Kubernetes、LVS、HAproxy、Keepalived</td>
+<td>Centos7.9</td>
+<td>最低2c2g</td>
+</tr>
+<tr>
+<td>k8s-node01.linux.com</td>
+<td>192.168.140.13</td>
+<td>空</td>
+<td>Docker、Kubernetes、LVS</td>
+<td>Centos7.9</td>
+<td>最低2c2g</td>
+</tr>
+<tr>
+<td>k8s-node02.linux.com</td>
+<td>192.168.140.14</td>
+<td>空</td>
+<td>Docker、Kubernetes、LVS</td>
+<td>Centos7.9</td>
+<td>最低2c2g</td>
+</tr>
+</tbody></table>
+<h3 id="2-软件规划"><a href="#2-软件规划" class="headerlink" title="2.软件规划"></a>2.软件规划</h3><ul>
+<li><code>kubernetes-1.20.7</code>版本</li>
+<li><code>docker-19.03</code>版本</li>
+</ul>
+<h3 id="3-网段规划"><a href="#3-网段规划" class="headerlink" title="3.网段规划"></a>3.网段规划</h3><ul>
+<li><code>Pod</code>网段: <code>172.168.0.0/16</code></li>
+<li><code>Service</code>网段: <code>10.96.0.0/16</code></li>
+</ul>
+<h2 id="二、前期准备-重要"><a href="#二、前期准备-重要" class="headerlink" title="二、前期准备(重要)"></a>二、前期准备(重要)</h2><h3 id="1-五台服务器关闭防火墙和SElinux、配置时间同步"><a href="#1-五台服务器关闭防火墙和SElinux、配置时间同步" class="headerlink" title="1.五台服务器关闭防火墙和SElinux、配置时间同步"></a>1.五台服务器关闭防火墙和SElinux、配置时间同步</h3><blockquote>
+<p><strong>过程省略</strong></p>
+</blockquote>
+<h4 id="配置时间同步计划任务"><a href="#配置时间同步计划任务" class="headerlink" title="配置时间同步计划任务"></a>配置时间同步计划任务</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# yum install -y ntpdate
+[root@k8s-master02 ~]# yum install -y ntpdate
+[root@k8s-master03 ~]# yum install -y ntpdate
+[root@k8s-node01 ~]# yum install -y ntpdate
+[root@k8s-node02 ~]# yum install -y ntpdate<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# crontab -e
+*&#x2F;30 * * * *   &#x2F;usr&#x2F;sbin&#x2F;ntpdate  120.25.115.20 &amp;&gt; &#x2F;dev&#x2F;null
+[root@k8s-master02 ~]# crontab -e
+*&#x2F;30 * * * *   &#x2F;usr&#x2F;sbin&#x2F;ntpdate  120.25.115.20 &amp;&gt; &#x2F;dev&#x2F;null
+[root@k8s-master03 ~]# crontab -e
+*&#x2F;30 * * * *   &#x2F;usr&#x2F;sbin&#x2F;ntpdate  120.25.115.20 &amp;&gt; &#x2F;dev&#x2F;null
+[root@k8s-node01 ~]# crontab -e
+*&#x2F;30 * * * *   &#x2F;usr&#x2F;sbin&#x2F;ntpdate  120.25.115.20 &amp;&gt; &#x2F;dev&#x2F;null
+[root@k8s-node02 ~]# crontab -e
+*&#x2F;30 * * * *   &#x2F;usr&#x2F;sbin&#x2F;ntpdate  120.25.115.20 &amp;&gt; &#x2F;dev&#x2F;null<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="2-所有主机关闭SSH的DNS解析-优化SSH连接速度"><a href="#2-所有主机关闭SSH的DNS解析-优化SSH连接速度" class="headerlink" title="2.所有主机关闭SSH的DNS解析(优化SSH连接速度)"></a>2.所有主机关闭<code>SSH</code>的<code>DNS</code>解析(优化SSH连接速度)</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# sed -ri &#39;s|#UseDNS yes|UseDNS no|&#39; &#x2F;etc&#x2F;ssh&#x2F;sshd_config
+[root@k8s-master01 ~]# systemctl restart sshd
+[root@k8s-master02 ~]# sed -ri &#39;s|#UseDNS yes|UseDNS no|&#39; &#x2F;etc&#x2F;ssh&#x2F;sshd_config
+[root@k8s-master02 ~]# systemctl restart sshd
+[root@k8s-master03 ~]# sed -ri &#39;s|#UseDNS yes|UseDNS no|&#39; &#x2F;etc&#x2F;ssh&#x2F;sshd_config
+[root@k8s-master03 ~]# systemctl restart sshd
+[root@k8s-node01 ~]# sed -ri &#39;s|#UseDNS yes|UseDNS no|&#39; &#x2F;etc&#x2F;ssh&#x2F;sshd_config
+[root@k8s-node01 ~]# systemctl restart sshd
+[root@k8s-node02 ~]# sed -ri &#39;s|#UseDNS yes|UseDNS no|&#39; &#x2F;etc&#x2F;ssh&#x2F;sshd_config
+[root@k8s-node02 ~]# systemctl restart sshd<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-所有主机配置免密SSH连接-重要"><a href="#3-所有主机配置免密SSH连接-重要" class="headerlink" title="3.所有主机配置免密SSH连接(重要)"></a>3.所有主机配置免密<code>SSH</code>连接(重要)</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# ssh-keygen -t rsa
+[root@k8s-master01 ~]# mv &#x2F;root&#x2F;.ssh&#x2F;id_rsa.pub &#x2F;root&#x2F;.ssh&#x2F;authorized_keys
+
+[root@k8s-master01 ~]# for i in 11 12 13 14
+&gt; do
+&gt; scp -r &#x2F;root&#x2F;.ssh&#x2F; root@192.168.140.$i:&#x2F;root&#x2F;
+&gt; done<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="测试免密SSH"><a href="#测试免密SSH" class="headerlink" title="测试免密SSH"></a>测试免密<code>SSH</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# for i in 10 11 12 13 14
+&gt; do
+&gt; ssh root@192.168.140.$i hostname; date
+&gt; done
+k8s-master01.linux.com
+2023年 06月 10日 星期六 16:49:40 CST
+k8s-master02.linux.com
+2023年 06月 10日 星期六 16:49:40 CST
+k8s-master03.linux.com
+2023年 06月 10日 星期六 16:49:40 CST
+k8s-node01.linux.com
+2023年 06月 10日 星期六 16:49:40 CST
+k8s-node02.linux.com
+2023年 06月 10日 星期六 16:49:40 CST<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-所有主机添加主机名解析-重要"><a href="#4-所有主机添加主机名解析-重要" class="headerlink" title="4.所有主机添加主机名解析(重要)"></a>4.所有主机添加主机名解析(重要)</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# vim &#x2F;etc&#x2F;hosts
+#在配置文件底部添加以下内容
+192.168.140.10 k8s-master01.linux.com k8s-master01
+192.168.140.11 k8s-master02.linux.com k8s-master02
+192.168.140.12 k8s-master03.linux.com k8s-master03
+192.168.140.13 k8s-node01.linux.com k8s-node01
+192.168.140.14 k8s-node02.linux.com k8s-node02
+192.168.140.100 k8s-master-vip<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# for i in 11 12 13 14
+&gt; do
+&gt; scp -r &#x2F;etc&#x2F;hosts root@192.168.140.$i:&#x2F;etc&#x2F;
+&gt; done<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="5-所有主机禁用SWAP分区"><a href="#5-所有主机禁用SWAP分区" class="headerlink" title="5.所有主机禁用SWAP分区"></a>5.所有主机禁用<code>SWAP</code>分区</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# for i in 10 11 12 13 14
+&gt; do
+&gt; ssh root@192.168.140.$i swapoff -a; free -m; sysctl -w vm.swappiness&#x3D;0
+&gt; done
+
+              total        used        free      shared  buff&#x2F;cache   available
+Mem:           2755         192        2165           9         397        2409
+Swap:             0           0           0
+vm.swappiness &#x3D; 0
+              total        used        free      shared  buff&#x2F;cache   available
+Mem:           2755         192        2165           9         396        2409
+Swap:             0           0           0
+vm.swappiness &#x3D; 0
+              total        used        free      shared  buff&#x2F;cache   available
+Mem:           2755         192        2165           9         396        2409
+Swap:             0           0           0
+vm.swappiness &#x3D; 0
+              total        used        free      shared  buff&#x2F;cache   available
+Mem:           2755         192        2165           9         396        2410
+Swap:             0           0           0
+vm.swappiness &#x3D; 0
+              total        used        free      shared  buff&#x2F;cache   available
+Mem:           2755         192        2166           9         396        2410
+Swap:             0           0           0
+vm.swappiness &#x3D; 0<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="注释掉SWAP分区的挂载信息"><a href="#注释掉SWAP分区的挂载信息" class="headerlink" title="注释掉SWAP分区的挂载信息"></a>注释掉<code>SWAP</code>分区的挂载信息</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# vim &#x2F;etc&#x2F;fstab
+# &#x2F;dev&#x2F;mapper&#x2F;centos-swap swap                    swap    defaults        0 0
+[root@k8s-master01 ~]# mount -a
+
+[root@k8s-master02 ~]# vim &#x2F;etc&#x2F;fstab
+# &#x2F;dev&#x2F;mapper&#x2F;centos-swap swap                    swap    defaults        0 0
+[root@k8s-master02 ~]# mount -a
+
+[root@k8s-master03 ~]# vim &#x2F;etc&#x2F;fstab
+# &#x2F;dev&#x2F;mapper&#x2F;centos-swap swap                    swap    defaults        0 0
+[root@k8s-master03 ~]# mount -a
+
+[root@k8s-node01 ~]# vim &#x2F;etc&#x2F;fstab
+# &#x2F;dev&#x2F;mapper&#x2F;centos-swap swap                    swap    defaults        0 0
+[root@k8s-node01 ~]# mount -a
+
+[root@k8s-node02 ~]# vim &#x2F;etc&#x2F;fstab
+# &#x2F;dev&#x2F;mapper&#x2F;centos-swap swap                    swap    defaults        0 0
+[root@k8s-node02 ~]# mount -a<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="6-所有主机调整资源限制"><a href="#6-所有主机调整资源限制" class="headerlink" title="6.所有主机调整资源限制"></a>6.所有主机调整资源限制</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# for i in 10 11 12 13 14
+&gt; do
+&gt; ssh root@192.168.140.$i ulimit -SHn 65535
+&gt; done<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li><code>nofile</code>最大文件数</li>
+<li><code>nproc</code>最大进程数</li>
+<li><code>memlock</code>内页的页面锁</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# vim &#x2F;etc&#x2F;security&#x2F;limits.conf
+#在文件末尾添加以下内容
+* soft nofile 655360
+* hard nofile 131072
+* soft nproc 655350
+* hard nproc 655350
+* soft memlock unlimited
+* hard memlock unlimited<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# for i in 11 12 13 14
+&gt; do
+&gt; scp -r &#x2F;etc&#x2F;security&#x2F;limits.conf root@192.168.140.$i:&#x2F;etc&#x2F;security&#x2F;
+&gt; done<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="7-配置软件安装源"><a href="#7-配置软件安装源" class="headerlink" title="7.配置软件安装源"></a>7.配置软件安装源</h3><blockquote>
+<p><strong><code>Centos base源</code>、<code>Centos epel源</code>、<code>Docker源</code>、<code>kubernetes源</code></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# wget -O &#x2F;etc&#x2F;yum.repos.d&#x2F;CentOS-Base.repo http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;repo&#x2F;Centos-7.repo
+[root@k8s-master01 ~]# wget -O &#x2F;etc&#x2F;yum.repos.d&#x2F;epel.repo https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;repo&#x2F;epel-7.repo<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# vim &#x2F;etc&#x2F;yum.repos.d&#x2F;docker.repo
+[docker-ce-stable]
+name&#x3D;Docker CE Stable - $basearch
+baseurl&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;$releasever&#x2F;$basearch&#x2F;stable
+enabled&#x3D;1
+gpgcheck&#x3D;1
+gpgkey&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;gpg
+
+[docker-ce-stable-debuginfo]
+name&#x3D;Docker CE Stable - Debuginfo $basearch
+baseurl&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;$releasever&#x2F;debug-$basearch&#x2F;stable
+enabled&#x3D;0
+gpgcheck&#x3D;1
+gpgkey&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;gpg
+
+[docker-ce-stable-source]
+name&#x3D;Docker CE Stable - Sources
+baseurl&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;$releasever&#x2F;source&#x2F;stable
+enabled&#x3D;0
+gpgcheck&#x3D;1
+gpgkey&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;gpg
+
+[docker-ce-test]
+name&#x3D;Docker CE Test - $basearch
+baseurl&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;$releasever&#x2F;$basearch&#x2F;test
+enabled&#x3D;0
+gpgcheck&#x3D;1
+gpgkey&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;gpg
+
+[docker-ce-test-debuginfo]
+name&#x3D;Docker CE Test - Debuginfo $basearch
+baseurl&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;$releasever&#x2F;debug-$basearch&#x2F;test
+enabled&#x3D;0
+gpgcheck&#x3D;1
+gpgkey&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;gpg
+
+[docker-ce-test-source]
+name&#x3D;Docker CE Test - Sources
+baseurl&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;$releasever&#x2F;source&#x2F;test
+enabled&#x3D;0
+gpgcheck&#x3D;1
+gpgkey&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;gpg
+
+[docker-ce-nightly]
+name&#x3D;Docker CE Nightly - $basearch
+baseurl&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;$releasever&#x2F;$basearch&#x2F;nightly
+enabled&#x3D;0
+gpgcheck&#x3D;1
+gpgkey&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;gpg
+
+[docker-ce-nightly-debuginfo]
+name&#x3D;Docker CE Nightly - Debuginfo $basearch
+baseurl&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;$releasever&#x2F;debug-$basearch&#x2F;nightly
+enabled&#x3D;0
+gpgcheck&#x3D;1
+gpgkey&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;gpg
+
+[docker-ce-nightly-source]
+name&#x3D;Docker CE Nightly - Sources
+baseurl&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;$releasever&#x2F;source&#x2F;nightly
+enabled&#x3D;0
+gpgcheck&#x3D;1
+gpgkey&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;docker-ce&#x2F;linux&#x2F;centos&#x2F;gpg<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# vim &#x2F;etc&#x2F;yum.repos.d&#x2F;k8s.repo
+[kubernetes]
+name&#x3D;Kubernetes
+baseurl&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;kubernetes&#x2F;yum&#x2F;repos&#x2F;kubernetes-el7-x86_64&#x2F;
+enabled&#x3D;1
+gpgcheck&#x3D;0<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="把安装源拷贝给其他机器"><a href="#把安装源拷贝给其他机器" class="headerlink" title="把安装源拷贝给其他机器"></a>把安装源拷贝给其他机器</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# for i in 11 12 13 14
+&gt; do
+&gt; scp -r &#x2F;etc&#x2F;yum.repos.d&#x2F;*.repo root@192.168.140.$i:&#x2F;etc&#x2F;yum.repos.d&#x2F;
+&gt; done<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="建立新的YUM缓存"><a href="#建立新的YUM缓存" class="headerlink" title="建立新的YUM缓存"></a>建立新的<code>YUM</code>缓存</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# yum clean all &amp;&amp; yum makecache fast
+[root@k8s-master02 ~]# yum clean all &amp;&amp; yum makecache fast
+[root@k8s-master03 ~]# yum clean all &amp;&amp; yum makecache fast
+[root@k8s-node01 ~]# yum clean all &amp;&amp; yum makecache fast
+[root@k8s-node02 ~]# yum clean all &amp;&amp; yum makecache fast<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="8-升级系统到最新版"><a href="#8-升级系统到最新版" class="headerlink" title="8.升级系统到最新版"></a>8.升级系统到最新版</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# yum update -y
+[root@k8s-master02 ~]# yum update -y
+[root@k8s-master03 ~]# yum update -y
+[root@k8s-node01 ~]# yum update -y
+[root@k8s-node02 ~]# yum update -y<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# init 6
+[root@k8s-master02 ~]# init 6
+[root@k8s-master03 ~]# init 6
+[root@k8s-node01 ~]# init 6
+[root@k8s-node02 ~]# init 6<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="9-升级系统内核-可选的"><a href="#9-升级系统内核-可选的" class="headerlink" title="9.升级系统内核(可选的)"></a>9.升级系统内核(可选的)</h3><blockquote>
+<p><strong>关于<code>Centos7</code>升级内核教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/kernel">https://www.wsjj.top/archives/kernel</a></strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# for i in 10 11 12 13 14
+&gt; do
+&gt; ssh root@192.168.140.$i uname -r
+&gt; done
+
+5.4.246-1.el7.elrepo.x86_64
+5.4.246-1.el7.elrepo.x86_64
+5.4.246-1.el7.elrepo.x86_64
+5.4.246-1.el7.elrepo.x86_64
+5.4.246-1.el7.elrepo.x86_64<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="三、调整系统参数"><a href="#三、调整系统参数" class="headerlink" title="三、调整系统参数"></a>三、调整系统参数</h2><h3 id="1-所有主机安装IPVS"><a href="#1-所有主机安装IPVS" class="headerlink" title="1.所有主机安装IPVS"></a>1.所有主机安装<code>IPVS</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# for i in 10 11 12 13 14
+&gt; do
+&gt; ssh root@192.168.140.$i yum install ipvsadm ipset sysstat conntrack libseccomp -y
+&gt; done<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="所有主机加载IPVS模块"><a href="#所有主机加载IPVS模块" class="headerlink" title="所有主机加载IPVS模块"></a>所有主机加载<code>IPVS</code>模块</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# vim &#x2F;etc&#x2F;modules-load.d&#x2F;ipvs.conf
+#把以下内容复制到文件内
+ip_vs
+ip_vs_lc
+ip_vs_wlc
+ip_vs_rr
+ip_vs_wrr
+ip_vs_lblc
+ip_vs_lblcr
+ip_vs_dh
+ip_vs_sh
+ip_vs_fo
+ip_vs_nq
+ip_vs_sed
+ip_vs_ftp
+ip_vs_sh
+nf_conntrack_ipv4	#如果使用高版本内核5.x版本，请更名为nf_conntrack
+ip_tables
+ip_set
+xt_set
+ipt_set
+ipt_rpfilter
+ipt_REJECT
+ipip<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# for i in 11 12 13 14
+&gt; do
+&gt; scp -r &#x2F;etc&#x2F;modules-load.d&#x2F;ipvs.conf root@192.168.140.$i:&#x2F;etc&#x2F;modules-load.d&#x2F;
+&gt; done<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# for i in 10 11 12 13 14
+&gt; do
+&gt; ssh root@192.168.140.$i systemctl enable --now systemd-modules-load
+&gt; done<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="2-所有主机调整内核参数"><a href="#2-所有主机调整内核参数" class="headerlink" title="2.所有主机调整内核参数"></a>2.所有主机调整内核参数</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# vim &#x2F;etc&#x2F;sysctl.d&#x2F;k8s.conf
+#复制以下内容到配置文件内
+net.ipv4.ip_forward &#x3D; 1
+net.bridge.bridge-nf-call-iptables &#x3D; 1
+net.bridge.bridge-nf-call-ip6tables &#x3D; 1
+fs.may_detach_mounts &#x3D; 1
+vm.overcommit_memory&#x3D;1
+vm.panic_on_oom&#x3D;0
+fs.inotify.max_user_watches&#x3D;89100
+fs.file-max&#x3D;52706963
+fs.nr_open&#x3D;52706963
+net.netfilter.nf_conntrack_max&#x3D;2310720
+
+net.ipv4.tcp_keepalive_time &#x3D; 600
+net.ipv4.tcp_keepalive_probes &#x3D; 3
+net.ipv4.tcp_keepalive_intvl &#x3D;15
+net.ipv4.tcp_max_tw_buckets &#x3D; 36000
+net.ipv4.tcp_tw_reuse &#x3D; 1
+net.ipv4.tcp_max_orphans &#x3D; 327680
+net.ipv4.tcp_orphan_retries &#x3D; 3
+net.ipv4.tcp_syncookies &#x3D; 1
+net.ipv4.tcp_max_syn_backlog &#x3D; 16384
+net.ipv4.ip_conntrack_max &#x3D; 65536
+net.ipv4.tcp_max_syn_backlog &#x3D; 16384
+net.ipv4.tcp_timestamps &#x3D; 0
+net.core.somaxconn &#x3D; 16384<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# for i in 11 12 13 14
+&gt; do
+&gt; scp -r &#x2F;etc&#x2F;sysctl.d&#x2F;k8s.conf root@192.168.140.$i:&#x2F;etc&#x2F;sysctl.d&#x2F;
+&gt; done<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# for i in 10 11 12 13 14
+&gt; do
+&gt; ssh root@192.168.140.$i sysctl --system
+&gt; done<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="四、所有主机安装需要的软件"><a href="#四、所有主机安装需要的软件" class="headerlink" title="四、所有主机安装需要的软件"></a>四、所有主机安装需要的软件</h2><blockquote>
+<p><strong><code>Docker-ce-19.03</code>、<code>kubeadm-1.20.7</code>、<code>kubelet-1.20.7</code>、<code>kubectl-1.20.7</code></strong></p>
+</blockquote>
+<h3 id="1-所有主机安装Docker-ce-19-03"><a href="#1-所有主机安装Docker-ce-19-03" class="headerlink" title="1.所有主机安装Docker-ce-19.03"></a>1.所有主机安装<code>Docker-ce-19.03</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# for i in 10 11 12 13 14
+&gt; do
+&gt; ssh root@192.168.140.$i yum install -y docker-ce-19.03*
+&gt; done<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# for i in 10 11 12 13 14
+&gt; do
+&gt; ssh root@192.168.140.$i systemctl enable --now docker
+&gt; done<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="配置Docker镜像加速"><a href="#配置Docker镜像加速" class="headerlink" title="配置Docker镜像加速"></a>配置<code>Docker</code>镜像加速</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# vim &#x2F;etc&#x2F;docker&#x2F;daemon.json
+#复制以下内容到配置文件内
+&#123;
+&quot;registry-mirrors&quot;: [&quot;http:&#x2F;&#x2F;hub-mirror.c.163.com&quot;,
+&quot;https:&#x2F;&#x2F;docker.mirrors.ustc.edu.cn&quot;]
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="把配置文件拷贝给其他机器"><a href="#把配置文件拷贝给其他机器" class="headerlink" title="把配置文件拷贝给其他机器"></a>把配置文件拷贝给其他机器</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# for i in 11 12 13 14
+&gt; do
+&gt; scp -r &#x2F;etc&#x2F;docker&#x2F;daemon.json root@192.168.140.$i:&#x2F;etc&#x2F;docker&#x2F;
+&gt; done<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="重启Docker"><a href="#重启Docker" class="headerlink" title="重启Docker"></a>重启<code>Docker</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# systemctl restart docker
+[root@k8s-master02 ~]# systemctl restart docker
+[root@k8s-master03 ~]# systemctl restart docker
+[root@k8s-node01 ~]# systemctl restart docker
+[root@k8s-node02 ~]# systemctl restart docker<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="2-所有主机安装kubeadm"><a href="#2-所有主机安装kubeadm" class="headerlink" title="2.所有主机安装kubeadm"></a>2.所有主机安装<code>kubeadm</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# yum install -y kubeadm-1.20.7 kubelet-1.20.7 kubectl-1.20.7
+[root@k8s-master02 ~]# yum install -y kubeadm-1.20.7 kubelet-1.20.7 kubectl-1.20.7
+[root@k8s-master03 ~]# yum install -y kubeadm-1.20.7 kubelet-1.20.7 kubectl-1.20.7
+[root@k8s-node01 ~]# yum install -y kubeadm-1.20.7 kubelet-1.20.7 kubectl-1.20.7
+[root@k8s-node02 ~]# yum install -y kubeadm-1.20.7 kubelet-1.20.7 kubectl-1.20.7<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-修改kubelet默认下载地址为国内镜像"><a href="#3-修改kubelet默认下载地址为国内镜像" class="headerlink" title="3.修改kubelet默认下载地址为国内镜像"></a>3.修改<code>kubelet</code>默认下载地址为国内镜像</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# vim &#x2F;etc&#x2F;sysconfig&#x2F;kubelet
+KUBELET_EXTRA_ARGS&#x3D;&quot;--pod-infra-container-image&#x3D;registry.cn-hangzhou.aliyuncs.com&#x2F;google_containers&#x2F;pause-amd64:3.2&quot;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# for i in 11 12 13 14
+&gt; do
+&gt; scp -r &#x2F;etc&#x2F;sysconfig&#x2F;kubelet root@192.168.140.$i:&#x2F;etc&#x2F;sysconfig&#x2F;
+&gt; done<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# systemctl enable --now kubelet
+[root@k8s-master02 ~]# systemctl enable --now kubelet
+[root@k8s-master03 ~]# systemctl enable --now kubelet
+[root@k8s-node01 ~]# systemctl enable --now kubelet
+[root@k8s-node02 ~]# systemctl enable --now kubelet<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="五、在三个Master节点配置负载均衡和高可用"><a href="#五、在三个Master节点配置负载均衡和高可用" class="headerlink" title="五、在三个Master节点配置负载均衡和高可用"></a>五、在三个<code>Master</code>节点配置负载均衡和高可用</h2><h3 id="1-在三个Master节点安装HAproxy和keepalived"><a href="#1-在三个Master节点安装HAproxy和keepalived" class="headerlink" title="1.在三个Master节点安装HAproxy和keepalived"></a>1.在三个<code>Master</code>节点安装<code>HAproxy</code>和<code>keepalived</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# for i in 10 11 12
+&gt; do
+&gt; ssh root@192.168.140.$i yum install -y haproxy keepalived
+&gt; done<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="2-修改HAproxy配置文件"><a href="#2-修改HAproxy配置文件" class="headerlink" title="2.修改HAproxy配置文件"></a>2.修改<code>HAproxy</code>配置文件</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# vim &#x2F;etc&#x2F;haproxy&#x2F;haproxy.cfg
+
+global
+  maxconn  2000
+  ulimit-n  16384
+  log  127.0.0.1 local0 err
+  stats timeout 30s
+
+defaults
+  log global
+  mode  http
+  option  httplog
+  timeout connect 5000
+  timeout client  50000
+  timeout server  50000
+  timeout http-request 15s
+  timeout http-keep-alive 15s
+
+frontend monitor-in
+  bind *:33305
+  mode http
+  option httplog
+  monitor-uri &#x2F;monitor
+
+frontend k8s-master
+  bind 0.0.0.0:16443
+  bind 127.0.0.1:16443
+  mode tcp
+  option tcplog
+  tcp-request inspect-delay 5s
+  default_backend k8s-master
+
+backend k8s-master
+  mode tcp	#四层调度
+  option tcplog
+  option tcp-check
+  balance roundrobin
+  default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 250 maxqueue 256 weight 100
+  server k8s-master01	192.168.140.10:6443  check
+  server k8s-master02	192.168.140.11:6443  check
+  server k8s-master03	192.168.140.12:6443  check	#我们三个Master节点的IP<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="拷贝配置文件给另外两台master节点"><a href="#拷贝配置文件给另外两台master节点" class="headerlink" title="拷贝配置文件给另外两台master节点"></a>拷贝配置文件给另外两台<code>master</code>节点</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# scp -r &#x2F;etc&#x2F;haproxy&#x2F;haproxy.cfg root@192.168.140.11:&#x2F;etc&#x2F;haproxy&#x2F;
+haproxy.cfg                                    100%  850   735.5KB&#x2F;s   00:00    
+[root@k8s-master01 ~]# scp -r &#x2F;etc&#x2F;haproxy&#x2F;haproxy.cfg root@192.168.140.12:&#x2F;etc&#x2F;haproxy&#x2F;
+haproxy.cfg                                    100%  850   635.7KB&#x2F;s   00:00<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="启动HAproxy"><a href="#启动HAproxy" class="headerlink" title="启动HAproxy"></a>启动<code>HAproxy</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# systemctl enable --now haproxy
+[root@k8s-master02 ~]# systemctl enable --now haproxy
+[root@k8s-master03 ~]# systemctl enable --now haproxy<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# netstat -tunlp | grep haproxy
+tcp        0      0 0.0.0.0:33305           0.0.0.0:*               LISTEN      3104&#x2F;haproxy        
+tcp        0      0 127.0.0.1:16443         0.0.0.0:*               LISTEN      3104&#x2F;haproxy        
+tcp        0      0 0.0.0.0:16443           0.0.0.0:*               LISTEN      3104&#x2F;haproxy        
+udp        0      0 0.0.0.0:44001           0.0.0.0:*                           3104&#x2F;haproxy<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-配置keepalived高可用"><a href="#3-配置keepalived高可用" class="headerlink" title="3.配置keepalived高可用"></a>3.配置<code>keepalived</code>高可用</h3><h4 id="编写高可用脚本"><a href="#编写高可用脚本" class="headerlink" title="编写高可用脚本"></a>编写高可用脚本</h4><blockquote>
+<p><strong>监测<code>kube-apiserver</code>状态</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# vim &#x2F;etc&#x2F;keepalived&#x2F;check_apiserver.sh
+#!&#x2F;bin&#x2F;bash
+
+err&#x3D;0
+for k in $(seq 1 3)
+do
+    check_code&#x3D;$(pgrep haproxy)
+    if [[ $check_code &#x3D;&#x3D; &quot;&quot; ]]; then
+        err&#x3D;$(expr $err + 1)
+        sleep 1
+        continue
+    else
+        err&#x3D;0
+        break
+    fi
+done
+
+if [[ $err !&#x3D; &quot;0&quot; ]]; then
+    echo &quot;systemctl stop keepalived&quot;
+    &#x2F;usr&#x2F;bin&#x2F;systemctl stop keepalived
+    exit 1
+else
+    exit 0
+fi<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# chmod a+x &#x2F;etc&#x2F;keepalived&#x2F;check_apiserver.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="将脚本拷贝给另外两台master节点"><a href="#将脚本拷贝给另外两台master节点" class="headerlink" title="将脚本拷贝给另外两台master节点"></a>将脚本拷贝给另外两台<code>master</code>节点</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# rsync -av &#x2F;etc&#x2F;keepalived&#x2F;check_apiserver.sh root@192.168.140.11:&#x2F;etc&#x2F;keepalived&#x2F;
+[root@k8s-master01 ~]# rsync -av &#x2F;etc&#x2F;keepalived&#x2F;check_apiserver.sh root@192.168.140.12:&#x2F;etc&#x2F;keepalived&#x2F;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="修改主节点的keepalived配置文件"><a href="#修改主节点的keepalived配置文件" class="headerlink" title="修改主节点的keepalived配置文件"></a>修改主节点的<code>keepalived</code>配置文件</h4><table>
+<thead>
+<tr>
+<th>主机名</th>
+<th>IP地址</th>
+<th>VIP</th>
+<th>节点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>k8s-master01.linux.com</td>
+<td>192.168.140.10</td>
+<td>192.168.140.100</td>
+<td>主节点MASTER</td>
+</tr>
+<tr>
+<td>k8s-master02.linux.com</td>
+<td>192.168.140.11</td>
+<td>192.168.140.100</td>
+<td>备用节点BACKUP</td>
+</tr>
+<tr>
+<td>k8s-master03.linux.com</td>
+<td>192.168.140.12</td>
+<td>192.168.140.100</td>
+<td>备用节点BACKUP</td>
+</tr>
+</tbody></table>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# vim &#x2F;etc&#x2F;keepalived&#x2F;keepalived.conf
+! Configuration File for keepalived
+
+global_defs &#123;
+    router_id LVS_DEVEL
+script_user root
+    enable_script_security
+&#125;
+vrrp_script chk_apiserver &#123;
+    script &quot;&#x2F;etc&#x2F;keepalived&#x2F;check_apiserver.sh&quot;
+    interval 5
+    weight -5
+    fall 2  
+    rise 1
+&#125;
+vrrp_instance VI_1 &#123;
+    state MASTER
+    interface ens33
+    virtual_router_id 51
+    priority 101
+    advert_int 2
+    authentication &#123;
+        auth_type PASS
+        auth_pass redhat
+    &#125;
+    virtual_ipaddress &#123;
+        192.168.140.100
+    &#125;
+    track_script &#123;
+       chk_apiserver
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="配置第一个备用节点keepalived配置文件"><a href="#配置第一个备用节点keepalived配置文件" class="headerlink" title="配置第一个备用节点keepalived配置文件"></a>配置第一个备用节点<code>keepalived</code>配置文件</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master02 ~]# vim &#x2F;etc&#x2F;keepalived&#x2F;keepalived.conf 
+! Configuration File for keepalived
+
+global_defs &#123;
+    router_id LVS_DEVEL
+script_user root
+    enable_script_security
+&#125;
+vrrp_script chk_apiserver &#123;
+    script &quot;&#x2F;etc&#x2F;keepalived&#x2F;check_apiserver.sh&quot;
+    interval 5
+    weight -5
+    fall 2  
+    rise 1
+&#125;
+vrrp_instance VI_1 &#123;
+    state BACKUP	#修改模式为备用
+    interface ens33
+    virtual_router_id 51
+    priority 100	#降低权重
+    advert_int 2
+    authentication &#123;
+        auth_type PASS
+        auth_pass redhat
+    &#125;
+    virtual_ipaddress &#123;
+        192.168.140.100
+    &#125;
+    track_script &#123;
+       chk_apiserver
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="配置第二个备用节点keepalived配置文件"><a href="#配置第二个备用节点keepalived配置文件" class="headerlink" title="配置第二个备用节点keepalived配置文件"></a>配置第二个备用节点<code>keepalived</code>配置文件</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master03 ~]# vim &#x2F;etc&#x2F;keepalived&#x2F;keepalived.conf 
+! Configuration File for keepalived
+
+global_defs &#123;
+    router_id LVS_DEVEL
+script_user root
+    enable_script_security
+&#125;
+vrrp_script chk_apiserver &#123;
+    script &quot;&#x2F;etc&#x2F;keepalived&#x2F;check_apiserver.sh&quot;
+    interval 5
+    weight -5
+    fall 2  
+    rise 1
+&#125;
+vrrp_instance VI_1 &#123;
+    state BACKUP	#修改模式为备用
+    interface ens33
+    virtual_router_id 51
+    priority 90	#降低权重
+    advert_int 2
+    authentication &#123;
+        auth_type PASS
+        auth_pass redhat
+    &#125;
+    virtual_ipaddress &#123;
+        192.168.140.100
+    &#125;
+    track_script &#123;
+       chk_apiserver
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="启动三个Master节点的keepalived"><a href="#启动三个Master节点的keepalived" class="headerlink" title="启动三个Master节点的keepalived"></a>启动三个<code>Master</code>节点的<code>keepalived</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# systemctl enable --now keepalived
+[root@k8s-master02 ~]# systemctl enable --now keepalived
+[root@k8s-master03 ~]# systemctl enable --now keepalived<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="外部测试VIP连通性"><a href="#外部测试VIP连通性" class="headerlink" title="外部测试VIP连通性"></a>外部测试<code>VIP</code>连通性</h4><pre class="line-numbers language-none"><code class="language-none">C:\Users\wangshengjj&gt;ping 192.168.140.100
+
+正在 Ping 192.168.140.100 具有 32 字节的数据:
+来自 192.168.140.100 的回复: 字节&#x3D;32 时间&lt;1ms TTL&#x3D;64
+来自 192.168.140.100 的回复: 字节&#x3D;32 时间&lt;1ms TTL&#x3D;64
+来自 192.168.140.100 的回复: 字节&#x3D;32 时间&lt;1ms TTL&#x3D;64
+来自 192.168.140.100 的回复: 字节&#x3D;32 时间&lt;1ms TTL&#x3D;64<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="六、初始化kubernetes集群"><a href="#六、初始化kubernetes集群" class="headerlink" title="六、初始化kubernetes集群"></a>六、初始化kubernetes集群</h2><h3 id="1-在主节点k8s-Master01准备初始化文件"><a href="#1-在主节点k8s-Master01准备初始化文件" class="headerlink" title="1.在主节点k8s-Master01准备初始化文件"></a>1.在主节点<code>k8s-Master01</code>准备初始化文件</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# kubeadm config print init-defaults &gt; new.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# vim new.yaml
+#配置文件不完整，仅展示修改部分
+localAPIEndpoint:
+  advertiseAddress: 192.168.140.10	#指定主API server地址
+  bindPort: 6443
+
+apiServer:
+  certSANs:
+  - 192.168.140.100	#指定证书的签发地址，这里是VIP地址
+  timeoutForControlPlane: 4m0s
+apiVersion: kubeadm.k8s.io&#x2F;v1beta2
+certificatesDir: &#x2F;etc&#x2F;kubernetes&#x2F;pki
+clusterName: kubernetes
+controlPlaneEndpoint: 192.168.140.100:16443	#指定主节点地址和端口，同样是VIP和HAProxy的端口
+controllerManager: &#123;&#125;
+
+imageRepository: registry.cn-hangzhou.aliyuncs.com&#x2F;google_containers	#指定镜像仓库为国内地址
+kind: ClusterConfiguration
+kubernetesVersion: v1.20.7	#指定版本信息
+networking:
+  dnsDomain: cluster.local
+  podSubnet: 172.168.0.0&#x2F;16	#根据规划指定pod网段
+  serviceSubnet: 10.96.0.0&#x2F;12
+scheduler: &#123;&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="下载Master节点初始化用到的镜像"><a href="#下载Master节点初始化用到的镜像" class="headerlink" title="下载Master节点初始化用到的镜像"></a>下载<code>Master</code>节点初始化用到的镜像</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# kubeadm config images pull --config &#x2F;root&#x2F;new.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="初始化集群"><a href="#初始化集群" class="headerlink" title="初始化集群"></a>初始化集群</h4><blockquote>
+<p><strong>这一步生成的<code>token</code>每个人都不一样，请注意！</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# kubeadm init --config &#x2F;root&#x2F;new.yaml  --upload-certs
+
+Your Kubernetes control-plane has initialized successfully!
+
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME&#x2F;.kube
+  sudo cp -i &#x2F;etc&#x2F;kubernetes&#x2F;admin.conf $HOME&#x2F;.kube&#x2F;config
+  sudo chown $(id -u):$(id -g) $HOME&#x2F;.kube&#x2F;config
+
+Alternatively, if you are the root user, you can run:
+
+  export KUBECONFIG&#x3D;&#x2F;etc&#x2F;kubernetes&#x2F;admin.conf	#提示我们配置环境变量
+
+You should now deploy a pod network to the cluster.
+Run &quot;kubectl apply -f [podnetwork].yaml&quot; with one of the options listed at:
+  https:&#x2F;&#x2F;kubernetes.io&#x2F;docs&#x2F;concepts&#x2F;cluster-administration&#x2F;addons&#x2F;
+
+You can now join any number of the control-plane node running the following command on each as root:
+	#用于其他Master节点加入集群
+  kubeadm join 192.168.140.100:16443 --token abcdef.0123456789abcdef \
+    --discovery-token-ca-cert-hash sha256:ad8316cb681fea34bf81f1bab6fc2045e386e30347038ff555140bb18ec4417a \
+    --control-plane --certificate-key 04ee7ab588714943029e1238f43898c1103af38942b7bca808a7f4dae37ddff9
+
+Please note that the certificate-key gives access to cluster sensitive data, keep it secret!
+As a safeguard, uploaded-certs will be deleted in two hours; If necessary, you can use
+&quot;kubeadm init phase upload-certs --upload-certs&quot; to reload certs afterward.
+
+Then you can join any number of worker nodes by running the following on each as root:
+	#用于Node节点加入集群
+kubeadm join 192.168.140.100:16443 --token abcdef.0123456789abcdef \
+    --discovery-token-ca-cert-hash sha256:ad8316cb681fea34bf81f1bab6fc2045e386e30347038ff555140bb18ec4417a<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="配置环境变量"><a href="#配置环境变量" class="headerlink" title="配置环境变量"></a>配置环境变量</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# vim &#x2F;etc&#x2F;profile
+#在配置文件末尾添加内容
+export KUBECONFIG&#x3D;&#x2F;etc&#x2F;kubernetes&#x2F;admin.conf
+
+[root@k8s-master01 ~]# source &#x2F;etc&#x2F;profile	#让环境变量生效<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="查看所有节点"><a href="#查看所有节点" class="headerlink" title="查看所有节点"></a>查看所有节点</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# kubectl get nodes
+NAME                     STATUS     ROLES                  AGE     VERSION
+k8s-master01.linux.com   NotReady   control-plane,master   5m20s   v1.20.7<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="2-将其他Master节点加入集群"><a href="#2-将其他Master节点加入集群" class="headerlink" title="2.将其他Master节点加入集群"></a>2.将其他<code>Master</code>节点加入集群</h3><blockquote>
+<p><strong>在加入集群过程，需要下载镜像，速度可能较慢，请耐心等待</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master02 ~]# kubeadm join 192.168.140.100:16443 --token abcdef.0123456789abcdef \
+&gt;     --discovery-token-ca-cert-hash sha256:ad8316cb681fea34bf81f1bab6fc2045e386e30347038ff555140bb18ec4417a \
+&gt;     --control-plane --certificate-key 04ee7ab588714943029e1238f43898c1103af38942b7bca808a7f4dae37ddff9
+[root@k8s-master03 ~]# kubeadm join 192.168.140.100:16443 --token abcdef.0123456789abcdef \
+&gt;     --discovery-token-ca-cert-hash sha256:ad8316cb681fea34bf81f1bab6fc2045e386e30347038ff555140bb18ec4417a \
+&gt;     --control-plane --certificate-key 04ee7ab588714943029e1238f43898c1103af38942b7bca808a7f4dae37ddff9<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="回到主节点查看所有节点"><a href="#回到主节点查看所有节点" class="headerlink" title="回到主节点查看所有节点"></a>回到主节点查看所有节点</h4><blockquote>
+<p><strong>可以看到<code>2</code>个备用<code>Master</code>节点已经加入了</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# kubectl get nodes
+NAME                     STATUS     ROLES                  AGE     VERSION
+k8s-master01.linux.com   NotReady   control-plane,master   9m49s   v1.20.7
+k8s-master02.linux.com   NotReady   control-plane,master   72s     v1.20.7
+k8s-master03.linux.com   NotReady   control-plane,master   17s     v1.20.7<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-将Node节点加入集群"><a href="#3-将Node节点加入集群" class="headerlink" title="3.将Node节点加入集群"></a>3.将<code>Node</code>节点加入集群</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-node01 ~]# kubeadm join 192.168.140.100:16443 --token abcdef.0123456789abcdef \
+&gt;     --discovery-token-ca-cert-hash sha256:ad8316cb681fea34bf81f1bab6fc2045e386e30347038ff555140bb18ec4417a
+[root@k8s-node02 ~]# kubeadm join 192.168.140.100:16443 --token abcdef.0123456789abcdef \
+&gt;     --discovery-token-ca-cert-hash sha256:ad8316cb681fea34bf81f1bab6fc2045e386e30347038ff555140bb18ec4417a<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="回到主节点查看所有节点-1"><a href="#回到主节点查看所有节点-1" class="headerlink" title="回到主节点查看所有节点"></a>回到主节点查看所有节点</h4><blockquote>
+<p><strong>此时可以看到所有节点都加入到了集群，但是所有节点都是<code>NotReady</code>状态</strong><br><strong>这是由于我们还没有配置跨物理机的网络造成的，我这里使用<code>calico</code>进行演示</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# kubectl get nodes
+NAME                     STATUS     ROLES                  AGE     VERSION
+k8s-master01.linux.com   NotReady   control-plane,master   13m     v1.20.7
+k8s-master02.linux.com   NotReady   control-plane,master   4m47s   v1.20.7
+k8s-master03.linux.com   NotReady   control-plane,master   3m52s   v1.20.7
+k8s-node01.linux.com     NotReady   &lt;none&gt;                 44s     v1.20.7
+k8s-node02.linux.com     NotReady   &lt;none&gt;                 45s     v1.20.7<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="七、部署calico网络，实现容器之间的网络通信"><a href="#七、部署calico网络，实现容器之间的网络通信" class="headerlink" title="七、部署calico网络，实现容器之间的网络通信"></a>七、部署calico网络，实现容器之间的网络通信</h2><ul>
+<li><code>calico</code>基于<code>BGP</code>协议实现通信</li>
+<li>只需要在<code>k8s-master01</code>节点上进行操作即可</li>
+</ul>
+<h3 id="1-准备calico部署文件"><a href="#1-准备calico部署文件" class="headerlink" title="1.准备calico部署文件"></a>1.准备<code>calico</code>部署文件</h3><blockquote>
+<p><strong>下载连接：<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/14c8lth005DuGjcsBUCJrOA?pwd=ezn7">https://pan.baidu.com/s/14c8lth005DuGjcsBUCJrOA?pwd=ezn7</a></strong></p>
+</blockquote>
+<h3 id="2-指定etcd数据库连接地址"><a href="#2-指定etcd数据库连接地址" class="headerlink" title="2.指定etcd数据库连接地址"></a>2.指定<code>etcd</code>数据库连接地址</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# sed -i &#39;s#etcd_endpoints: &quot;http:&#x2F;&#x2F;&lt;ETCD_IP&gt;:&lt;ETCD_PORT&gt;&quot;#etcd_endpoints: &quot;https:&#x2F;&#x2F;192.168.140.10:2379,https:&#x2F;&#x2F;192.168.140.11:2379,https:&#x2F;&#x2F;192.168.140.12:2379&quot;#g&#39; &#x2F;root&#x2F;calico-etcd.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="3-配置证书相关信息"><a href="#3-配置证书相关信息" class="headerlink" title="3.配置证书相关信息"></a>3.配置证书相关信息</h3><h4 id="指定证书内容"><a href="#指定证书内容" class="headerlink" title="指定证书内容"></a>指定证书内容</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# ETCD_CA&#x3D;&#96;cat &#x2F;etc&#x2F;kubernetes&#x2F;pki&#x2F;etcd&#x2F;ca.crt | base64 | tr -d &#39;\n&#39;&#96;
+[root@k8s-master01 ~]# ETCD_CERT&#x3D;&#96;cat &#x2F;etc&#x2F;kubernetes&#x2F;pki&#x2F;etcd&#x2F;server.crt | base64 | tr -d &#39;\n&#39;&#96;
+[root@k8s-master01 ~]# ETCD_KEY&#x3D;&#96;cat &#x2F;etc&#x2F;kubernetes&#x2F;pki&#x2F;etcd&#x2F;server.key | base64 | tr -d &#39;\n&#39;&#96;
+[root@k8s-master01 ~]# sed -i &quot;s@# etcd-key: null@etcd-key: $&#123;ETCD_KEY&#125;@g; s@# etcd-cert: null@etcd-cert: $&#123;ETCD_CERT&#125;@g; s@# etcd-ca: null@etcd-ca: $&#123;ETCD_CA&#125;@g&quot; &#x2F;root&#x2F;calico-etcd.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="指定证书文件路径"><a href="#指定证书文件路径" class="headerlink" title="指定证书文件路径"></a>指定证书文件路径</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# sed -i &#39;s#etcd_ca: &quot;&quot;#etcd_ca: &quot;&#x2F;calico-secrets&#x2F;etcd-ca&quot;#g; s#etcd_cert: &quot;&quot;#etcd_cert: &quot;&#x2F;calico-secrets&#x2F;etcd-cert&quot;#g; s#etcd_key: &quot;&quot; #etcd_key: &quot;&#x2F;calico-secrets&#x2F;etcd-key&quot; #g&#39; &#x2F;root&#x2F;calico-etcd.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="4-修改pod网段"><a href="#4-修改pod网段" class="headerlink" title="4.修改pod网段"></a>4.修改<code>pod</code>网段</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# sed -ri -e &#39;s|            # - name: CALICO_IPV4POOL_CIDR|            - name: CALICO_IPV4POOL_CIDR|&#39; -e &#39;s|            #   value: &quot;192.168.0.0&#x2F;16&quot;|              value: &quot;192.168.0.0&#x2F;16&quot;|&#39; calico-etcd.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="5-部署calico网络"><a href="#5-部署calico网络" class="headerlink" title="5.部署calico网络"></a>5.部署<code>calico</code>网络</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# kubectl apply -f &#x2F;root&#x2F;calico-etcd.yaml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="6-再次查看所有节点状态"><a href="#6-再次查看所有节点状态" class="headerlink" title="6.再次查看所有节点状态"></a>6.再次查看所有节点状态</h3><blockquote>
+<p><strong>再次查看所有节点状态，都变成了<code>Ready</code></strong><br><strong>由于虚拟机配置原因，这个过程肯能需要等<code>1-3</code>分钟</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# kubectl get nodes
+NAME                     STATUS   ROLES                  AGE   VERSION
+k8s-master01.linux.com   Ready    control-plane,master   38m   v1.20.7
+k8s-master02.linux.com   Ready    control-plane,master   30m   v1.20.7
+k8s-master03.linux.com   Ready    control-plane,master   29m   v1.20.7
+k8s-node01.linux.com     Ready    &lt;none&gt;                 26m   v1.20.7
+k8s-node02.linux.com     Ready    &lt;none&gt;                 26m   v1.20.7<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="7-查看所有pods状态"><a href="#7-查看所有pods状态" class="headerlink" title="7.查看所有pods状态"></a>7.查看所有<code>pods</code>状态</h3><blockquote>
+<p><strong>这个过程取决于虚拟机的配置和网络情况，全变成<code>running</code>和<code>READY</code>需要<code>2-3</code>分钟左右</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master01 ~]# kubectl get pods -n kube-system
+NAME                                             READY   STATUS    RESTARTS   AGE
+calico-kube-controllers-5f6d4b864b-k4sfs         1&#x2F;1     Running   0          4m33s
+calico-node-8nctk                                1&#x2F;1     Running   0          4m33s
+calico-node-hv4sh                                1&#x2F;1     Running   0          4m33s
+calico-node-nr52x                                1&#x2F;1     Running   0          4m33s
+calico-node-qjk7m                                1&#x2F;1     Running   0          4m33s
+calico-node-zmqtr                                1&#x2F;1     Running   0          4m33s
+coredns-54d67798b7-4bb7m                         1&#x2F;1     Running   0          40m
+coredns-54d67798b7-mtqpz                         1&#x2F;1     Running   0          40m
+etcd-k8s-master01.linux.com                      1&#x2F;1     Running   0          40m
+etcd-k8s-master02.linux.com                      1&#x2F;1     Running   0          32m
+etcd-k8s-master03.linux.com                      1&#x2F;1     Running   0          29m
+kube-apiserver-k8s-master01.linux.com            1&#x2F;1     Running   0          40m
+kube-apiserver-k8s-master02.linux.com            1&#x2F;1     Running   0          32m
+kube-apiserver-k8s-master03.linux.com            1&#x2F;1     Running   1          29m
+kube-controller-manager-k8s-master01.linux.com   1&#x2F;1     Running   1          40m
+kube-controller-manager-k8s-master02.linux.com   1&#x2F;1     Running   0          32m
+kube-controller-manager-k8s-master03.linux.com   1&#x2F;1     Running   0          30m
+kube-proxy-6hccv                                 1&#x2F;1     Running   0          31m
+kube-proxy-9cscl                                 1&#x2F;1     Running   0          32m
+kube-proxy-hq7hv                                 1&#x2F;1     Running   0          28m
+kube-proxy-jkkch                                 1&#x2F;1     Running   0          40m
+kube-proxy-jp9kq                                 1&#x2F;1     Running   0          28m
+kube-scheduler-k8s-master01.linux.com            1&#x2F;1     Running   1          40m
+kube-scheduler-k8s-master02.linux.com            1&#x2F;1     Running   0          32m
+kube-scheduler-k8s-master03.linux.com            1&#x2F;1     Running   0          30m<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p><strong>恭喜你，如果你跟到了这里，那么一个<code>kubernetes</code>的高可用集群就部署完毕啦！</strong><br><strong>教程到这里就结束啦，如果你想部署图形化界面或者节点健康监测，可以观看这期教程：<a target="_blank" rel="noopener" href="https://www.wsjj.top/archives/138">Kubernetes集群部署</a></strong></p>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work">网笙久久</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work/2023/06/10/kubernetes/">https://blog.wangshengjj.work/2023/06/10/kubernetes/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.wangshengjj.work" target="_blank">WangShengJJのblog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/linux/">linux</a><a class="post-meta__tags" href="/tags/%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4/">高可用集群</a><a class="post-meta__tags" href="/tags/centos7/">centos7</a><a class="post-meta__tags" href="/tags/k8s/">k8s</a><a class="post-meta__tags" href="/tags/kubernetes/">kubernetes</a></div><div class="post_share"><div class="social-share" data-image="https://api.ghser.com/random/api.php" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/06/12/139/" title="【容器应用系列教程】Kubernetes的命名空间Namespace"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【容器应用系列教程】Kubernetes的命名空间Namespace</div></div></a></div><div class="next-post pull-right"><a href="/2023/06/09/138/" title="【容器应用系列教程】Kubernetes集群部署(Centos7)"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【容器应用系列教程】Kubernetes集群部署(Centos7)</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/06/12/139/" title="【容器应用系列教程】Kubernetes的命名空间Namespace"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-12</div><div class="title">【容器应用系列教程】Kubernetes的命名空间Namespace</div></div></a></div><div><a href="/2023/06/12/141/" title="【容器应用系列教程】kubernetes无状态负载deployment"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-12</div><div class="title">【容器应用系列教程】kubernetes无状态负载deployment</div></div></a></div><div><a href="/2023/06/13/142/" title="【容器应用系列教程】Kubernetes的Job管理"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-13</div><div class="title">【容器应用系列教程】Kubernetes的Job管理</div></div></a></div><div><a href="/2023/06/13/143/" title="【容器应用系列教程】Kubernetes服务管理Service"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-13</div><div class="title">【容器应用系列教程】Kubernetes服务管理Service</div></div></a></div><div><a href="/2023/06/14/144/" title="【容器应用系列教程】Kubernetes数据卷Volume管理"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-14</div><div class="title">【容器应用系列教程】Kubernetes数据卷Volume管理</div></div></a></div><div><a href="/2023/06/15/145/" title="【容器应用系列教程】Kubernetes有状态负载StatefulSet"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-15</div><div class="title">【容器应用系列教程】Kubernetes有状态负载StatefulSet</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">网笙久久</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">167</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">218</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">303</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wangshengjj"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wangshengjj" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:wangshengjj@wangshengjj.work" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.wangshengjj.work" target="_blank" title="Blog"><i class="fa fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到网笙久久的博客</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E3%80%90%E5%AE%B9%E5%99%A8%E5%BA%94%E7%94%A8%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%E3%80%91%E5%9F%BA%E4%BA%8EKubernetes1-20-7%E9%83%A8%E7%BD%B2%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4-Centos7"><span class="toc-number">1.</span> <span class="toc-text">【容器应用系列教程】基于Kubernetes1.20.7部署高可用集群(Centos7)</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E7%8E%AF%E5%A2%83%E6%8F%8F%E8%BF%B0"><span class="toc-number">1.1.</span> <span class="toc-text">一、环境描述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%B8%BB%E6%9C%BA%E8%A7%84%E5%88%92"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.主机规划</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E8%BD%AF%E4%BB%B6%E8%A7%84%E5%88%92"><span class="toc-number">1.1.2.</span> <span class="toc-text">2.软件规划</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E7%BD%91%E6%AE%B5%E8%A7%84%E5%88%92"><span class="toc-number">1.1.3.</span> <span class="toc-text">3.网段规划</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%89%8D%E6%9C%9F%E5%87%86%E5%A4%87-%E9%87%8D%E8%A6%81"><span class="toc-number">1.2.</span> <span class="toc-text">二、前期准备(重要)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%BA%94%E5%8F%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%85%B3%E9%97%AD%E9%98%B2%E7%81%AB%E5%A2%99%E5%92%8CSElinux%E3%80%81%E9%85%8D%E7%BD%AE%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.五台服务器关闭防火墙和SElinux、配置时间同步</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5%E8%AE%A1%E5%88%92%E4%BB%BB%E5%8A%A1"><span class="toc-number">1.2.1.1.</span> <span class="toc-text">配置时间同步计划任务</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%89%80%E6%9C%89%E4%B8%BB%E6%9C%BA%E5%85%B3%E9%97%ADSSH%E7%9A%84DNS%E8%A7%A3%E6%9E%90-%E4%BC%98%E5%8C%96SSH%E8%BF%9E%E6%8E%A5%E9%80%9F%E5%BA%A6"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.所有主机关闭SSH的DNS解析(优化SSH连接速度)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%89%80%E6%9C%89%E4%B8%BB%E6%9C%BA%E9%85%8D%E7%BD%AE%E5%85%8D%E5%AF%86SSH%E8%BF%9E%E6%8E%A5-%E9%87%8D%E8%A6%81"><span class="toc-number">1.2.3.</span> <span class="toc-text">3.所有主机配置免密SSH连接(重要)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95%E5%85%8D%E5%AF%86SSH"><span class="toc-number">1.2.3.1.</span> <span class="toc-text">测试免密SSH</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%89%80%E6%9C%89%E4%B8%BB%E6%9C%BA%E6%B7%BB%E5%8A%A0%E4%B8%BB%E6%9C%BA%E5%90%8D%E8%A7%A3%E6%9E%90-%E9%87%8D%E8%A6%81"><span class="toc-number">1.2.4.</span> <span class="toc-text">4.所有主机添加主机名解析(重要)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E6%89%80%E6%9C%89%E4%B8%BB%E6%9C%BA%E7%A6%81%E7%94%A8SWAP%E5%88%86%E5%8C%BA"><span class="toc-number">1.2.5.</span> <span class="toc-text">5.所有主机禁用SWAP分区</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%A8%E9%87%8A%E6%8E%89SWAP%E5%88%86%E5%8C%BA%E7%9A%84%E6%8C%82%E8%BD%BD%E4%BF%A1%E6%81%AF"><span class="toc-number">1.2.5.1.</span> <span class="toc-text">注释掉SWAP分区的挂载信息</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E6%89%80%E6%9C%89%E4%B8%BB%E6%9C%BA%E8%B0%83%E6%95%B4%E8%B5%84%E6%BA%90%E9%99%90%E5%88%B6"><span class="toc-number">1.2.6.</span> <span class="toc-text">6.所有主机调整资源限制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E9%85%8D%E7%BD%AE%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85%E6%BA%90"><span class="toc-number">1.2.7.</span> <span class="toc-text">7.配置软件安装源</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8A%8A%E5%AE%89%E8%A3%85%E6%BA%90%E6%8B%B7%E8%B4%9D%E7%BB%99%E5%85%B6%E4%BB%96%E6%9C%BA%E5%99%A8"><span class="toc-number">1.2.7.1.</span> <span class="toc-text">把安装源拷贝给其他机器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BB%BA%E7%AB%8B%E6%96%B0%E7%9A%84YUM%E7%BC%93%E5%AD%98"><span class="toc-number">1.2.7.2.</span> <span class="toc-text">建立新的YUM缓存</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-%E5%8D%87%E7%BA%A7%E7%B3%BB%E7%BB%9F%E5%88%B0%E6%9C%80%E6%96%B0%E7%89%88"><span class="toc-number">1.2.8.</span> <span class="toc-text">8.升级系统到最新版</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-%E5%8D%87%E7%BA%A7%E7%B3%BB%E7%BB%9F%E5%86%85%E6%A0%B8-%E5%8F%AF%E9%80%89%E7%9A%84"><span class="toc-number">1.2.9.</span> <span class="toc-text">9.升级系统内核(可选的)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E8%B0%83%E6%95%B4%E7%B3%BB%E7%BB%9F%E5%8F%82%E6%95%B0"><span class="toc-number">1.3.</span> <span class="toc-text">三、调整系统参数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%89%80%E6%9C%89%E4%B8%BB%E6%9C%BA%E5%AE%89%E8%A3%85IPVS"><span class="toc-number">1.3.1.</span> <span class="toc-text">1.所有主机安装IPVS</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%89%80%E6%9C%89%E4%B8%BB%E6%9C%BA%E5%8A%A0%E8%BD%BDIPVS%E6%A8%A1%E5%9D%97"><span class="toc-number">1.3.1.1.</span> <span class="toc-text">所有主机加载IPVS模块</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%89%80%E6%9C%89%E4%B8%BB%E6%9C%BA%E8%B0%83%E6%95%B4%E5%86%85%E6%A0%B8%E5%8F%82%E6%95%B0"><span class="toc-number">1.3.2.</span> <span class="toc-text">2.所有主机调整内核参数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%89%80%E6%9C%89%E4%B8%BB%E6%9C%BA%E5%AE%89%E8%A3%85%E9%9C%80%E8%A6%81%E7%9A%84%E8%BD%AF%E4%BB%B6"><span class="toc-number">1.4.</span> <span class="toc-text">四、所有主机安装需要的软件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%89%80%E6%9C%89%E4%B8%BB%E6%9C%BA%E5%AE%89%E8%A3%85Docker-ce-19-03"><span class="toc-number">1.4.1.</span> <span class="toc-text">1.所有主机安装Docker-ce-19.03</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AEDocker%E9%95%9C%E5%83%8F%E5%8A%A0%E9%80%9F"><span class="toc-number">1.4.1.1.</span> <span class="toc-text">配置Docker镜像加速</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8A%8A%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E6%8B%B7%E8%B4%9D%E7%BB%99%E5%85%B6%E4%BB%96%E6%9C%BA%E5%99%A8"><span class="toc-number">1.4.1.2.</span> <span class="toc-text">把配置文件拷贝给其他机器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%87%8D%E5%90%AFDocker"><span class="toc-number">1.4.1.3.</span> <span class="toc-text">重启Docker</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%89%80%E6%9C%89%E4%B8%BB%E6%9C%BA%E5%AE%89%E8%A3%85kubeadm"><span class="toc-number">1.4.2.</span> <span class="toc-text">2.所有主机安装kubeadm</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E4%BF%AE%E6%94%B9kubelet%E9%BB%98%E8%AE%A4%E4%B8%8B%E8%BD%BD%E5%9C%B0%E5%9D%80%E4%B8%BA%E5%9B%BD%E5%86%85%E9%95%9C%E5%83%8F"><span class="toc-number">1.4.3.</span> <span class="toc-text">3.修改kubelet默认下载地址为国内镜像</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%9C%A8%E4%B8%89%E4%B8%AAMaster%E8%8A%82%E7%82%B9%E9%85%8D%E7%BD%AE%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%92%8C%E9%AB%98%E5%8F%AF%E7%94%A8"><span class="toc-number">1.5.</span> <span class="toc-text">五、在三个Master节点配置负载均衡和高可用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%9C%A8%E4%B8%89%E4%B8%AAMaster%E8%8A%82%E7%82%B9%E5%AE%89%E8%A3%85HAproxy%E5%92%8Ckeepalived"><span class="toc-number">1.5.1.</span> <span class="toc-text">1.在三个Master节点安装HAproxy和keepalived</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E4%BF%AE%E6%94%B9HAproxy%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.5.2.</span> <span class="toc-text">2.修改HAproxy配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8B%B7%E8%B4%9D%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E7%BB%99%E5%8F%A6%E5%A4%96%E4%B8%A4%E5%8F%B0master%E8%8A%82%E7%82%B9"><span class="toc-number">1.5.2.1.</span> <span class="toc-text">拷贝配置文件给另外两台master节点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8HAproxy"><span class="toc-number">1.5.2.2.</span> <span class="toc-text">启动HAproxy</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E9%85%8D%E7%BD%AEkeepalived%E9%AB%98%E5%8F%AF%E7%94%A8"><span class="toc-number">1.5.3.</span> <span class="toc-text">3.配置keepalived高可用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BC%96%E5%86%99%E9%AB%98%E5%8F%AF%E7%94%A8%E8%84%9A%E6%9C%AC"><span class="toc-number">1.5.3.1.</span> <span class="toc-text">编写高可用脚本</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B0%86%E8%84%9A%E6%9C%AC%E6%8B%B7%E8%B4%9D%E7%BB%99%E5%8F%A6%E5%A4%96%E4%B8%A4%E5%8F%B0master%E8%8A%82%E7%82%B9"><span class="toc-number">1.5.3.2.</span> <span class="toc-text">将脚本拷贝给另外两台master节点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E4%B8%BB%E8%8A%82%E7%82%B9%E7%9A%84keepalived%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.5.3.3.</span> <span class="toc-text">修改主节点的keepalived配置文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%A4%87%E7%94%A8%E8%8A%82%E7%82%B9keepalived%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.5.3.4.</span> <span class="toc-text">配置第一个备用节点keepalived配置文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E7%AC%AC%E4%BA%8C%E4%B8%AA%E5%A4%87%E7%94%A8%E8%8A%82%E7%82%B9keepalived%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.5.3.5.</span> <span class="toc-text">配置第二个备用节点keepalived配置文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8%E4%B8%89%E4%B8%AAMaster%E8%8A%82%E7%82%B9%E7%9A%84keepalived"><span class="toc-number">1.5.3.6.</span> <span class="toc-text">启动三个Master节点的keepalived</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%96%E9%83%A8%E6%B5%8B%E8%AF%95VIP%E8%BF%9E%E9%80%9A%E6%80%A7"><span class="toc-number">1.5.3.7.</span> <span class="toc-text">外部测试VIP连通性</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%88%9D%E5%A7%8B%E5%8C%96kubernetes%E9%9B%86%E7%BE%A4"><span class="toc-number">1.6.</span> <span class="toc-text">六、初始化kubernetes集群</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%9C%A8%E4%B8%BB%E8%8A%82%E7%82%B9k8s-Master01%E5%87%86%E5%A4%87%E5%88%9D%E5%A7%8B%E5%8C%96%E6%96%87%E4%BB%B6"><span class="toc-number">1.6.1.</span> <span class="toc-text">1.在主节点k8s-Master01准备初始化文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8B%E8%BD%BDMaster%E8%8A%82%E7%82%B9%E5%88%9D%E5%A7%8B%E5%8C%96%E7%94%A8%E5%88%B0%E7%9A%84%E9%95%9C%E5%83%8F"><span class="toc-number">1.6.1.1.</span> <span class="toc-text">下载Master节点初始化用到的镜像</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E9%9B%86%E7%BE%A4"><span class="toc-number">1.6.1.2.</span> <span class="toc-text">初始化集群</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-number">1.6.1.3.</span> <span class="toc-text">配置环境变量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E6%89%80%E6%9C%89%E8%8A%82%E7%82%B9"><span class="toc-number">1.6.1.4.</span> <span class="toc-text">查看所有节点</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%B0%86%E5%85%B6%E4%BB%96Master%E8%8A%82%E7%82%B9%E5%8A%A0%E5%85%A5%E9%9B%86%E7%BE%A4"><span class="toc-number">1.6.2.</span> <span class="toc-text">2.将其他Master节点加入集群</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9E%E5%88%B0%E4%B8%BB%E8%8A%82%E7%82%B9%E6%9F%A5%E7%9C%8B%E6%89%80%E6%9C%89%E8%8A%82%E7%82%B9"><span class="toc-number">1.6.2.1.</span> <span class="toc-text">回到主节点查看所有节点</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%B0%86Node%E8%8A%82%E7%82%B9%E5%8A%A0%E5%85%A5%E9%9B%86%E7%BE%A4"><span class="toc-number">1.6.3.</span> <span class="toc-text">3.将Node节点加入集群</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9E%E5%88%B0%E4%B8%BB%E8%8A%82%E7%82%B9%E6%9F%A5%E7%9C%8B%E6%89%80%E6%9C%89%E8%8A%82%E7%82%B9-1"><span class="toc-number">1.6.3.1.</span> <span class="toc-text">回到主节点查看所有节点</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E9%83%A8%E7%BD%B2calico%E7%BD%91%E7%BB%9C%EF%BC%8C%E5%AE%9E%E7%8E%B0%E5%AE%B9%E5%99%A8%E4%B9%8B%E9%97%B4%E7%9A%84%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1"><span class="toc-number">1.7.</span> <span class="toc-text">七、部署calico网络，实现容器之间的网络通信</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%87%86%E5%A4%87calico%E9%83%A8%E7%BD%B2%E6%96%87%E4%BB%B6"><span class="toc-number">1.7.1.</span> <span class="toc-text">1.准备calico部署文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%8C%87%E5%AE%9Aetcd%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E5%9C%B0%E5%9D%80"><span class="toc-number">1.7.2.</span> <span class="toc-text">2.指定etcd数据库连接地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E9%85%8D%E7%BD%AE%E8%AF%81%E4%B9%A6%E7%9B%B8%E5%85%B3%E4%BF%A1%E6%81%AF"><span class="toc-number">1.7.3.</span> <span class="toc-text">3.配置证书相关信息</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8C%87%E5%AE%9A%E8%AF%81%E4%B9%A6%E5%86%85%E5%AE%B9"><span class="toc-number">1.7.3.1.</span> <span class="toc-text">指定证书内容</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8C%87%E5%AE%9A%E8%AF%81%E4%B9%A6%E6%96%87%E4%BB%B6%E8%B7%AF%E5%BE%84"><span class="toc-number">1.7.3.2.</span> <span class="toc-text">指定证书文件路径</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E4%BF%AE%E6%94%B9pod%E7%BD%91%E6%AE%B5"><span class="toc-number">1.7.4.</span> <span class="toc-text">4.修改pod网段</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E9%83%A8%E7%BD%B2calico%E7%BD%91%E7%BB%9C"><span class="toc-number">1.7.5.</span> <span class="toc-text">5.部署calico网络</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E5%86%8D%E6%AC%A1%E6%9F%A5%E7%9C%8B%E6%89%80%E6%9C%89%E8%8A%82%E7%82%B9%E7%8A%B6%E6%80%81"><span class="toc-number">1.7.6.</span> <span class="toc-text">6.再次查看所有节点状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E6%9F%A5%E7%9C%8B%E6%89%80%E6%9C%89pods%E7%8A%B6%E6%80%81"><span class="toc-number">1.7.7.</span> <span class="toc-text">7.查看所有pods状态</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/06/24/hk4e/" title="基于Kubernetes环境搭建hk4e原神真端教程"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="基于Kubernetes环境搭建hk4e原神真端教程"/></a><div class="content"><a class="title" href="/2023/06/24/hk4e/" title="基于Kubernetes环境搭建hk4e原神真端教程">基于Kubernetes环境搭建hk4e原神真端教程</a><time datetime="2023-06-24T02:12:50.108Z" title="发表于 2023-06-24 10:12:50">2023-06-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/22/156/" title="【Python学习笔记】集合和Bytes"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】集合和Bytes"/></a><div class="content"><a class="title" href="/2023/06/22/156/" title="【Python学习笔记】集合和Bytes">【Python学习笔记】集合和Bytes</a><time datetime="2023-06-22T04:57:12.047Z" title="发表于 2023-06-22 12:57:12">2023-06-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/22/155/" title="【Python学习笔记】字典的管理操作"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】字典的管理操作"/></a><div class="content"><a class="title" href="/2023/06/22/155/" title="【Python学习笔记】字典的管理操作">【Python学习笔记】字典的管理操作</a><time datetime="2023-06-22T03:51:28.495Z" title="发表于 2023-06-22 11:51:28">2023-06-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/21/154/" title="【Python学习笔记】列表及元组"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】列表及元组"/></a><div class="content"><a class="title" href="/2023/06/21/154/" title="【Python学习笔记】列表及元组">【Python学习笔记】列表及元组</a><time datetime="2023-06-21T12:49:12.830Z" title="发表于 2023-06-21 20:49:12">2023-06-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/20/153/" title="【Python学习笔记】字符串管理操作"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】字符串管理操作"/></a><div class="content"><a class="title" href="/2023/06/20/153/" title="【Python学习笔记】字符串管理操作">【Python学习笔记】字符串管理操作</a><time datetime="2023-06-20T13:12:05.306Z" title="发表于 2023-06-20 21:12:05">2023-06-20</time></div></div></div></div></div></div></main><footer id="footer" style="background: flase"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By 网笙久久</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><div class="js-pjax"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js"></script><script>(() => {
+  document.querySelectorAll('#article-container span.katex-display').forEach(item => {
+    btf.wrap(item, 'div', { class: 'katex-wrap'})
+  })
+})()</script></div><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div><script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(n){n.imageLazyLoadSetting.processImages=i;var e=n.imageLazyLoadSetting.isSPA,r=(n.imageLazyLoadSetting.preloadRatio,Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));function i(){e&&(r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));for(var t,a=0;a<r.length;a++)0<=(t=(t=r[a]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(n.innerHeight+240||document.documentElement.clientHeight+240)&&function(){var t,e,n,i,o=r[a];t=o,e=function(){r=r.filter(function(t){return o!==t})},n=new Image,i=t.getAttribute("data-original"),n.onload=function(){t.src=i,e&&e()},t.src!==i&&(n.src=i)}()}i(),n.addEventListener("scroll",function(){var t,e;t=i,e=n,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(e)},500)})}(this);</script></body></html>

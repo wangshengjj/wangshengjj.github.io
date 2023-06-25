@@ -1,0 +1,608 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>【容器应用系列教程】Docker镜像管理 | WangShengJJのblog</title><meta name="author" content="网笙久久"><meta name="copyright" content="网笙久久"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="【容器应用系列教程】Docker镜像管理一、关于镜像1.镜像的基本概念  分层的文件系统 镜像是只读的 基于镜像创建容器时，镜像最上面会添加一个可写层，用户的所有操作都会存到这个可写层内  2.镜像的核心技术 COW机制 Copy On Write写时复制 创建容器时，镜像会在最上层添加一个读写层，只有修改文件时，该才会被复制到读写层进行修改 容器删除时，读写层会随之删除，所有容器对关键数据进行持">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【容器应用系列教程】Docker镜像管理">
+<meta property="og:url" content="https://blog.wangshengjj.work/2023/06/06/134/index.html">
+<meta property="og:site_name" content="WangShengJJのblog">
+<meta property="og:description" content="【容器应用系列教程】Docker镜像管理一、关于镜像1.镜像的基本概念  分层的文件系统 镜像是只读的 基于镜像创建容器时，镜像最上面会添加一个可写层，用户的所有操作都会存到这个可写层内  2.镜像的核心技术 COW机制 Copy On Write写时复制 创建容器时，镜像会在最上层添加一个读写层，只有修改文件时，该才会被复制到读写层进行修改 容器删除时，读写层会随之删除，所有容器对关键数据进行持">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://api.ghser.com/random/api.php">
+<meta property="article:published_time" content="2023-06-06T04:22:08.138Z">
+<meta property="article:modified_time" content="2023-06-06T12:04:20.358Z">
+<meta property="article:author" content="网笙久久">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="docker">
+<meta property="article:tag" content="容器">
+<meta property="article:tag" content="镜像">
+<meta property="article:tag" content="cetnos">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://api.ghser.com/random/api.php"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://blog.wangshengjj.work/2023/06/06/134/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"prismjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【容器应用系列教程】Docker镜像管理',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-06-06 20:04:20'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><meting-js server="netease" type="playlist" id="7386208265" lrc-type="0" volume="0.5" fixed="true" mini="true" order="random" loop="all" autoplay="true" preload="auto" list-folded="true"></meting-js><script src="https://fastly.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/autoload.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script><meta name="generator" content="Hexo 6.1.0"></head><body><link rel="stylesheet" href="/css/barber-shop.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">167</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">218</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">303</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://api.ghser.com/random/api.php')"><nav id="nav"><span id="blog-info"><a href="/" title="WangShengJJのblog"><span class="site-name">WangShengJJのblog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【容器应用系列教程】Docker镜像管理</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-06-06T04:22:08.138Z" title="发表于 2023-06-06 12:22:08">2023-06-06</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-06-06T12:04:20.358Z" title="更新于 2023-06-06 20:04:20">2023-06-06</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Docker/">Docker</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Docker/%E7%AC%94%E8%AE%B0/">笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Docker/%E7%AC%94%E8%AE%B0/%E5%AE%B9%E5%99%A8/">容器</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">3.2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>16分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="【容器应用系列教程】Docker镜像管理"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="【容器应用系列教程】Docker镜像管理"><a href="#【容器应用系列教程】Docker镜像管理" class="headerlink" title="【容器应用系列教程】Docker镜像管理"></a>【容器应用系列教程】Docker镜像管理</h1><h2 id="一、关于镜像"><a href="#一、关于镜像" class="headerlink" title="一、关于镜像"></a>一、关于镜像</h2><h3 id="1-镜像的基本概念"><a href="#1-镜像的基本概念" class="headerlink" title="1.镜像的基本概念"></a>1.镜像的基本概念</h3><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/docker_image01.png" alt="docker_image01"></p>
+<ul>
+<li>分层的文件系统</li>
+<li>镜像是只读的</li>
+<li>基于镜像创建容器时，镜像最上面会添加一个可写层，用户的所有操作都会存到这个可写层内</li>
+</ul>
+<h3 id="2-镜像的核心技术"><a href="#2-镜像的核心技术" class="headerlink" title="2.镜像的核心技术"></a>2.镜像的核心技术</h3><ul>
+<li><code>COW</code>机制<ul>
+<li><code>Copy On Write</code>写时复制<ul>
+<li>创建容器时，镜像会在最上层添加一个读写层，只有修改文件时，该才会被复制到读写层进行修改</li>
+<li>容器删除时，读写层会随之删除，所有容器对关键数据进行持久化存储</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>Union fs</code>联合文件系统<ul>
+<li>支持将多个不同的文件系统挂载到同一个虚拟文件系统中<ul>
+<li><code>overlay2</code>文件系统，是<code>Docker</code>默认使用的</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">[root@flannet ~]# docker info
+Client: Docker Engine - Community
+ Version:    24.0.2
+ Context:    default
+ Debug Mode: false
+ Plugins:
+  buildx: Docker Buildx (Docker Inc.)
+    Version:  v0.10.5
+    Path:     &#x2F;usr&#x2F;libexec&#x2F;docker&#x2F;cli-plugins&#x2F;docker-buildx
+  compose: Docker Compose (Docker Inc.)
+    Version:  v2.18.1
+    Path:     &#x2F;usr&#x2F;libexec&#x2F;docker&#x2F;cli-plugins&#x2F;docker-compose
+
+Server:
+ Containers: 1
+  Running: 1
+  Paused: 0
+  Stopped: 0
+ Images: 11
+ Server Version: 24.0.2
+ Storage Driver: overlay2	#默认使用<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="二、镜像管理操作"><a href="#二、镜像管理操作" class="headerlink" title="二、镜像管理操作"></a>二、镜像管理操作</h2><h3 id="1-镜像命名格式"><a href="#1-镜像命名格式" class="headerlink" title="1.镜像命名格式"></a>1.镜像命名格式</h3><ul>
+<li><code>仓库名称</code>&#x2F;<code>镜像名称</code>:<code>标签</code><ul>
+<li>标记<code>tag</code>默认是<code>latest</code> &gt;&gt; 如果不写标签默认会使用<code>latest</code>标签<ul>
+<li>几个镜像名的展示<ul>
+<li><code>test.linux.com</code>&#x2F;<code>tomcat</code>:<code>8.9</code></li>
+<li><code>polinux</code>&#x2F;<code>stress</code></li>
+<li><code>nginx</code></li>
+<li><code>hub.docker.com</code>&#x2F;<code>nginx</code>:<code>latest</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-下载镜像和查看镜像"><a href="#2-下载镜像和查看镜像" class="headerlink" title="2.下载镜像和查看镜像"></a>2.下载镜像和查看镜像</h3><pre class="line-numbers language-none"><code class="language-none">[root@flannet ~]# docker pull nginx:latest<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@flannet ~]# docker images
+REPOSITORY     TAG       IMAGE ID       CREATED             SIZE
+halohub&#x2F;halo   2.6       da836bfd0ddc   5 days ago          367MB
+haproxy        latest    95eb357b4726   5 days ago          108MB
+nginx          latest    f9c14fe76d50   12 days ago         143MB
+wordpress      latest    5174bdcbb532   13 days ago         616MB
+redis          latest    0ec8ab59a35f   13 days ago         117MB
+tomcat         8         b0d447aaf3db   2 weeks ago         475MB
+busybox        latest    8135583d97fe   2 weeks ago         4.86MB
+mysql          5.7       dd6675b5cfea   7 weeks ago         569MB
+centos         7         eeb6ee3f44bd   20 months ago       204MB<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-导出镜像"><a href="#3-导出镜像" class="headerlink" title="3.导出镜像"></a>3.导出镜像</h3><pre class="line-numbers language-none"><code class="language-none">docker save -o 要导出的tar包名 镜像名:标签<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@flannet ~]# docker save -o busybox.tar busybox:latest<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="4-导入镜像"><a href="#4-导入镜像" class="headerlink" title="4.导入镜像"></a>4.导入镜像</h3><pre class="line-numbers language-none"><code class="language-none">docker load -i tar包名<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@flannet ~]# docker load -i busybox.tar<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="5-删除镜像"><a href="#5-删除镜像" class="headerlink" title="5.删除镜像"></a>5.删除镜像</h3><pre class="line-numbers language-none"><code class="language-none">docker rmi 镜像名:标签<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@flannet ~]# docker rmi halohub&#x2F;halo:2.6<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="6-查看镜像的详细信息"><a href="#6-查看镜像的详细信息" class="headerlink" title="6.查看镜像的详细信息"></a>6.查看镜像的详细信息</h3><pre class="line-numbers language-none"><code class="language-none">[root@flannet ~]# docker image inspect nginx:latest
+
+[
+    &#123;
+        &quot;Id&quot;: &quot;sha256:f9c14fe76d502861ba0939bc3189e642c02e257f06f4c0214b1f8ca329326cda&quot;,
+        &quot;RepoTags&quot;: [
+            &quot;nginx:latest&quot;
+        ],
+        &quot;RepoDigests&quot;: [
+            &quot;nginx@sha256:af296b188c7b7df99ba960ca614439c99cb7cf252ed7bbc23e90cfda59092305&quot;
+        ],
+        &quot;Parent&quot;: &quot;&quot;,
+        &quot;Comment&quot;: &quot;&quot;,
+        &quot;Created&quot;: &quot;2023-05-24T22:43:48.18207587Z&quot;,
+        &quot;Container&quot;: &quot;23b0fce2f40be83daa129eacbf79b8a57c6524a7898bf3aba06e10c15b433d0d&quot;,
+        &quot;ContainerConfig&quot;: &#123;
+            &quot;Hostname&quot;: &quot;23b0fce2f40b&quot;,
+            &quot;Domainname&quot;: &quot;&quot;,
+            &quot;User&quot;: &quot;&quot;,
+            &quot;AttachStdin&quot;: false,
+            &quot;AttachStdout&quot;: false,
+            &quot;AttachStderr&quot;: false,
+            &quot;ExposedPorts&quot;: &#123;
+                &quot;80&#x2F;tcp&quot;: &#123;&#125;
+            &#125;,
+            &quot;Tty&quot;: false,
+            &quot;OpenStdin&quot;: false,
+            &quot;StdinOnce&quot;: false,
+            &quot;Env&quot;: [
+                &quot;PATH&#x3D;&#x2F;usr&#x2F;local&#x2F;sbin:&#x2F;usr&#x2F;local&#x2F;bin:&#x2F;usr&#x2F;sbin:&#x2F;usr&#x2F;bin:&#x2F;sbin:&#x2F;bin&quot;,
+                &quot;NGINX_VERSION&#x3D;1.25.0&quot;,
+                &quot;NJS_VERSION&#x3D;0.7.12&quot;,
+                &quot;PKG_RELEASE&#x3D;1~bullseye&quot;
+            ],
+            &quot;Cmd&quot;: [
+                &quot;&#x2F;bin&#x2F;sh&quot;,
+                &quot;-c&quot;,
+                &quot;#(nop) &quot;,
+                &quot;CMD [\&quot;nginx\&quot; \&quot;-g\&quot; \&quot;daemon off;\&quot;]&quot;
+            ],
+            &quot;Image&quot;: &quot;sha256:a14a5803cbf095a0268663fe3235681c2f7fd5d0b59c242d99e7b1ebb59284f3&quot;,
+            &quot;Volumes&quot;: null,
+            &quot;WorkingDir&quot;: &quot;&quot;,
+            &quot;Entrypoint&quot;: [
+                &quot;&#x2F;docker-entrypoint.sh&quot;
+            ],
+            &quot;OnBuild&quot;: null,
+            &quot;Labels&quot;: &#123;
+                &quot;maintainer&quot;: &quot;NGINX Docker Maintainers &lt;docker-maint@nginx.com&gt;&quot;
+            &#125;,
+            &quot;StopSignal&quot;: &quot;SIGQUIT&quot;
+        &#125;,
+        &quot;DockerVersion&quot;: &quot;20.10.23&quot;,
+        &quot;Author&quot;: &quot;&quot;,
+        &quot;Config&quot;: &#123;
+            &quot;Hostname&quot;: &quot;&quot;,
+            &quot;Domainname&quot;: &quot;&quot;,
+            &quot;User&quot;: &quot;&quot;,
+            &quot;AttachStdin&quot;: false,
+            &quot;AttachStdout&quot;: false,
+            &quot;AttachStderr&quot;: false,
+            &quot;ExposedPorts&quot;: &#123;
+                &quot;80&#x2F;tcp&quot;: &#123;&#125;
+            &#125;,
+            &quot;Tty&quot;: false,
+            &quot;OpenStdin&quot;: false,
+            &quot;StdinOnce&quot;: false,
+            &quot;Env&quot;: [
+                &quot;PATH&#x3D;&#x2F;usr&#x2F;local&#x2F;sbin:&#x2F;usr&#x2F;local&#x2F;bin:&#x2F;usr&#x2F;sbin:&#x2F;usr&#x2F;bin:&#x2F;sbin:&#x2F;bin&quot;,
+                &quot;NGINX_VERSION&#x3D;1.25.0&quot;,
+                &quot;NJS_VERSION&#x3D;0.7.12&quot;,
+                &quot;PKG_RELEASE&#x3D;1~bullseye&quot;
+            ],
+            &quot;Cmd&quot;: [
+                &quot;nginx&quot;,
+                &quot;-g&quot;,
+                &quot;daemon off;&quot;
+            ],
+            &quot;Image&quot;: &quot;sha256:a14a5803cbf095a0268663fe3235681c2f7fd5d0b59c242d99e7b1ebb59284f3&quot;,
+            &quot;Volumes&quot;: null,
+            &quot;WorkingDir&quot;: &quot;&quot;,
+            &quot;Entrypoint&quot;: [
+                &quot;&#x2F;docker-entrypoint.sh&quot;
+            ],
+            &quot;OnBuild&quot;: null,
+            &quot;Labels&quot;: &#123;
+                &quot;maintainer&quot;: &quot;NGINX Docker Maintainers &lt;docker-maint@nginx.com&gt;&quot;
+            &#125;,
+            &quot;StopSignal&quot;: &quot;SIGQUIT&quot;
+        &#125;,
+        &quot;Architecture&quot;: &quot;amd64&quot;,
+        &quot;Os&quot;: &quot;linux&quot;,
+        &quot;Size&quot;: 142560184,
+        &quot;VirtualSize&quot;: 142560184,
+        &quot;GraphDriver&quot;: &#123;
+            &quot;Data&quot;: &#123;
+                &quot;LowerDir&quot;: &quot;&#x2F;var&#x2F;lib&#x2F;docker&#x2F;overlay2&#x2F;2e6bb5febb75810654c0852225e655e8657d622b2c80c709e337eae4147cc8b9&#x2F;diff:&#x2F;var&#x2F;lib&#x2F;docker&#x2F;overlay2&#x2F;a05acf6a7360cd9eae05721a0ba74653a4ac44b03b47311771ad426e84b1a451&#x2F;diff:&#x2F;var&#x2F;lib&#x2F;docker&#x2F;overlay2&#x2F;d077b39b99d40c2061689e86bf9dab74f7e86616fc40bf546fd5184c44d5770f&#x2F;diff:&#x2F;var&#x2F;lib&#x2F;docker&#x2F;overlay2&#x2F;ea246994c98a9e5745f3b8c9f43dd930e16dcffdd2950aa88be853b80f2d0c4d&#x2F;diff:&#x2F;var&#x2F;lib&#x2F;docker&#x2F;overlay2&#x2F;5a6d22d946e4843397c18c2b2d4df28aa6b7e119733c8421ea2db86ed77495d8&#x2F;diff&quot;,
+                &quot;MergedDir&quot;: &quot;&#x2F;var&#x2F;lib&#x2F;docker&#x2F;overlay2&#x2F;15e2f7bf56991df7a0c49aad6dfad5aa75eb0465b58d03c8103b780e222d3757&#x2F;merged&quot;,
+                &quot;UpperDir&quot;: &quot;&#x2F;var&#x2F;lib&#x2F;docker&#x2F;overlay2&#x2F;15e2f7bf56991df7a0c49aad6dfad5aa75eb0465b58d03c8103b780e222d3757&#x2F;diff&quot;,
+                &quot;WorkDir&quot;: &quot;&#x2F;var&#x2F;lib&#x2F;docker&#x2F;overlay2&#x2F;15e2f7bf56991df7a0c49aad6dfad5aa75eb0465b58d03c8103b780e222d3757&#x2F;work&quot;
+            &#125;,
+            &quot;Name&quot;: &quot;overlay2&quot;
+        &#125;,
+        &quot;RootFS&quot;: &#123;
+            &quot;Type&quot;: &quot;layers&quot;,
+            &quot;Layers&quot;: [
+                &quot;sha256:8cbe4b54fa88d8fc0198ea0cc3a5432aea41573e6a0ee26eca8c79f9fbfa40e3&quot;,
+                &quot;sha256:4b8862fe7056d8a3c2c0910eb38ebb8fc08785eaa1f9f53b2043bf7ca8adbafb&quot;,
+                &quot;sha256:e60266289ce4a890aaf52b93228090998e28220aef04f128704141864992dd15&quot;,
+                &quot;sha256:7daac92f43be84ad9675f94875c1a00357b975d6c58b11d17104e0a0e04da370&quot;,
+                &quot;sha256:5e099cf3f3c83c449b8c062f944ac025c9bf2dd7ec255837c53430021f5a1517&quot;,
+                &quot;sha256:4fd83434130318dede62defafcc5853d03dae8636eccfa1b9dcd385d92e3ff19&quot;
+            ]
+        &#125;,
+        &quot;Metadata&quot;: &#123;
+            &quot;LastTagTime&quot;: &quot;0001-01-01T00:00:00Z&quot;
+        &#125;
+    &#125;
+]<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="三、Dockerfile定制镜像"><a href="#三、Dockerfile定制镜像" class="headerlink" title="三、Dockerfile定制镜像"></a>三、Dockerfile定制镜像</h2><blockquote>
+<p><strong>作用：基于已有的镜像，定制符合自身需求的镜像</strong></p>
+</blockquote>
+<h3 id="1-规划目录"><a href="#1-规划目录" class="headerlink" title="1.规划目录"></a>1.规划目录</h3><blockquote>
+<p><strong>建议提前规划目录，一个<code>Dockerfile</code>对应一个镜像</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@flannet ~]# mkdir &#x2F;centos<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="2-编写Dockerfile"><a href="#2-编写Dockerfile" class="headerlink" title="2.编写Dockerfile"></a>2.编写<code>Dockerfile</code></h3><blockquote>
+<p><strong>注意<code>Dockerfile</code>的大小写</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@flannet ~]# vim &#x2F;centos&#x2F;Dockerfile
+
+FROM centos:7
+#配置Centos的yum源为国内源
+RUN yum install -y wget &amp;&amp; wget -O &#x2F;etc&#x2F;yum.repos.d&#x2F;CentOS-Base.repo http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;repo&#x2F;Centos-7.repo &amp;&amp; wget -O &#x2F;etc&#x2F;yum.repos.d&#x2F;epel.repo https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;repo&#x2F;epel-7.repo &amp;&amp; yum clean all &amp;&amp; yum makecache
+#安装基本命令
+RUN yum install -y vim &amp;&amp; yum install -y net-tools
+#创建一个名为wangshengjj的用户
+RUN useradd wangshengjj<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-构建镜像"><a href="#3-构建镜像" class="headerlink" title="3.构建镜像"></a>3.构建镜像</h3><pre class="line-numbers language-none"><code class="language-none">docker build -t 镜像名:标签 Dockerfile目录<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@flannet ~]# docker build -t centos_wang:0.1 &#x2F;centos&#x2F;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="验证镜像"><a href="#验证镜像" class="headerlink" title="验证镜像"></a>验证镜像</h4><pre class="line-numbers language-none"><code class="language-none">[root@flannet ~]# docker run -itd --name centos centos_wang:0.1
+[root@flannet ~]# docker exec -it centos &#x2F;bin&#x2F;bash
+[root@935de887e27f &#x2F;]# id wangshengjj
+uid&#x3D;1000(wangshengjj) gid&#x3D;1000(wangshengjj) groups&#x3D;1000(wangshengjj)
+[root@935de887e27f &#x2F;]# ifconfig
+eth0: flags&#x3D;4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1472
+        inet 10.100.43.2  netmask 255.255.255.0  broadcast 10.100.43.255
+        ether 02:42:0a:64:2b:02  txqueuelen 0  (Ethernet)
+        RX packets 8  bytes 656 (656.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 0  bytes 0 (0.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-Dockerfile常用指令"><a href="#4-Dockerfile常用指令" class="headerlink" title="4.Dockerfile常用指令"></a>4.<code>Dockerfile</code>常用指令</h3><h4 id="FROM"><a href="#FROM" class="headerlink" title="FROM"></a>FROM</h4><blockquote>
+<p><strong>当本地不存在指定镜像，将会自动联网下载指定镜像</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">FROM 镜像名:标签<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="MAINTAINER"><a href="#MAINTAINER" class="headerlink" title="MAINTAINER"></a>MAINTAINER</h4><blockquote>
+<p><strong>用于指定镜像作者信息</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">MAINTAINER &lt;user&gt; &lt;email&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="RUN"><a href="#RUN" class="headerlink" title="RUN"></a>RUN</h4><blockquote>
+<p><strong>用于指定在构建镜像的时候，执行的操作</strong><br><strong><code>RUN</code>指令后面的命令，必须在原镜像中存在命令</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">RUN cmd1 &amp;&amp; cmd2 &amp;&amp; cmd3<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="CMD"><a href="#CMD" class="headerlink" title="CMD"></a>CMD</h4><blockquote>
+<p><strong>用于指定创建容器的时候，自动执行的命令</strong></p>
+</blockquote>
+<ul>
+<li>一个<code>Dockerfile</code>中只能出现一个<code>CMD</code></li>
+<li>一般都是写前台启动服务的指令</li>
+<li>创建容器时指定的命令会覆盖<code>CMD</code>指令的命令</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">CMD  &#x2F;usr&#x2F;sbin&#x2F;httpd -D FOREGROUND	#前台启动httpd
+CMD [ &quot;&#x2F;usr&#x2F;sbin&#x2F;httpd&quot;, &quot;-D&quot;, &quot;FOREGROUND&quot; ]	#上面的命令另外一种写法<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="ENTRYPOINT"><a href="#ENTRYPOINT" class="headerlink" title="ENTRYPOINT"></a>ENTRYPOINT</h4><blockquote>
+<p><strong>用于创建容器的时候，自动执行的命令</strong><br><strong>跟<code>CMD</code>的区别：当用户创建容器指定自定义命令的时候，不会被覆盖</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">ENTRYPOINT &#x2F;usr&#x2F;sbin&#x2F;httpd -D FOREGROUND
+ENTRYPOINT [ &quot;&#x2F;usr&#x2F;sbin&#x2F;httpd&quot;, &quot;-D&quot;, &quot;FOREGROUND&quot; ]<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p><strong><code>CMD</code>指令可以作为<code>ENTRYPOINT</code>的参数用</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">CMD [ &quot;-D&quot;, &quot;FOREGROUND&quot; ]
+ENTRYPOINT &#x2F;usr&#x2F;sbin&#x2F;httpd<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="COPY"><a href="#COPY" class="headerlink" title="COPY"></a>COPY</h4><blockquote>
+<p><strong>拷贝本地文件、目录到镜像中</strong><br><strong>源文件以相对路径的方式写，一般源文件位于和<code>Dockerfile</code>同级目录</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">COPY &lt;源文件&gt; &lt;目的文件&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="ADD"><a href="#ADD" class="headerlink" title="ADD"></a>ADD</h4><blockquote>
+<p>拷贝文件、目录</p>
+</blockquote>
+<ul>
+<li>与<code>COPY</code>区别：<ul>
+<li>源文件支持<code>本地文件</code>、<code>网络文件</code>、<code>压缩包拷贝后自动解压</code></li>
+</ul>
+</li>
+</ul>
+<h4 id="EXPOSE指令"><a href="#EXPOSE指令" class="headerlink" title="EXPOSE指令"></a>EXPOSE指令</h4><blockquote>
+<p><strong>说明容器要发布的端口</strong><br><strong>真正发布端口的时候，还是要靠<code>docker run -p</code>命令</strong><br><strong>使用<code>docker image inspect</code>命令可查看到信息</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">EXPOSE 80&#x2F;tcp<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="VOLUME"><a href="#VOLUME" class="headerlink" title="VOLUME"></a>VOLUME</h4><blockquote>
+<p><strong>指定并说明持久化存储的目录</strong><br><strong>一般用于用户在创建容器的时候，使用<code>docker run -v</code>的时候</strong><br><strong>使用<code>docker image inspect</code>命令可查看到信息</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">VOLUME 容器内目录<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<blockquote>
+<p><strong>如果用户在创建容器的时候，未指定<code>-v</code>参数，那么<code>Docker</code>会默认生成一个隐藏卷，用于存放数据</strong><br><strong>一般位于目录<code>/var/lib/docker/volumes/容器ID/_data/</code>下</strong></p>
+</blockquote>
+<h4 id="ENV"><a href="#ENV" class="headerlink" title="ENV"></a>ENV</h4><blockquote>
+<p><strong>在容器中定义环境变量</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">ENV 变量名称  值<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="WORKDIR"><a href="#WORKDIR" class="headerlink" title="WORKDIR"></a>WORKDIR</h4><blockquote>
+<p><strong>指定容器的当前目录&#x2F;工作目录</strong><br><strong>用户创建完容器，进入容器后自动进入的目录</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">WORKDIR &lt;目录名称&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="USER"><a href="#USER" class="headerlink" title="USER"></a>USER</h4><blockquote>
+<p><strong>指定容器当前登录用户</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">USER &lt;用户名&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="6-使用Dockerfile构建Nginx镜像-基于Centos7"><a href="#6-使用Dockerfile构建Nginx镜像-基于Centos7" class="headerlink" title="6.使用Dockerfile构建Nginx镜像(基于Centos7)"></a>6.使用<code>Dockerfile</code>构建<code>Nginx</code>镜像(基于Centos7)</h3><h4 id="准备Dockerfile目录"><a href="#准备Dockerfile目录" class="headerlink" title="准备Dockerfile目录"></a>准备<code>Dockerfile</code>目录</h4><pre class="line-numbers language-none"><code class="language-none">[root@flannet ~]# mkdir &#x2F;nginx<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="准备Ningx安装包"><a href="#准备Ningx安装包" class="headerlink" title="准备Ningx安装包"></a>准备<code>Ningx</code>安装包</h4><pre class="line-numbers language-none"><code class="language-none">[root@flannet ~]# wget http:&#x2F;&#x2F;nginx.org&#x2F;download&#x2F;nginx-1.20.2.tar.gz
+[root@flannet ~]# cp nginx-1.20.2.tar.gz &#x2F;nginx&#x2F;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="编写Dockerfile文件"><a href="#编写Dockerfile文件" class="headerlink" title="编写Dockerfile文件"></a>编写<code>Dockerfile</code>文件</h4><pre class="line-numbers language-none"><code class="language-none">[root@flannet ~]# vim &#x2F;nginx&#x2F;Dockerfile
+FROM centos:7
+#配置国内yum源
+RUN yum install -y wget &amp;&amp; wget -O &#x2F;etc&#x2F;yum.repos.d&#x2F;CentOS-Base.repo http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;repo&#x2F;Centos-7.repo &amp;&amp; wget -O &#x2F;etc&#x2F;yum.repos.d&#x2F;epel.repo https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;repo&#x2F;epel-7.repo &amp;&amp; yum clean all &amp;&amp; yum makecache
+#拷贝Nginx安装包
+ADD nginx-1.20.2.tar.gz &#x2F;tmp&#x2F;
+#安装Nginx需要的依赖
+RUN yum install -y gcc openssl-devel pcre-devel zlib-devel make
+#准备Nginx目录
+RUN mkdir -p &#x2F;var&#x2F;tmp&#x2F;nginx&#x2F;&#123;client,proxy,fastcgi,uwsgi,scgi&#125; &amp;&amp; useradd -s &#x2F;sbin&#x2F;nologin nginx
+#编译Nginx
+RUN cd &#x2F;tmp&#x2F;nginx-1.20.2 &amp;&amp; .&#x2F;configure --prefix&#x3D;&#x2F;usr&#x2F;local&#x2F;nginx --user&#x3D;nginx --group&#x3D;nginx --with-http_ssl_module --with-stream --with-http_flv_module --with-http_stub_status_module --with-http_gzip_static_module --with-pcre --with-file-aio --with-http_secure_link_module --with-threads --http-client-body-temp-path&#x3D;&#x2F;var&#x2F;tmp&#x2F;nginx&#x2F;client&#x2F; --http-proxy-temp-path&#x3D;&#x2F;var&#x2F;tmp&#x2F;nginx&#x2F;proxy&#x2F; --http-fastcgi-temp-path&#x3D;&#x2F;var&#x2F;tmp&#x2F;nginx&#x2F;fastcgi&#x2F; --http-uwsgi-temp-path&#x3D;&#x2F;var&#x2F;tmp&#x2F;nginx&#x2F;uwsgi&#x2F; --http-scgi-temp-path&#x3D;&#x2F;var&#x2F;tmp&#x2F;nginx&#x2F;scgi&#x2F; &amp;&amp; make &amp;&amp; make install
+#指定端口为80
+EXPOSE 80&#x2F;tcp
+#删除临时文件
+RUN rm -rf &#x2F;tmp&#x2F;nginx*
+#启动容器时执行的命令
+CMD &#x2F;usr&#x2F;local&#x2F;nginx&#x2F;sbin&#x2F;nginx -g &quot;daemon off;&quot;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@flannet ~]# docker build -t nginx:v1 &#x2F;nginx&#x2F;
+[root@flannet ~]# docker images
+REPOSITORY   TAG       IMAGE ID       CREATED         SIZE
+nginx        v1        a705ccd9164b   2 minutes ago   1.14GB<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@flannet ~]# docker run -itd --name nginx -p 80:80 nginx:v1<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/docker_image02.png" alt="docker_image02"></p>
+<h3 id="7-使用Dockerfle构建Tomcat镜像-基于Centos7"><a href="#7-使用Dockerfle构建Tomcat镜像-基于Centos7" class="headerlink" title="7.使用Dockerfle构建Tomcat镜像(基于Centos7)"></a>7.使用<code>Dockerfle</code>构建<code>Tomcat</code>镜像(基于Centos7)</h3><h4 id="准备Dockerfile目录-1"><a href="#准备Dockerfile目录-1" class="headerlink" title="准备Dockerfile目录"></a>准备<code>Dockerfile</code>目录</h4><pre class="line-numbers language-none"><code class="language-none">[root@flannet ~]# mkdir &#x2F;tomcat<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="下载jdk和tomcat"><a href="#下载jdk和tomcat" class="headerlink" title="下载jdk和tomcat"></a>下载<code>jdk</code>和<code>tomcat</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@flannet ~]# cd &#x2F;tomcat
+[root@flannet tomcat]# wget https:&#x2F;&#x2F;mirrors.huaweicloud.com&#x2F;java&#x2F;jdk&#x2F;8u191-b12&#x2F;jdk-8u191-linux-x64.tar.gz
+[root@flannet tomcat]# wget --no-check-certificate https:&#x2F;&#x2F;dlcdn.apache.org&#x2F;tomcat&#x2F;tomcat-8&#x2F;v8.5.88&#x2F;bin&#x2F;apache-tomcat-8.5.88.tar.gz<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="编写Dockerfile"><a href="#编写Dockerfile" class="headerlink" title="编写Dockerfile"></a>编写<code>Dockerfile</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@flannet tomcat]# vim &#x2F;tomcat&#x2F;Dockerfile
+FROM centos:7
+#拷贝jdk17
+ADD jdk-8u191-linux-x64.tar.gz &#x2F;usr&#x2F;local
+#配置jdk17环境变量
+ENV JAVA_HOME &#x2F;usr&#x2F;local&#x2F;jdk1.8.0_191
+#拷贝tomcat
+ADD apache-tomcat-8.5.88.tar.gz &#x2F;usr&#x2F;local
+#改目录名称
+RUN mv &#x2F;usr&#x2F;local&#x2F;apache-tomcat-8.5.88 &#x2F;usr&#x2F;local&#x2F;tomcat85
+#配置tomcat环境变量
+ENV CATALINA_HOME &#x2F;usr&#x2F;local&#x2F;tomcat85
+#配置工作目录
+WORKDIR &#x2F;usr&#x2F;local&#x2F;tomcat85
+#指定端口是8080
+EXPOSE 8080&#x2F;tcp
+CMD &#x2F;usr&#x2F;local&#x2F;tomcat85&#x2F;bin&#x2F;catalina.sh run<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="构建镜像"><a href="#构建镜像" class="headerlink" title="构建镜像"></a>构建镜像</h4><pre class="line-numbers language-none"><code class="language-none">[root@flannet tomcat]# docker build -t tomcat:v1 &#x2F;tomcat&#x2F;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@flannet tomcat]# docker run -itd --name tomcat -p 8080:8080 tomcat:v1<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h4><p><img src="/medias/loading.gif" data-original="https://www.wsjj.top/upload/2023/06/docker_image03.png" alt="docker_image03"></p>
+<h3 id="8-使用Dockerfile构建MariaDB镜像-Centos7"><a href="#8-使用Dockerfile构建MariaDB镜像-Centos7" class="headerlink" title="8.使用Dockerfile构建MariaDB镜像(Centos7)"></a>8.使用<code>Dockerfile</code>构建<code>MariaDB</code>镜像(Centos7)</h3><h4 id="创建Dockerfile目录"><a href="#创建Dockerfile目录" class="headerlink" title="创建Dockerfile目录"></a>创建<code>Dockerfile</code>目录</h4><pre class="line-numbers language-none"><code class="language-none">[root@flannet tomcat]# mkdir &#x2F;mariadb&#x2F;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="准备改数据库root密码脚本"><a href="#准备改数据库root密码脚本" class="headerlink" title="准备改数据库root密码脚本"></a>准备改数据库root密码脚本</h4><pre class="line-numbers language-none"><code class="language-none">[root@flannet ~]# vim &#x2F;mariadb&#x2F;docker-entrypoint.sh
+#!&#x2F;bin&#x2F;bash
+
+&#x2F;usr&#x2F;bin&#x2F;mysqld_safe --skip-grant-tables &amp;&amp; &#x2F;usr&#x2F;bin&#x2F;mysql --socket&#x3D;&#x2F;var&#x2F;lib&#x2F;mysql&#x2F;mysql.sock -uroot -e &quot;set password for &#39;root&#39;@&#39;localhost&#39; &#x3D; PASSWORD(&#39;$MYSQL_ROOT_PASSWORD&#39;)&quot;
+
+exec &quot;$@&quot;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="准备Dockerfile"><a href="#准备Dockerfile" class="headerlink" title="准备Dockerfile"></a>准备<code>Dockerfile</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@flannet ~]# vim &#x2F;mariadb&#x2F;Dockerfile
+FROM centos:7
+#安装国内源
+RUN yum install -y wget &amp;&amp; wget -O &#x2F;etc&#x2F;yum.repos.d&#x2F;CentOS-Base.repo http:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;repo&#x2F;Centos-7.repo &amp;&amp; wget -O &#x2F;etc&#x2F;yum.repos.d&#x2F;epel.repo https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;repo&#x2F;epel-7.repo
+#安装MariaDB
+RUN  yum install -y mariadb-server
+#配置永久挂载
+VOLUME &#x2F;var&#x2F;lib&#x2F;mysql
+#拷贝脚本到指定路径
+COPY docker-entrypoint.sh &#x2F;usr&#x2F;local&#x2F;bin
+#给予脚本执行权限
+RUN chmod a+x &#x2F;usr&#x2F;local&#x2F;bin&#x2F;docker-entrypoint.sh
+#执行脚本
+ENTRYPOINT docker-entrypoint.sh
+#容器创建的时候执行的操作
+CMD &#x2F;usr&#x2F;bin&#x2F;mysqld_safe<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="构建镜像-1"><a href="#构建镜像-1" class="headerlink" title="构建镜像"></a>构建镜像</h4><pre class="line-numbers language-none"><code class="language-none">[root@flannet ~]# docker build -t mariadb:v1 &#x2F;mariadb&#x2F;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="测试镜像"><a href="#测试镜像" class="headerlink" title="测试镜像"></a>测试镜像</h4><pre class="line-numbers language-none"><code class="language-none">[root@flannet mariadb]# docker run -itd --name mariadb01 -e MYSQL_ROOT_PASSWORD&#x3D;WWW.1.com  mariadb:v1<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@flannet mariadb]# docker exec -it mariadb01 &#x2F;bin&#x2F;bash
+
+[root@85ab03eb1d92 &#x2F;]# mysql -uroot -pWWW.1.com
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 1
+Server version: 5.5.68-MariaDB MariaDB Server
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type &#39;help;&#39; or &#39;\h&#39; for help. Type &#39;\c&#39; to clear the current input statement.
+
+MariaDB [(none)]&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work">网笙久久</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work/2023/06/06/134/">https://blog.wangshengjj.work/2023/06/06/134/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.wangshengjj.work" target="_blank">WangShengJJのblog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/linux/">linux</a><a class="post-meta__tags" href="/tags/docker/">docker</a><a class="post-meta__tags" href="/tags/%E5%AE%B9%E5%99%A8/">容器</a><a class="post-meta__tags" href="/tags/%E9%95%9C%E5%83%8F/">镜像</a><a class="post-meta__tags" href="/tags/cetnos/">cetnos</a></div><div class="post_share"><div class="social-share" data-image="https://api.ghser.com/random/api.php" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/06/07/135/" title="【容器应用系列教程】基于Harbor构建企业级镜像仓库"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【容器应用系列教程】基于Harbor构建企业级镜像仓库</div></div></a></div><div class="next-post pull-right"><a href="/2023/06/05/133/" title="【容器应用系列教程】Docker网络管理"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【容器应用系列教程】Docker网络管理</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/06/08/136/" title="【容器应用系列教程】Docker-compose容器编排工具"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-08</div><div class="title">【容器应用系列教程】Docker-compose容器编排工具</div></div></a></div><div><a href="/2023/06/02/132/" title="【容器应用系列教程】容器介绍、Docker的安装和基本操作"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-02</div><div class="title">【容器应用系列教程】容器介绍、Docker的安装和基本操作</div></div></a></div><div><a href="/2023/06/05/133/" title="【容器应用系列教程】Docker网络管理"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-05</div><div class="title">【容器应用系列教程】Docker网络管理</div></div></a></div><div><a href="/2023/06/07/135/" title="【容器应用系列教程】基于Harbor构建企业级镜像仓库"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-07</div><div class="title">【容器应用系列教程】基于Harbor构建企业级镜像仓库</div></div></a></div><div><a href="/2023/06/13/142/" title="【容器应用系列教程】Kubernetes的Job管理"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-13</div><div class="title">【容器应用系列教程】Kubernetes的Job管理</div></div></a></div><div><a href="/2023/06/13/143/" title="【容器应用系列教程】Kubernetes服务管理Service"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-13</div><div class="title">【容器应用系列教程】Kubernetes服务管理Service</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">网笙久久</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">167</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">218</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">303</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wangshengjj"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wangshengjj" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:wangshengjj@wangshengjj.work" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.wangshengjj.work" target="_blank" title="Blog"><i class="fa fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到网笙久久的博客</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E3%80%90%E5%AE%B9%E5%99%A8%E5%BA%94%E7%94%A8%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%E3%80%91Docker%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86"><span class="toc-number">1.</span> <span class="toc-text">【容器应用系列教程】Docker镜像管理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%85%B3%E4%BA%8E%E9%95%9C%E5%83%8F"><span class="toc-number">1.1.</span> <span class="toc-text">一、关于镜像</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E9%95%9C%E5%83%8F%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.镜像的基本概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%95%9C%E5%83%8F%E7%9A%84%E6%A0%B8%E5%BF%83%E6%8A%80%E6%9C%AF"><span class="toc-number">1.1.2.</span> <span class="toc-text">2.镜像的核心技术</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86%E6%93%8D%E4%BD%9C"><span class="toc-number">1.2.</span> <span class="toc-text">二、镜像管理操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E9%95%9C%E5%83%8F%E5%91%BD%E5%90%8D%E6%A0%BC%E5%BC%8F"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.镜像命名格式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E4%B8%8B%E8%BD%BD%E9%95%9C%E5%83%8F%E5%92%8C%E6%9F%A5%E7%9C%8B%E9%95%9C%E5%83%8F"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.下载镜像和查看镜像</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%AF%BC%E5%87%BA%E9%95%9C%E5%83%8F"><span class="toc-number">1.2.3.</span> <span class="toc-text">3.导出镜像</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%AF%BC%E5%85%A5%E9%95%9C%E5%83%8F"><span class="toc-number">1.2.4.</span> <span class="toc-text">4.导入镜像</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%88%A0%E9%99%A4%E9%95%9C%E5%83%8F"><span class="toc-number">1.2.5.</span> <span class="toc-text">5.删除镜像</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E6%9F%A5%E7%9C%8B%E9%95%9C%E5%83%8F%E7%9A%84%E8%AF%A6%E7%BB%86%E4%BF%A1%E6%81%AF"><span class="toc-number">1.2.6.</span> <span class="toc-text">6.查看镜像的详细信息</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81Dockerfile%E5%AE%9A%E5%88%B6%E9%95%9C%E5%83%8F"><span class="toc-number">1.3.</span> <span class="toc-text">三、Dockerfile定制镜像</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E8%A7%84%E5%88%92%E7%9B%AE%E5%BD%95"><span class="toc-number">1.3.1.</span> <span class="toc-text">1.规划目录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E7%BC%96%E5%86%99Dockerfile"><span class="toc-number">1.3.2.</span> <span class="toc-text">2.编写Dockerfile</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%9E%84%E5%BB%BA%E9%95%9C%E5%83%8F"><span class="toc-number">1.3.3.</span> <span class="toc-text">3.构建镜像</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%AA%8C%E8%AF%81%E9%95%9C%E5%83%8F"><span class="toc-number">1.3.3.1.</span> <span class="toc-text">验证镜像</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-Dockerfile%E5%B8%B8%E7%94%A8%E6%8C%87%E4%BB%A4"><span class="toc-number">1.3.4.</span> <span class="toc-text">4.Dockerfile常用指令</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#FROM"><span class="toc-number">1.3.4.1.</span> <span class="toc-text">FROM</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MAINTAINER"><span class="toc-number">1.3.4.2.</span> <span class="toc-text">MAINTAINER</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RUN"><span class="toc-number">1.3.4.3.</span> <span class="toc-text">RUN</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CMD"><span class="toc-number">1.3.4.4.</span> <span class="toc-text">CMD</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ENTRYPOINT"><span class="toc-number">1.3.4.5.</span> <span class="toc-text">ENTRYPOINT</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#COPY"><span class="toc-number">1.3.4.6.</span> <span class="toc-text">COPY</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ADD"><span class="toc-number">1.3.4.7.</span> <span class="toc-text">ADD</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#EXPOSE%E6%8C%87%E4%BB%A4"><span class="toc-number">1.3.4.8.</span> <span class="toc-text">EXPOSE指令</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#VOLUME"><span class="toc-number">1.3.4.9.</span> <span class="toc-text">VOLUME</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ENV"><span class="toc-number">1.3.4.10.</span> <span class="toc-text">ENV</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#WORKDIR"><span class="toc-number">1.3.4.11.</span> <span class="toc-text">WORKDIR</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#USER"><span class="toc-number">1.3.4.12.</span> <span class="toc-text">USER</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E4%BD%BF%E7%94%A8Dockerfile%E6%9E%84%E5%BB%BANginx%E9%95%9C%E5%83%8F-%E5%9F%BA%E4%BA%8ECentos7"><span class="toc-number">1.3.5.</span> <span class="toc-text">6.使用Dockerfile构建Nginx镜像(基于Centos7)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%87%86%E5%A4%87Dockerfile%E7%9B%AE%E5%BD%95"><span class="toc-number">1.3.5.1.</span> <span class="toc-text">准备Dockerfile目录</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%87%86%E5%A4%87Ningx%E5%AE%89%E8%A3%85%E5%8C%85"><span class="toc-number">1.3.5.2.</span> <span class="toc-text">准备Ningx安装包</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BC%96%E5%86%99Dockerfile%E6%96%87%E4%BB%B6"><span class="toc-number">1.3.5.3.</span> <span class="toc-text">编写Dockerfile文件</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E4%BD%BF%E7%94%A8Dockerfle%E6%9E%84%E5%BB%BATomcat%E9%95%9C%E5%83%8F-%E5%9F%BA%E4%BA%8ECentos7"><span class="toc-number">1.3.6.</span> <span class="toc-text">7.使用Dockerfle构建Tomcat镜像(基于Centos7)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%87%86%E5%A4%87Dockerfile%E7%9B%AE%E5%BD%95-1"><span class="toc-number">1.3.6.1.</span> <span class="toc-text">准备Dockerfile目录</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8B%E8%BD%BDjdk%E5%92%8Ctomcat"><span class="toc-number">1.3.6.2.</span> <span class="toc-text">下载jdk和tomcat</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BC%96%E5%86%99Dockerfile"><span class="toc-number">1.3.6.3.</span> <span class="toc-text">编写Dockerfile</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9E%84%E5%BB%BA%E9%95%9C%E5%83%8F"><span class="toc-number">1.3.6.4.</span> <span class="toc-text">构建镜像</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-number">1.3.6.5.</span> <span class="toc-text">测试</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-%E4%BD%BF%E7%94%A8Dockerfile%E6%9E%84%E5%BB%BAMariaDB%E9%95%9C%E5%83%8F-Centos7"><span class="toc-number">1.3.7.</span> <span class="toc-text">8.使用Dockerfile构建MariaDB镜像(Centos7)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9B%E5%BB%BADockerfile%E7%9B%AE%E5%BD%95"><span class="toc-number">1.3.7.1.</span> <span class="toc-text">创建Dockerfile目录</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%87%86%E5%A4%87%E6%94%B9%E6%95%B0%E6%8D%AE%E5%BA%93root%E5%AF%86%E7%A0%81%E8%84%9A%E6%9C%AC"><span class="toc-number">1.3.7.2.</span> <span class="toc-text">准备改数据库root密码脚本</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%87%86%E5%A4%87Dockerfile"><span class="toc-number">1.3.7.3.</span> <span class="toc-text">准备Dockerfile</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9E%84%E5%BB%BA%E9%95%9C%E5%83%8F-1"><span class="toc-number">1.3.7.4.</span> <span class="toc-text">构建镜像</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95%E9%95%9C%E5%83%8F"><span class="toc-number">1.3.7.5.</span> <span class="toc-text">测试镜像</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/06/24/hk4e/" title="基于Kubernetes环境搭建hk4e原神真端教程"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="基于Kubernetes环境搭建hk4e原神真端教程"/></a><div class="content"><a class="title" href="/2023/06/24/hk4e/" title="基于Kubernetes环境搭建hk4e原神真端教程">基于Kubernetes环境搭建hk4e原神真端教程</a><time datetime="2023-06-24T02:12:50.108Z" title="发表于 2023-06-24 10:12:50">2023-06-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/22/156/" title="【Python学习笔记】集合和Bytes"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】集合和Bytes"/></a><div class="content"><a class="title" href="/2023/06/22/156/" title="【Python学习笔记】集合和Bytes">【Python学习笔记】集合和Bytes</a><time datetime="2023-06-22T04:57:12.047Z" title="发表于 2023-06-22 12:57:12">2023-06-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/22/155/" title="【Python学习笔记】字典的管理操作"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】字典的管理操作"/></a><div class="content"><a class="title" href="/2023/06/22/155/" title="【Python学习笔记】字典的管理操作">【Python学习笔记】字典的管理操作</a><time datetime="2023-06-22T03:51:28.495Z" title="发表于 2023-06-22 11:51:28">2023-06-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/21/154/" title="【Python学习笔记】列表及元组"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】列表及元组"/></a><div class="content"><a class="title" href="/2023/06/21/154/" title="【Python学习笔记】列表及元组">【Python学习笔记】列表及元组</a><time datetime="2023-06-21T12:49:12.830Z" title="发表于 2023-06-21 20:49:12">2023-06-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/20/153/" title="【Python学习笔记】字符串管理操作"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】字符串管理操作"/></a><div class="content"><a class="title" href="/2023/06/20/153/" title="【Python学习笔记】字符串管理操作">【Python学习笔记】字符串管理操作</a><time datetime="2023-06-20T13:12:05.306Z" title="发表于 2023-06-20 21:12:05">2023-06-20</time></div></div></div></div></div></div></main><footer id="footer" style="background: flase"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By 网笙久久</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><div class="js-pjax"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js"></script><script>(() => {
+  document.querySelectorAll('#article-container span.katex-display').forEach(item => {
+    btf.wrap(item, 'div', { class: 'katex-wrap'})
+  })
+})()</script></div><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div><script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(n){n.imageLazyLoadSetting.processImages=i;var e=n.imageLazyLoadSetting.isSPA,r=(n.imageLazyLoadSetting.preloadRatio,Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));function i(){e&&(r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));for(var t,a=0;a<r.length;a++)0<=(t=(t=r[a]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(n.innerHeight+240||document.documentElement.clientHeight+240)&&function(){var t,e,n,i,o=r[a];t=o,e=function(){r=r.filter(function(t){return o!==t})},n=new Image,i=t.getAttribute("data-original"),n.onload=function(){t.src=i,e&&e()},t.src!==i&&(n.src=i)}()}i(),n.addEventListener("scroll",function(){var t,e;t=i,e=n,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(e)},500)})}(this);</script></body></html>

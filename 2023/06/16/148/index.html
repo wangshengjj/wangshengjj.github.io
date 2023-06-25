@@ -1,0 +1,559 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>【容器应用系列教程】Kubernetes调度系统 | WangShengJJのblog</title><meta name="author" content="网笙久久"><meta name="copyright" content="网笙久久"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="【容器应用系列教程】Kubernetes调度系统一、基于nodeName调度 指定在哪个node节点上，创建Pod  1.查看所有节点[root@k8s-master ~]# kubectl get node NAME                   STATUS   ROLES                  AGE   VERSION k8s-master.linux.com   Rea">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【容器应用系列教程】Kubernetes调度系统">
+<meta property="og:url" content="https://blog.wangshengjj.work/2023/06/16/148/index.html">
+<meta property="og:site_name" content="WangShengJJのblog">
+<meta property="og:description" content="【容器应用系列教程】Kubernetes调度系统一、基于nodeName调度 指定在哪个node节点上，创建Pod  1.查看所有节点[root@k8s-master ~]# kubectl get node NAME                   STATUS   ROLES                  AGE   VERSION k8s-master.linux.com   Rea">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://api.ghser.com/random/api.php">
+<meta property="article:published_time" content="2023-06-16T04:47:06.878Z">
+<meta property="article:modified_time" content="2023-06-17T11:54:40.803Z">
+<meta property="article:author" content="网笙久久">
+<meta property="article:tag" content="centos7">
+<meta property="article:tag" content="容器">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="kubernetes">
+<meta property="article:tag" content="容器编排工具">
+<meta property="article:tag" content="调度">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://api.ghser.com/random/api.php"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://blog.wangshengjj.work/2023/06/16/148/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"prismjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【容器应用系列教程】Kubernetes调度系统',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-06-17 19:54:40'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script><meting-js server="netease" type="playlist" id="7386208265" lrc-type="0" volume="0.5" fixed="true" mini="true" order="random" loop="all" autoplay="true" preload="auto" list-folded="true"></meting-js><script src="https://fastly.jsdelivr.net/gh/stevenjoezhang/live2d-widget@latest/autoload.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script><meta name="generator" content="Hexo 6.1.0"></head><body><link rel="stylesheet" href="/css/barber-shop.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">167</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">218</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">303</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://api.ghser.com/random/api.php')"><nav id="nav"><span id="blog-info"><a href="/" title="WangShengJJのblog"><span class="site-name">WangShengJJのblog</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 博客主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 文章归档</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://www.wangshengjj.work/"><i class="fa-fw fa fa-rss"></i><span> 主博客</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://cloud.wangshengjj.work/"><i class="fa-fw fa fa-cloud"></i><span> 云盘</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://start.wangshengjj.work/"><i class="fa-fw fa fa-paper-plane"></i><span> 起始页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://space.bilibili.com/219606508/bangumi/"><i class="fa-fw fas fa-video"></i><span> 我的追番</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://home.wangshengjj.work/"><i class="fa-fw fa fa-home"></i><span> 主页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" target="_blank" rel="noopener" href="https://vme50.wangshengjj.work/"><i class="fa-fw fas fa-music"></i><span> V我50</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【容器应用系列教程】Kubernetes调度系统</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-06-16T04:47:06.878Z" title="发表于 2023-06-16 12:47:06">2023-06-16</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-06-17T11:54:40.803Z" title="更新于 2023-06-17 19:54:40">2023-06-17</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/">k8s</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/%E7%AC%94%E8%AE%B0/">笔记</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/%E7%AC%94%E8%AE%B0/%E5%AE%B9%E5%99%A8/">容器</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">3.2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>16分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="【容器应用系列教程】Kubernetes调度系统"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="【容器应用系列教程】Kubernetes调度系统"><a href="#【容器应用系列教程】Kubernetes调度系统" class="headerlink" title="【容器应用系列教程】Kubernetes调度系统"></a>【容器应用系列教程】Kubernetes调度系统</h1><h2 id="一、基于nodeName调度"><a href="#一、基于nodeName调度" class="headerlink" title="一、基于nodeName调度"></a>一、基于nodeName调度</h2><blockquote>
+<p><strong>指定在哪个<code>node</code>节点上，创建<code>Pod</code></strong></p>
+</blockquote>
+<h3 id="1-查看所有节点"><a href="#1-查看所有节点" class="headerlink" title="1.查看所有节点"></a>1.查看所有节点</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# kubectl get node
+NAME                   STATUS   ROLES                  AGE   VERSION
+k8s-master.linux.com   Ready    control-plane,master   8d    v1.20.7
+k8s-node01.linux.com   Ready    &lt;none&gt;                 8d    v1.20.7
+k8s-node02.linux.com   Ready    &lt;none&gt;                 8d    v1.20.7<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="2-基于nodeName调度"><a href="#2-基于nodeName调度" class="headerlink" title="2.基于nodeName调度"></a>2.基于<code>nodeName</code>调度</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master test]# vim test1.yaml
+
+apiVersion: apps&#x2F;v1
+kind: Deployment
+metadata:
+  name: test1-nginx
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: test1-nginx
+  template:
+    metadata:
+      labels:
+        app: test1-nginx
+    spec:
+      nodeName: k8s-node02.linux.com	#指定所有Pod都运行在node02上
+      containers:
+      - name: test1-nginx
+        image: nginx
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master test]# kubectl create -f test1.yaml 
+deployment.apps&#x2F;test1-nginx created<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h3 id="3-查看Pod"><a href="#3-查看Pod" class="headerlink" title="3.查看Pod"></a>3.查看<code>Pod</code></h3><blockquote>
+<p><strong>可以看到所有<code>Pod</code>都跑在<code>node02</code>节点上</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master test]# kubectl get pods -o wide
+NAME                           READY   STATUS    RESTARTS   AGE     IP                NODE                   NOMINATED NODE   READINESS GATES
+test1-nginx-5bccbd59df-cfl6v   1&#x2F;1     Running   0          2m29s   192.168.242.131   k8s-node02.linux.com   &lt;none&gt;           &lt;none&gt;
+test1-nginx-5bccbd59df-r68jk   1&#x2F;1     Running   0          2m29s   192.168.242.130   k8s-node02.linux.com   &lt;none&gt;           &lt;none&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="二、基于nodeSelector调度"><a href="#二、基于nodeSelector调度" class="headerlink" title="二、基于nodeSelector调度"></a>二、基于<code>nodeSelector</code>调度</h2><h3 id="1-查看所有节点的标签"><a href="#1-查看所有节点的标签" class="headerlink" title="1.查看所有节点的标签"></a>1.查看所有节点的标签</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master test]# kubectl get node --show-labels
+NAME                   STATUS   ROLES                  AGE   VERSION   LABELS
+k8s-master.linux.com   Ready    control-plane,master   8d    v1.20.7   beta.kubernetes.io&#x2F;arch&#x3D;amd64,beta.kubernetes.io&#x2F;os&#x3D;linux,kubernetes.io&#x2F;arch&#x3D;amd64,kubernetes.io&#x2F;hostname&#x3D;k8s-master.linux.com,kubernetes.io&#x2F;os&#x3D;linux,node-role.kubernetes.io&#x2F;control-plane&#x3D;,node-role.kubernetes.io&#x2F;master&#x3D;
+k8s-node01.linux.com   Ready    &lt;none&gt;                 8d    v1.20.7   beta.kubernetes.io&#x2F;arch&#x3D;amd64,beta.kubernetes.io&#x2F;os&#x3D;linux,kubernetes.io&#x2F;arch&#x3D;amd64,kubernetes.io&#x2F;hostname&#x3D;k8s-node01.linux.com,kubernetes.io&#x2F;os&#x3D;linux
+k8s-node02.linux.com   Ready    &lt;none&gt;                 8d    v1.20.7   beta.kubernetes.io&#x2F;arch&#x3D;amd64,beta.kubernetes.io&#x2F;os&#x3D;linux,kubernetes.io&#x2F;arch&#x3D;amd64,kubernetes.io&#x2F;hostname&#x3D;k8s-node02.linux.com,kubernetes.io&#x2F;os&#x3D;linux<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="2-创建基于nodeSelector调度"><a href="#2-创建基于nodeSelector调度" class="headerlink" title="2.创建基于nodeSelector调度"></a>2.创建基于<code>nodeSelector</code>调度</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master test]# vim test2.yaml
+
+apiVersion: apps&#x2F;v1
+kind: Deployment
+metadata:
+  name: test2-nginx
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: test2-nginx
+  template:
+    metadata:
+      labels:
+        app: test2-nginx
+    spec:
+      nodeSelector:	#nodeSelector调度类型
+            name: wsjj	#在有name&#x3D;wsjj的标签机器上创建
+      containers:
+      - name: test2-nginx
+        image: nginx
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master test]# kubectl create -f test2.yaml 
+deployment.apps&#x2F;test1-nginx created<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h3 id="3-查看Pod-1"><a href="#3-查看Pod-1" class="headerlink" title="3.查看Pod"></a>3.查看<code>Pod</code></h3><blockquote>
+<p><strong>可以看到所有<code>Pod</code>都是处于<code>pending</code>等待调度状态</strong><br><strong>这是因为，在所有节点上，都没有找到<code>name=wsjj</code>标签的机器</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master test]# kubectl get pod
+NAME                           READY   STATUS    RESTARTS   AGE
+test2-nginx-5f89c875cf-cfl6v   0&#x2F;1     Pending   0          6s
+test2-nginx-5f89c875cf-r68jk   0&#x2F;1     Pending   0          6s<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-手动打标签"><a href="#4-手动打标签" class="headerlink" title="4.手动打标签"></a>4.手动打标签</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master test]# kubectl label node k8s-node01.linux.com name&#x3D;wsjj
+node&#x2F;k8s-node01.linux.com labeled<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p><strong><code>node01</code>身上多了<code>name=wsjj</code>的标签</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master test]# kubectl get node --show-labels
+NAME                   STATUS   ROLES                  AGE   VERSION   LABELS
+k8s-master.linux.com   Ready    control-plane,master   8d    v1.20.7   beta.kubernetes.io&#x2F;arch&#x3D;amd64,beta.kubernetes.io&#x2F;os&#x3D;linux,kubernetes.io&#x2F;arch&#x3D;amd64,kubernetes.io&#x2F;hostname&#x3D;k8s-master.linux.com,kubernetes.io&#x2F;os&#x3D;linux,node-role.kubernetes.io&#x2F;control-plane&#x3D;,node-role.kubernetes.io&#x2F;master&#x3D;
+k8s-node01.linux.com   Ready    &lt;none&gt;                 8d    v1.20.7   beta.kubernetes.io&#x2F;arch&#x3D;amd64,beta.kubernetes.io&#x2F;os&#x3D;linux,kubernetes.io&#x2F;arch&#x3D;amd64,kubernetes.io&#x2F;hostname&#x3D;k8s-node01.linux.com,kubernetes.io&#x2F;os&#x3D;linux,name&#x3D;wsjj
+k8s-node02.linux.com   Ready    &lt;none&gt;                 8d    v1.20.7   beta.kubernetes.io&#x2F;arch&#x3D;amd64,beta.kubernetes.io&#x2F;os&#x3D;linux,kubernetes.io&#x2F;arch&#x3D;amd64,kubernetes.io&#x2F;hostname&#x3D;k8s-node02.linux.com,kubernetes.io&#x2F;os&#x3D;linux<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="5-再次查看Pod"><a href="#5-再次查看Pod" class="headerlink" title="5.再次查看Pod"></a>5.再次查看<code>Pod</code></h3><blockquote>
+<p><strong>当有了标签后，<code>Pod</code>正常运行</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master test]# kubectl get pod -o wide
+NAME                           READY   STATUS    RESTARTS   AGE    IP                NODE                   NOMINATED NODE   READINESS GATES
+test2-nginx-5f89c875cf-cfl6v   1&#x2F;1     Running   0          7m4s   192.168.201.194   k8s-node01.linux.com   &lt;none&gt;           &lt;none&gt;
+test2-nginx-5f89c875cf-r68jk   1&#x2F;1     Running   0          7m4s   192.168.201.195   k8s-node01.linux.com   &lt;none&gt;           &lt;none&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="6-删除标签"><a href="#6-删除标签" class="headerlink" title="6.删除标签"></a>6.删除标签</h3><pre class="line-numbers language-none"><code class="language-none"># kubectl label nodes &lt;node_name&gt; key- <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master test]# kubectl label nodes k8s-node01.linux.com name-
+node&#x2F;k8s-node01.linux.com labeled<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="可以看到即使标签被删除了，旧的Pod不会被影响"><a href="#可以看到即使标签被删除了，旧的Pod不会被影响" class="headerlink" title="可以看到即使标签被删除了，旧的Pod不会被影响"></a>可以看到即使标签被删除了，旧的<code>Pod</code>不会被影响</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master test]# kubectl get pod -o wide
+NAME                           READY   STATUS    RESTARTS   AGE   IP                NODE                   NOMINATED NODE   READINESS GATES
+test2-nginx-5f89c875cf-cfl6v   1&#x2F;1     Running   0          11m   192.168.201.194   k8s-node01.linux.com   &lt;none&gt;           &lt;none&gt;
+test2-nginx-5f89c875cf-r68jk   1&#x2F;1     Running   0          11m   192.168.201.195   k8s-node01.linux.com   &lt;none&gt;           &lt;none&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master test]# kubectl delete pod test2-nginx-5f89c875cf-cfl6v
+pod &quot;test2-nginx-5f89c875cf-cfl6v&quot; deleted
+
+[root@k8s-master test]# kubectl get pod -o wide
+NAME                           READY   STATUS    RESTARTS   AGE   IP                NODE                   NOMINATED NODE   READINESS GATES
+test2-nginx-5f89c875cf-7d9tj   0&#x2F;1     Pending   0          17s   &lt;none&gt;            &lt;none&gt;                 &lt;none&gt;           &lt;none&gt;
+test2-nginx-5f89c875cf-r68jk   1&#x2F;1     Running   0          12m   192.168.201.195   k8s-node01.linux.com   &lt;none&gt;           &lt;none&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="7-修改标签的值"><a href="#7-修改标签的值" class="headerlink" title="7.修改标签的值"></a>7.修改标签的值</h3><pre class="line-numbers language-none"><code class="language-none"># kubectl label nodes &lt;node_name&gt; key&#x3D;value --overwrite<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h2 id="三、基于nodeAffinity节点亲缘性"><a href="#三、基于nodeAffinity节点亲缘性" class="headerlink" title="三、基于nodeAffinity节点亲缘性"></a>三、基于<code>nodeAffinity</code>节点亲缘性</h2><blockquote>
+<p><strong>使用<code>nodeAffinity</code>可以在部署<code>Pod</code>时，将<code>Pod</code>调度运行到符合特定条件或不符合特定条件的节点</strong></p>
+</blockquote>
+<h3 id="1-nodeAffinity调度策略"><a href="#1-nodeAffinity调度策略" class="headerlink" title="1.nodeAffinity调度策略"></a>1.<code>nodeAffinity</code>调度策略</h3><h4 id="requiredDuringSchedulingIgnoredDuringExecution"><a href="#requiredDuringSchedulingIgnoredDuringExecution" class="headerlink" title="requiredDuringSchedulingIgnoredDuringExecution"></a><code>requiredDuringSchedulingIgnoredDuringExecution</code></h4><ul>
+<li>表示<code>pod</code>必须部署到满足条件的节点上，如果没有满足条件的节点，就不停重试。</li>
+<li><code>IgnoreDuringExecution</code>表示<code>pod</code>部署之后运行的时候，如果节点标签发生了变化，不再满足<code>pod</code>指定的条件，<code>pod</code>也会继续运行。</li>
+</ul>
+<h4 id="requiredDuringSchedulingRequiredDuringExecution"><a href="#requiredDuringSchedulingRequiredDuringExecution" class="headerlink" title="requiredDuringSchedulingRequiredDuringExecution"></a><code>requiredDuringSchedulingRequiredDuringExecution</code></h4><ul>
+<li>表示<code>pod</code>必须部署到满足条件的节点上，如果没有满足条件的节点，就不停重试</li>
+<li><code>RequiredDuringExecution</code>表示<code>pod</code>部署之后运行的时候，如果节点标签发生了变化，不再满足<code>pod</code>指定的条件，则重新选择符合要求的节点</li>
+</ul>
+<h4 id="preferredDuringSchedulingIgnoredDuringExecution"><a href="#preferredDuringSchedulingIgnoredDuringExecution" class="headerlink" title="preferredDuringSchedulingIgnoredDuringExecution"></a><code>preferredDuringSchedulingIgnoredDuringExecution</code></h4><ul>
+<li>表示优先部署到满足条件的节点上，如果没有满足条件的节点，就忽略这些条件，按照正常逻辑部署</li>
+</ul>
+<h4 id="preferredDuringSchedulingRequiredDuringExecution"><a href="#preferredDuringSchedulingRequiredDuringExecution" class="headerlink" title="preferredDuringSchedulingRequiredDuringExecution"></a><code>preferredDuringSchedulingRequiredDuringExecution</code></h4><ul>
+<li>表示优先部署到满足条件的节点上，如果没有满足条件的节点，就忽略这些条件，按照正常逻辑部署。</li>
+<li><code>RequiredDuringExecution</code>表示如果后面节点标签发生了变化，满足了条件，则重新调度到满足条件的节点。</li>
+</ul>
+<h3 id="2-案例1：基于nodeAffinity节点亲缘性调度"><a href="#2-案例1：基于nodeAffinity节点亲缘性调度" class="headerlink" title="2.案例1：基于nodeAffinity节点亲缘性调度"></a>2.案例1：基于<code>nodeAffinity</code>节点亲缘性调度</h3><h4 id="为node02打标记"><a href="#为node02打标记" class="headerlink" title="为node02打标记"></a>为<code>node02</code>打标记</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master test]# kubectl label node k8s-node02.linux.com yewu&#x3D;dev
+node&#x2F;k8s-node02.linux.com labeled<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master test]# kubectl get node --show-labels
+NAME                   STATUS   ROLES                  AGE   VERSION   LABELS
+k8s-master.linux.com   Ready    control-plane,master   8d    v1.20.7   beta.kubernetes.io&#x2F;arch&#x3D;amd64,beta.kubernetes.io&#x2F;os&#x3D;linux,kubernetes.io&#x2F;arch&#x3D;amd64,kubernetes.io&#x2F;hostname&#x3D;k8s-master.linux.com,kubernetes.io&#x2F;os&#x3D;linux,node-role.kubernetes.io&#x2F;control-plane&#x3D;,node-role.kubernetes.io&#x2F;master&#x3D;
+k8s-node01.linux.com   Ready    &lt;none&gt;                 8d    v1.20.7   beta.kubernetes.io&#x2F;arch&#x3D;amd64,beta.kubernetes.io&#x2F;os&#x3D;linux,kubernetes.io&#x2F;arch&#x3D;amd64,kubernetes.io&#x2F;hostname&#x3D;k8s-node01.linux.com,kubernetes.io&#x2F;os&#x3D;linux
+k8s-node02.linux.com   Ready    &lt;none&gt;                 8d    v1.20.7   beta.kubernetes.io&#x2F;arch&#x3D;amd64,beta.kubernetes.io&#x2F;os&#x3D;linux,kubernetes.io&#x2F;arch&#x3D;amd64,kubernetes.io&#x2F;hostname&#x3D;k8s-node02.linux.com,kubernetes.io&#x2F;os&#x3D;linux,yewu&#x3D;dev<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="创建Deployment测试"><a href="#创建Deployment测试" class="headerlink" title="创建Deployment测试"></a>创建<code>Deployment</code>测试</h4><pre class="line-numbers language-none"><code class="language-none">apiVersion: apps&#x2F;v1
+kind: Deployment
+metadata:
+  name: test3-nginx
+  namespace: default
+  labels:
+    app: test3-nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: test3-nginx
+  template:
+    metadata:
+      labels:
+        app: test3-nginx
+    spec:
+      affinity:
+        nodeAffinity:	#类型
+          requiredDuringSchedulingIgnoredDuringExecution:	#指定策略
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: yewu	#键
+                operator: NotIn	#表示label的值不在某个列表中，类似取反
+                values:
+                - dev	#值
+      containers:
+      - name: test3-nginx
+        image: nginx
+        ports:
+        - containerPort: 80<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li>支持的操作符：</li>
+<li><code>In</code>: <code>label</code>的值在某个列表中</li>
+<li><code>NotIn</code>：<code>label</code>的值不在某个列表中</li>
+<li><code>Exists</code>：某个<code>label</code>存在</li>
+<li><code>DoesNotExist</code>：某个<code>label</code>不存在</li>
+<li><code>Gt</code>：<code>label</code>的值大于某个值（字符串比较）</li>
+<li><code>Lt</code>：<code>label</code>的值小于某个值（字符串比较）</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master test]# kubectl create -f test3.yml
+deployment.apps&#x2F;test3-nginx created<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="查看结果"><a href="#查看结果" class="headerlink" title="查看结果"></a>查看结果</h4><blockquote>
+<p><strong>由于取反的原因，<code>node02</code>身上有符合要求的标签，所以取反到<code>node01</code>身上创建</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master test]# kubectl get pod -o wide
+NAME                           READY   STATUS    RESTARTS   AGE     IP                NODE                   NOMINATED NODE   READINESS GATES
+test3-nginx-654cf47554-bzbh4   1&#x2F;1     Running   0          2m34s   192.168.201.195   k8s-node01.linux.com   &lt;none&gt;           &lt;none&gt;
+test3-nginx-654cf47554-cwggc   1&#x2F;1     Running   0          2m34s   192.168.201.196   k8s-node01.linux.com   &lt;none&gt;           &lt;none&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-案例2：基于nodeAffinity节点亲缘性调度"><a href="#3-案例2：基于nodeAffinity节点亲缘性调度" class="headerlink" title="3.案例2：基于nodeAffinity节点亲缘性调度"></a>3.案例2：基于<code>nodeAffinity</code>节点亲缘性调度</h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master test]# vim test4.yml
+
+apiVersion: apps&#x2F;v1
+kind: Deployment
+metadata:
+  name: test4-nginx
+  namespace: default
+  labels:
+    app: test4-nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: test4-nginx
+  template:
+    metadata:
+      labels:
+        app: test4-nginx
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                - key: kubernetes.io&#x2F;os
+                  operator: In
+                  values:
+                    - linux
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              preference:
+                matchExpressions:
+                  - key: yewu
+                    operator: In
+                    values:
+                     - dev
+      containers:
+      - name: test4-nginx
+        image: nginx
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master test]# kubectl create -f test4.yml
+deployment.apps&#x2F;test4-nginx created<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="查看Pod"><a href="#查看Pod" class="headerlink" title="查看Pod"></a>查看<code>Pod</code></h4><blockquote>
+<p><strong>本案例中同时设置了<code>requiredDuringSchedulingIgnoredDuringExecution</code>和<code>preferredDuringSchedulingIgnoredDuringExecution</code>两种策略，表示的意思为将<code>Pod</code>要调度到具有<code>kubernetes.io/os=linux</code>这个标签的节点时，在满足该条件的情况下，<code>preferredDuringSchedulingIgnoredDuringExecution</code>表示的意思是优先将其调度到同时具有<code>yewu=dev</code>的节点上</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master test]# kubectl get pods -o wide
+NAME                           READY   STATUS    RESTARTS   AGE    IP                NODE                   NOMINATED NODE   READINESS GATES
+test4-nginx-5bf9894f8c-87wsf   1&#x2F;1     Running   0          2m3s   192.168.242.132   k8s-node02.linux.com   &lt;none&gt;           &lt;none&gt;
+test4-nginx-5bf9894f8c-nznnn   1&#x2F;1     Running   0          2m3s   192.168.242.131   k8s-node02.linux.com   &lt;none&gt;           &lt;none&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="四、污点Taint、容忍Toleration"><a href="#四、污点Taint、容忍Toleration" class="headerlink" title="四、污点Taint、容忍Toleration"></a>四、污点<code>Taint</code>、容忍<code>Toleration</code></h2><blockquote>
+<p><strong><code>Taint</code>和<code>toleration</code>相互配合，可以用来避免<code>pod</code>被分配到不合适的节点上。每个节点上都可以应用一个或多个<code>taint</code>，这表示对于那些不能容忍这些<code>taint</code>的<code>pod</code>，是不会被该节点接受的。如果将<code>toleration</code>应用于<code>pod</code>上，则表示这些<code>pod</code>可以被调度到具有相应<code>taint</code>的节点上。</strong></p>
+</blockquote>
+<h3 id="1-污点Taint管理操作"><a href="#1-污点Taint管理操作" class="headerlink" title="1.污点Taint管理操作"></a>1.污点<code>Taint</code>管理操作</h3><h4 id="查看Taint污点"><a href="#查看Taint污点" class="headerlink" title="查看Taint污点"></a>查看<code>Taint</code>污点</h4><blockquote>
+<p><strong>由于我是基于<code>kubeadm</code>部署的集群，集群会默认为<code>Master</code>节点配置一个污点，防止资源被调度到<code>Master</code>节点上。</strong></p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master test]# kubectl describe node k8s-master.linux.com | grep -i Taints
+Taints:             node-role.kubernetes.io&#x2F;master:NoSchedule<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="为节点添加Taint污点"><a href="#为节点添加Taint污点" class="headerlink" title="为节点添加Taint污点"></a>为节点添加<code>Taint</code>污点</h4><pre class="line-numbers language-none"><code class="language-none"># kubectl taint nodes &lt;node_name&gt; key&#x3D;value:&#123;NoSchedule|NoExecute|PreferNoSchedule&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<ul>
+<li>污点的影响策略:</li>
+<li><code>NoSchedule</code><ul>
+<li>新的不能容忍该污点的<code>Pod</code>不会再调度过来 </li>
+<li>但已经运行在该节点上的<code>Pod</code>不会受影响</li>
+</ul>
+</li>
+<li><code>NoExecute</code><ul>
+<li>新的不能容忍该污点的<code>Pod</code>不会再调度过来</li>
+<li>同时该节点上的所有<code>Pod</code>都会被驱逐</li>
+</ul>
+</li>
+<li><code>PreferNoSchedule</code><ul>
+<li>尽量不向该节点调度</li>
+</ul>
+</li>
+</ul>
+<h4 id="删除Taint污点"><a href="#删除Taint污点" class="headerlink" title="删除Taint污点"></a>删除<code>Taint</code>污点</h4><pre class="line-numbers language-none"><code class="language-none"># kubectl taint node &lt;node_name&gt; key:&#123;NoSchedule|NoExecute|PreferNoSchedule&#125;-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="3-示例：为node02添加Tatin污点，指定策略为NoExecute"><a href="#3-示例：为node02添加Tatin污点，指定策略为NoExecute" class="headerlink" title="3.示例：为node02添加Tatin污点，指定策略为NoExecute"></a>3.示例：为<code>node02</code>添加<code>Tatin</code>污点，指定策略为<code>NoExecute</code></h3><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# kubectl taint nodes k8s-node02.linux.com AA&#x3D;10:NoExecute<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="可以看到node02身上的所有Pod都被驱逐了"><a href="#可以看到node02身上的所有Pod都被驱逐了" class="headerlink" title="可以看到node02身上的所有Pod都被驱逐了"></a>可以看到<code>node02</code>身上的所有<code>Pod</code>都被驱逐了</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# kubectl get pods -o wide
+NAME                           READY   STATUS              RESTARTS   AGE   IP                NODE                   NOMINATED NODE   READINESS GATES
+test-client                    1&#x2F;1     Running             4          10d   10.88.0.9         k8s-node01.linux.com   &lt;none&gt;           &lt;none&gt;
+test1-nginx-6fcf9564d5-6x8mz   0&#x2F;1     ContainerCreating   0          3s    &lt;none&gt;            k8s-node01.linux.com   &lt;none&gt;           &lt;none&gt;
+test1-nginx-6fcf9564d5-7wkhg   0&#x2F;1     ContainerCreating   0          3s    &lt;none&gt;            k8s-node01.linux.com   &lt;none&gt;           &lt;none&gt;
+test1-nginx-6fcf9564d5-c8pf9   1&#x2F;1     Running             0          10m   172.168.201.231   k8s-node01.linux.com   &lt;none&gt;           &lt;none&gt;
+test1-nginx-6fcf9564d5-fbfxp   1&#x2F;1     Running             0          10m   172.168.201.230   k8s-node01.linux.com   &lt;none&gt;           &lt;none&gt;
+test1-nginx-6fcf9564d5-j4j62   1&#x2F;1     Terminating         0          10m   172.168.242.138   k8s-node02.linux.com   &lt;none&gt;           &lt;none&gt;
+test1-nginx-6fcf9564d5-j4zkd   0&#x2F;1     ContainerCreating   0          3s    &lt;none&gt;            k8s-node01.linux.com   &lt;none&gt;           &lt;none&gt;
+test1-nginx-6fcf9564d5-lfct5   1&#x2F;1     Terminating         0          10m   172.168.242.139   k8s-node02.linux.com   &lt;none&gt;           &lt;none&gt;
+test1-nginx-6fcf9564d5-nnlml   1&#x2F;1     Terminating         0          10m   172.168.242.135   k8s-node02.linux.com   &lt;none&gt;           &lt;none&gt;
+test1-nginx-6fcf9564d5-p4nrz   0&#x2F;1     ContainerCreating   0          3s    &lt;none&gt;            k8s-node01.linux.com   &lt;none&gt;           &lt;none&gt;
+test1-nginx-6fcf9564d5-t8jdc   1&#x2F;1     Terminating         0          10m   172.168.242.134   k8s-node02.linux.com   &lt;none&gt;           &lt;none&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="删除污点"><a href="#删除污点" class="headerlink" title="删除污点"></a>删除污点</h4><pre class="line-numbers language-none"><code class="language-none"># kubectl taint node 节点名 键-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# kubectl taint nodes k8s-node02.linux.com AA-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="4-容忍Toleration"><a href="#4-容忍Toleration" class="headerlink" title="4.容忍Toleration"></a>4.容忍<code>Toleration</code></h3><blockquote>
+<p><strong>一般容忍<code>Toleration</code>和污点<code>Taint</code>是配合使用的</strong><br><strong>当用户想要在，存在<code>Taint</code>污点的<code>Node</code>节点上创建<code>Pod</code>的时候，就需要有容忍<code>Toleration</code>的存在</strong></p>
+</blockquote>
+<h4 id="添加Tatin污点"><a href="#添加Tatin污点" class="headerlink" title="添加Tatin污点"></a>添加<code>Tatin</code>污点</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# kubectl taint nodes k8s-node02.linux.com AA&#x3D;10:NoExecute<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="创建Pod配置容忍Toleration策略"><a href="#创建Pod配置容忍Toleration策略" class="headerlink" title="创建Pod配置容忍Toleration策略"></a>创建<code>Pod</code>配置容忍<code>Toleration</code>策略</h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master test]# vim test5.yml
+
+apiVersion: apps&#x2F;v1
+kind: Deployment
+metadata:
+  name: test5-nginx
+  namespace: default
+  labels:
+    app: test5-nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: test5-nginx
+  template:
+    metadata:
+      labels:
+        app: test5-nginx
+    spec:
+      containers:
+      - name: test5-nginx
+        image: nginx
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+
+      tolerations:
+        - key: &quot;AA&quot;
+          operator: &quot;Equal&quot;   
+          value: &quot;10&quot;
+          effect: NoExecute
+          tolerationSeconds: 30	#容忍时间可以不写<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">[root@k8s-master test]# kubectl create -f test5.yml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<ul>
+<li>配置项说明：</li>
+<li><code>tolerations</code>添加容忍策略</li>
+<li><code>key</code>指定所容忍的<code>key</code>，要与对应污点的<code>key</code>一致</li>
+<li><code>value</code>指定所容忍的value，要与对应污点的<code>value</code>一致</li>
+<li><code>effect</code>指定所容忍的策略，一定要与污点指定的策略一致</li>
+<li><code>tolerationSeconds</code>指定容忍的超时时间，到达该时间后，<code>Pod</code>将会被驱逐</li>
+</ul>
+<h4 id="容忍的匹配规则也可以写多个"><a href="#容忍的匹配规则也可以写多个" class="headerlink" title="容忍的匹配规则也可以写多个"></a>容忍的匹配规则也可以写多个</h4><pre class="line-numbers language-none"><code class="language-none">tolerations:
+- key: &quot;key1&quot;
+  operator: &quot;Equal&quot;
+  value: &quot;value1&quot;
+  effect: &quot;NoSchedule&quot;
+- key: &quot;key1&quot;
+  operator: &quot;Equal&quot;
+  value: &quot;value1&quot;
+  effect: &quot;NoExecute&quot;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="查看Pod-1"><a href="#查看Pod-1" class="headerlink" title="查看Pod"></a>查看<code>Pod</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ]# kubectl get pods -o wide
+
+NAME                           READY   STATUS    RESTARTS   AGE   IP                NODE                   NOMINATED NODE   READINESS GATES
+test1-nginx-654d4cc68c-2mh68   1&#x2F;1     Running   0          6s    172.168.242.149   k8s-node02.linux.com   &lt;none&gt;           &lt;none&gt;
+test1-nginx-654d4cc68c-8z8kw   1&#x2F;1     Running   0          6s    172.168.242.147   k8s-node02.linux.com   &lt;none&gt;           &lt;none&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="删除污点Taint"><a href="#删除污点Taint" class="headerlink" title="删除污点Taint"></a>删除污点<code>Taint</code></h4><pre class="line-numbers language-none"><code class="language-none">[root@k8s-master ~]# kubectl taint node k8s-node02.linux.com AA-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work">网笙久久</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://blog.wangshengjj.work/2023/06/16/148/">https://blog.wangshengjj.work/2023/06/16/148/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.wangshengjj.work" target="_blank">WangShengJJのblog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/centos7/">centos7</a><a class="post-meta__tags" href="/tags/%E5%AE%B9%E5%99%A8/">容器</a><a class="post-meta__tags" href="/tags/k8s/">k8s</a><a class="post-meta__tags" href="/tags/kubernetes/">kubernetes</a><a class="post-meta__tags" href="/tags/%E5%AE%B9%E5%99%A8%E7%BC%96%E6%8E%92%E5%B7%A5%E5%85%B7/">容器编排工具</a><a class="post-meta__tags" href="/tags/%E8%B0%83%E5%BA%A6/">调度</a></div><div class="post_share"><div class="social-share" data-image="https://api.ghser.com/random/api.php" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/06/16/149/" title="【容器监控系列教程】Prometheus普罗米修斯监控Kubernetes"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【容器监控系列教程】Prometheus普罗米修斯监控Kubernetes</div></div></a></div><div class="next-post pull-right"><a href="/2023/06/15/147/" title="【容器应用系列教程】Kubernetes部署WordPress博客"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【容器应用系列教程】Kubernetes部署WordPress博客</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/06/14/144/" title="【容器应用系列教程】Kubernetes数据卷Volume管理"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-14</div><div class="title">【容器应用系列教程】Kubernetes数据卷Volume管理</div></div></a></div><div><a href="/2023/06/15/147/" title="【容器应用系列教程】Kubernetes部署WordPress博客"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-15</div><div class="title">【容器应用系列教程】Kubernetes部署WordPress博客</div></div></a></div><div><a href="/2023/06/16/149/" title="【容器监控系列教程】Prometheus普罗米修斯监控Kubernetes"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-16</div><div class="title">【容器监控系列教程】Prometheus普罗米修斯监控Kubernetes</div></div></a></div><div><a href="/2023/06/19/150/" title="【容器应用系列教程】Kubernetes插件helm包管理器"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-19</div><div class="title">【容器应用系列教程】Kubernetes插件helm包管理器</div></div></a></div><div><a href="/2023/06/09/138/" title="【容器应用系列教程】Kubernetes集群部署(Centos7)"><img class="cover" src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-09</div><div class="title">【容器应用系列教程】Kubernetes集群部署(Centos7)</div></div></a></div><div><a href="/2023/06/12/140/" title="【容器应用系列教程】Kubernetes的Pod管理"><img class="cover" src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-12</div><div class="title">【容器应用系列教程】Kubernetes的Pod管理</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/medias/loading.gif" data-original="https://www.wangshengjj.work/upload/2022/10/touxiang.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">网笙久久</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">167</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">218</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">303</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/wangshengjj"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/wangshengjj" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:wangshengjj@wangshengjj.work" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.wangshengjj.work" target="_blank" title="Blog"><i class="fa fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到网笙久久的博客</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E3%80%90%E5%AE%B9%E5%99%A8%E5%BA%94%E7%94%A8%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%E3%80%91Kubernetes%E8%B0%83%E5%BA%A6%E7%B3%BB%E7%BB%9F"><span class="toc-number">1.</span> <span class="toc-text">【容器应用系列教程】Kubernetes调度系统</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%9F%BA%E4%BA%8EnodeName%E8%B0%83%E5%BA%A6"><span class="toc-number">1.1.</span> <span class="toc-text">一、基于nodeName调度</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%9F%A5%E7%9C%8B%E6%89%80%E6%9C%89%E8%8A%82%E7%82%B9"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.查看所有节点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%9F%BA%E4%BA%8EnodeName%E8%B0%83%E5%BA%A6"><span class="toc-number">1.1.2.</span> <span class="toc-text">2.基于nodeName调度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%9F%A5%E7%9C%8BPod"><span class="toc-number">1.1.3.</span> <span class="toc-text">3.查看Pod</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%9F%BA%E4%BA%8EnodeSelector%E8%B0%83%E5%BA%A6"><span class="toc-number">1.2.</span> <span class="toc-text">二、基于nodeSelector调度</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%9F%A5%E7%9C%8B%E6%89%80%E6%9C%89%E8%8A%82%E7%82%B9%E7%9A%84%E6%A0%87%E7%AD%BE"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.查看所有节点的标签</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%88%9B%E5%BB%BA%E5%9F%BA%E4%BA%8EnodeSelector%E8%B0%83%E5%BA%A6"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.创建基于nodeSelector调度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%9F%A5%E7%9C%8BPod-1"><span class="toc-number">1.2.3.</span> <span class="toc-text">3.查看Pod</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%89%8B%E5%8A%A8%E6%89%93%E6%A0%87%E7%AD%BE"><span class="toc-number">1.2.4.</span> <span class="toc-text">4.手动打标签</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%86%8D%E6%AC%A1%E6%9F%A5%E7%9C%8BPod"><span class="toc-number">1.2.5.</span> <span class="toc-text">5.再次查看Pod</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E5%88%A0%E9%99%A4%E6%A0%87%E7%AD%BE"><span class="toc-number">1.2.6.</span> <span class="toc-text">6.删除标签</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%AF%E4%BB%A5%E7%9C%8B%E5%88%B0%E5%8D%B3%E4%BD%BF%E6%A0%87%E7%AD%BE%E8%A2%AB%E5%88%A0%E9%99%A4%E4%BA%86%EF%BC%8C%E6%97%A7%E7%9A%84Pod%E4%B8%8D%E4%BC%9A%E8%A2%AB%E5%BD%B1%E5%93%8D"><span class="toc-number">1.2.6.1.</span> <span class="toc-text">可以看到即使标签被删除了，旧的Pod不会被影响</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E4%BF%AE%E6%94%B9%E6%A0%87%E7%AD%BE%E7%9A%84%E5%80%BC"><span class="toc-number">1.2.7.</span> <span class="toc-text">7.修改标签的值</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%9F%BA%E4%BA%8EnodeAffinity%E8%8A%82%E7%82%B9%E4%BA%B2%E7%BC%98%E6%80%A7"><span class="toc-number">1.3.</span> <span class="toc-text">三、基于nodeAffinity节点亲缘性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-nodeAffinity%E8%B0%83%E5%BA%A6%E7%AD%96%E7%95%A5"><span class="toc-number">1.3.1.</span> <span class="toc-text">1.nodeAffinity调度策略</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#requiredDuringSchedulingIgnoredDuringExecution"><span class="toc-number">1.3.1.1.</span> <span class="toc-text">requiredDuringSchedulingIgnoredDuringExecution</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#requiredDuringSchedulingRequiredDuringExecution"><span class="toc-number">1.3.1.2.</span> <span class="toc-text">requiredDuringSchedulingRequiredDuringExecution</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#preferredDuringSchedulingIgnoredDuringExecution"><span class="toc-number">1.3.1.3.</span> <span class="toc-text">preferredDuringSchedulingIgnoredDuringExecution</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#preferredDuringSchedulingRequiredDuringExecution"><span class="toc-number">1.3.1.4.</span> <span class="toc-text">preferredDuringSchedulingRequiredDuringExecution</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%A1%88%E4%BE%8B1%EF%BC%9A%E5%9F%BA%E4%BA%8EnodeAffinity%E8%8A%82%E7%82%B9%E4%BA%B2%E7%BC%98%E6%80%A7%E8%B0%83%E5%BA%A6"><span class="toc-number">1.3.2.</span> <span class="toc-text">2.案例1：基于nodeAffinity节点亲缘性调度</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BAnode02%E6%89%93%E6%A0%87%E8%AE%B0"><span class="toc-number">1.3.2.1.</span> <span class="toc-text">为node02打标记</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9B%E5%BB%BADeployment%E6%B5%8B%E8%AF%95"><span class="toc-number">1.3.2.2.</span> <span class="toc-text">创建Deployment测试</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E7%BB%93%E6%9E%9C"><span class="toc-number">1.3.2.3.</span> <span class="toc-text">查看结果</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%A1%88%E4%BE%8B2%EF%BC%9A%E5%9F%BA%E4%BA%8EnodeAffinity%E8%8A%82%E7%82%B9%E4%BA%B2%E7%BC%98%E6%80%A7%E8%B0%83%E5%BA%A6"><span class="toc-number">1.3.3.</span> <span class="toc-text">3.案例2：基于nodeAffinity节点亲缘性调度</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8BPod"><span class="toc-number">1.3.3.1.</span> <span class="toc-text">查看Pod</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%B1%A1%E7%82%B9Taint%E3%80%81%E5%AE%B9%E5%BF%8DToleration"><span class="toc-number">1.4.</span> <span class="toc-text">四、污点Taint、容忍Toleration</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%B1%A1%E7%82%B9Taint%E7%AE%A1%E7%90%86%E6%93%8D%E4%BD%9C"><span class="toc-number">1.4.1.</span> <span class="toc-text">1.污点Taint管理操作</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8BTaint%E6%B1%A1%E7%82%B9"><span class="toc-number">1.4.1.1.</span> <span class="toc-text">查看Taint污点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BA%E8%8A%82%E7%82%B9%E6%B7%BB%E5%8A%A0Taint%E6%B1%A1%E7%82%B9"><span class="toc-number">1.4.1.2.</span> <span class="toc-text">为节点添加Taint污点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A0%E9%99%A4Taint%E6%B1%A1%E7%82%B9"><span class="toc-number">1.4.1.3.</span> <span class="toc-text">删除Taint污点</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E7%A4%BA%E4%BE%8B%EF%BC%9A%E4%B8%BAnode02%E6%B7%BB%E5%8A%A0Tatin%E6%B1%A1%E7%82%B9%EF%BC%8C%E6%8C%87%E5%AE%9A%E7%AD%96%E7%95%A5%E4%B8%BANoExecute"><span class="toc-number">1.4.2.</span> <span class="toc-text">3.示例：为node02添加Tatin污点，指定策略为NoExecute</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%AF%E4%BB%A5%E7%9C%8B%E5%88%B0node02%E8%BA%AB%E4%B8%8A%E7%9A%84%E6%89%80%E6%9C%89Pod%E9%83%BD%E8%A2%AB%E9%A9%B1%E9%80%90%E4%BA%86"><span class="toc-number">1.4.2.1.</span> <span class="toc-text">可以看到node02身上的所有Pod都被驱逐了</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A0%E9%99%A4%E6%B1%A1%E7%82%B9"><span class="toc-number">1.4.2.2.</span> <span class="toc-text">删除污点</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%AE%B9%E5%BF%8DToleration"><span class="toc-number">1.4.3.</span> <span class="toc-text">4.容忍Toleration</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0Tatin%E6%B1%A1%E7%82%B9"><span class="toc-number">1.4.3.1.</span> <span class="toc-text">添加Tatin污点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9B%E5%BB%BAPod%E9%85%8D%E7%BD%AE%E5%AE%B9%E5%BF%8DToleration%E7%AD%96%E7%95%A5"><span class="toc-number">1.4.3.2.</span> <span class="toc-text">创建Pod配置容忍Toleration策略</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%B9%E5%BF%8D%E7%9A%84%E5%8C%B9%E9%85%8D%E8%A7%84%E5%88%99%E4%B9%9F%E5%8F%AF%E4%BB%A5%E5%86%99%E5%A4%9A%E4%B8%AA"><span class="toc-number">1.4.3.3.</span> <span class="toc-text">容忍的匹配规则也可以写多个</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8BPod-1"><span class="toc-number">1.4.3.4.</span> <span class="toc-text">查看Pod</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A0%E9%99%A4%E6%B1%A1%E7%82%B9Taint"><span class="toc-number">1.4.3.5.</span> <span class="toc-text">删除污点Taint</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/06/24/hk4e/" title="基于Kubernetes环境搭建hk4e原神真端教程"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="基于Kubernetes环境搭建hk4e原神真端教程"/></a><div class="content"><a class="title" href="/2023/06/24/hk4e/" title="基于Kubernetes环境搭建hk4e原神真端教程">基于Kubernetes环境搭建hk4e原神真端教程</a><time datetime="2023-06-24T02:12:50.108Z" title="发表于 2023-06-24 10:12:50">2023-06-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/22/156/" title="【Python学习笔记】集合和Bytes"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】集合和Bytes"/></a><div class="content"><a class="title" href="/2023/06/22/156/" title="【Python学习笔记】集合和Bytes">【Python学习笔记】集合和Bytes</a><time datetime="2023-06-22T04:57:12.047Z" title="发表于 2023-06-22 12:57:12">2023-06-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/22/155/" title="【Python学习笔记】字典的管理操作"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】字典的管理操作"/></a><div class="content"><a class="title" href="/2023/06/22/155/" title="【Python学习笔记】字典的管理操作">【Python学习笔记】字典的管理操作</a><time datetime="2023-06-22T03:51:28.495Z" title="发表于 2023-06-22 11:51:28">2023-06-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/21/154/" title="【Python学习笔记】列表及元组"><img src="/medias/loading.gif" data-original="https://www.dmoe.cc/random.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】列表及元组"/></a><div class="content"><a class="title" href="/2023/06/21/154/" title="【Python学习笔记】列表及元组">【Python学习笔记】列表及元组</a><time datetime="2023-06-21T12:49:12.830Z" title="发表于 2023-06-21 20:49:12">2023-06-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/20/153/" title="【Python学习笔记】字符串管理操作"><img src="/medias/loading.gif" data-original="https://api.ghser.com/random/api.php" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="【Python学习笔记】字符串管理操作"/></a><div class="content"><a class="title" href="/2023/06/20/153/" title="【Python学习笔记】字符串管理操作">【Python学习笔记】字符串管理操作</a><time datetime="2023-06-20T13:12:05.306Z" title="发表于 2023-06-20 21:12:05">2023-06-20</time></div></div></div></div></div></div></main><footer id="footer" style="background: flase"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By 网笙久久</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><div class="js-pjax"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js"></script><script>(() => {
+  document.querySelectorAll('#article-container span.katex-display').forEach(item => {
+    btf.wrap(item, 'div', { class: 'katex-wrap'})
+  })
+})()</script></div><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div><script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(n){n.imageLazyLoadSetting.processImages=i;var e=n.imageLazyLoadSetting.isSPA,r=(n.imageLazyLoadSetting.preloadRatio,Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));function i(){e&&(r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));for(var t,a=0;a<r.length;a++)0<=(t=(t=r[a]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(n.innerHeight+240||document.documentElement.clientHeight+240)&&function(){var t,e,n,i,o=r[a];t=o,e=function(){r=r.filter(function(t){return o!==t})},n=new Image,i=t.getAttribute("data-original"),n.onload=function(){t.src=i,e&&e()},t.src!==i&&(n.src=i)}()}i(),n.addEventListener("scroll",function(){var t,e;t=i,e=n,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(e)},500)})}(this);</script></body></html>
